@@ -1,6 +1,7 @@
 from __future__ import annotations
+from revolt.payloads import MessageEventPayload
 
-from typing import Callable, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING, Coroutine, cast
 import logging
 import asyncio
 
@@ -11,13 +12,13 @@ except ImportError:
 
 if TYPE_CHECKING:
     import aiohttp
-    from .payloads import BasePayload, AuthenticatePayload, ReadyPayload
+    from .payloads import BasePayload, AuthenticatePayload, ReadyEventPayload, Message as MessagePayload
     from .state import State
 
 logger = logging.getLogger("revolt")
 
 class WebsocketHandler:
-    def __init__(self, session: aiohttp.ClientSession, token: str, ws_url: str, dispatch: Callable, state: State):
+    def __init__(self, session: aiohttp.ClientSession, token: str, ws_url: str, dispatch: Callable[..., None], state: State):
         self.session = session
         self.token = token
         self.ws_url = ws_url
@@ -52,15 +53,24 @@ class WebsocketHandler:
 
         await func(payload)
 
-    async def handle_ready(self, payload: ReadyPayload):
+    async def handle_authenticated(self, _):
+        logger.info("Successfully authenticated")
+
+    async def handle_ready(self, payload: ReadyEventPayload):
         for user in payload["users"]:
             self.state.add_user(user)
-        
+
         for server in payload["servers"]:
             self.state.add_server(server)
 
         for channel in payload["channels"]:
             self.state.add_channel(channel)
+
+        self.dispatch("ready")
+
+    async def handle_message(self, payload: MessageEventPayload):
+        message = self.state.add_message(cast(MessagePayload, payload))
+        self.dispatch("message", message)
 
     async def start(self):
         self.websocket = await self.session.ws_connect(self.ws_url)

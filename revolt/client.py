@@ -26,11 +26,11 @@ R = TypeVar("R")
 Coro = Coroutine[Any, Any, R]
 
 class Client:
-    def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat"):
+    def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
         self.session = session
         self.token = token
         self.api_url = api_url
-        self.events: dict[str, list[Callable[..., Coro[None]]]] = {}
+        self.max_messages = max_messages
         
         self.api_info: ApiInfo
         self.http: HttpClient
@@ -39,22 +39,27 @@ class Client:
 
     def event(self, name: str = None):
         def inner(func: Callable[..., Coro[None]]):
-            event_name = name or func.__name__
-            self.events.setdefault(event_name, []).append(func)
+            event_name = "on_{name}" if name else func.__name__
+            setattr(self, event_name, func)
 
             return func
         return inner
 
     def dispatch(self, event: str, *args: Any):
-        ...
+        func = getattr(self, "on_{event}", None)
+        if func:
+            asyncio.create_task(func(*args))
+
+    async def get_api_info(self) -> ApiInfo:
+        async with self.session.get(self.api_url) as resp:
+            return json.loads(await resp.text())
 
     async def start(self):
-        async with self.session.get(self.api_url) as resp:
-            api_info: ApiInfo = json.loads(await resp.text())
+        api_info = await self.get_api_info()
 
         self.api_info = api_info
         self.http = HttpClient(self.session, self.token, self.api_url, self.api_info)
-        self.state = State(self.http, api_info)
+        self.state = State(self.http, api_info, self.max_messages)
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
         
         await self.websocket.start()
