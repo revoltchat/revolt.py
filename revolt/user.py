@@ -7,6 +7,8 @@ if TYPE_CHECKING:
     from .types import User as UserPayload
 
 class User:
+    __flattern_attributes__ = ("name", "bot", "owner", "badges", "online", "flags")
+
     def __init__(self, data: UserPayload, state: State):
         self.state = state
         self.id = data["_id"]

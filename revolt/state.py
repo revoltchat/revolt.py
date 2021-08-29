@@ -75,3 +75,13 @@ class State:
         
         self.messages.appendleft(message)
         return message
+
+    async def fetch_all_server_members(self):
+        for server_id in self.servers.keys():
+            data = await self.http.get_server_members(server_id)
+            
+            for user in data["users"]:
+                self.add_user(user)
+            
+            for member in data["members"]:
+                self.add_member(server_id, member)

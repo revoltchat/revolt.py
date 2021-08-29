@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-
 from typing import TYPE_CHECKING
 
 from .asset import Asset
 from .embed import Embed
-from .channel import TextChannel
+from .channel import TextChannel, PartialTextChannel, Messageable
 
 if TYPE_CHECKING:
     from .state import State
@@ -16,14 +15,17 @@ class Message:
         self.state = state
         
         self.id = data["_id"]
-        self.content = data['content']
-        self.attachments = [Asset(attachment, state) for attachment in data.get('attachments', [])]
+        self.content = data["content"]
+        self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]
         self.embeds = [Embed.from_dict(embed) for embed in data.get("embeds", [])]
 
-        self.channel = state.get_channel(data['channel'])
+        channel = state.get_channel(data["channel"]) or PartialTextChannel(data["channel"], state)
+        assert isinstance(channel, Messageable)
+        self.channel = channel
+
         self.server = self.channel and self.channel.server
         
         if isinstance(self.channel, TextChannel) and self.server:
-            self.author = state.get_member(self.server.id, data['author'])
+            self.author = state.get_member(self.server.id, data["author"])
         else:
-            self.author = state.get_user(data['author'])
+            self.author = state.get_user(data["author"])

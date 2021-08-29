@@ -32,6 +32,15 @@ class TextChannel(Channel, Messageable):
         super().__init__(data, state)
         Messageable.__init__(self, state)
 
+class PartialTextChannel(Messageable):
+    def __init__(self, channel_id: str, state: State):
+        super().__init__(state)
+
+        self.id = channel_id        
+        self.name = "Unknown Channel"
+        self.channel_type = "TextChannel"
+        self.server = None
+
 class VoiceChannel(Channel):
     def __init__(self, data: ChannelPayload, state: State):
         super().__init__(data, state)

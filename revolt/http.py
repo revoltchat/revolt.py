@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, TYPE_CHECKING, Literal
+from typing import Any, Coroutine, Optional, TYPE_CHECKING, Literal, TypeVar
 import aiohttp
 import ulid
 
@@ -16,6 +16,9 @@ if TYPE_CHECKING:
     import aiohttp
     from .types import ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload, GetServerMembers
     from .file import File
+
+T = TypeVar("T")
+Request = Coroutine[Any, Any, T]
 
 class HttpClient:
     def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str, api_info: ApiInfo):
@@ -95,3 +98,6 @@ class HttpClient:
             json["attachments"] = attachment_ids
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
+
+    def get_server_members(self, server_id: str) -> Request[GetServerMembers]:
+        return self.request("GET", f"/servers/{server_id}/members")
