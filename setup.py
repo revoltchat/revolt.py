@@ -21,7 +21,6 @@ setup(
         "License :: OSI Approved :: MIT License",
 
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3 :: Only",
     ],
@@ -30,7 +29,7 @@ setup(
     packages=find_packages(),
     python_requires=">=3.8",
     extras_require={
-        "speedups": ["ujson", "aiohttp[speedups]==3.7.4.post0"],
+        "speedups": ["ujson", "aiohttp[speedups]==3.7.4.post0", "msgpack==1.0.2"],
     },
     project_urls={
         "Bug Reports": "https://github.com/Zomatree/revolt.py/issues",
