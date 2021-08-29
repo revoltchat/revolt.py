@@ -1,2 +1,4 @@
 Sphinx==4.1.2
 sphinx-nameko-theme==0.0.3
+aiohttp==3.7.4.post0
+ulid-py==1.1.0
