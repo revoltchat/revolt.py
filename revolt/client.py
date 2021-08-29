@@ -37,16 +37,8 @@ class Client:
         self.state: State
         self.websocket: WebsocketHandler
 
-    def event(self, name: str = None):
-        def inner(func: Callable[..., Coro[None]]):
-            event_name = "on_{name}" if name else func.__name__
-            setattr(self, event_name, func)
-
-            return func
-        return inner
-
     def dispatch(self, event: str, *args: Any):
-        func = getattr(self, "on_{event}", None)
+        func = getattr(self, f"on_{event}", None)
         if func:
             asyncio.create_task(func(*args))
 

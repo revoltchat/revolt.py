@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, TYPE_CHECKING, Literal
 import aiohttp
+import ulid
 
 from .errors import HTTPError, ServerError
 from .file import File
@@ -23,9 +24,9 @@ class HttpClient:
         self.api_url = api_url
         self.api_info = api_info
 
-    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, files: Optional[list[File]] = None, json: Optional[dict] = None) -> Any:
+    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict] = None, nonce: bool = True) -> Any:
         url = f"{self.api_url}{route}"
-        
+
         kwargs = {}
         
         headers = {
@@ -35,6 +36,10 @@ class HttpClient:
 
         if json:
             headers["Content-Type"] = "application/json"
+
+            if nonce:
+                json["nonce"] = ulid.new().str
+
             kwargs["data"] = _json.dumps(json)
 
         kwargs["headers"] = headers
@@ -89,4 +94,4 @@ class HttpClient:
                 
             json["attachments"] = attachment_ids
 
-        return await self.request("POST", "/channels/{channel}/messages", json=json)
+        return await self.request("POST", f"/channels/{channel}/messages", json=json)

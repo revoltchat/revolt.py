@@ -101,18 +101,17 @@ class ChannelDescriptionChangeContent(TypedDict):
 class ChannelIconChanged(TypedDict):
     by: str
 
-class _OptionalMessage(TypedDict):
-    attachments: list[File]
-
 class Embed(TypedDict):
     pass  # TODO
+class _OptionalMessage(TypedDict):
+    attachments: list[File]
+    embeds: list[Embed]
 
 class Message(_OptionalMessage):
     _id: str
     channel: str
     author: str
     content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBanned, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChanged]
-    embeds: list[Embed]
 
 class _NonceChannel(TypedDict, total=False):
     nonce: str
@@ -166,17 +165,6 @@ class VoiceChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
 
 Channel = Union[SavedMessages, DirectMessage, Group, TextChannel, VoiceChannel]
 
-class ReadyEventPayload(BasePayload):
-    users: list[User]
-    servers: list[Server]
-    channels: list[Channel]
-
-class MessageEventPayload(BasePayload, Message):
-    pass
-
-class Autumn(TypedDict):
-    id: str
-
 class _MemberOptional(TypedDict, total=False):
     nickname: str
     avatar: File
@@ -184,6 +172,25 @@ class _MemberOptional(TypedDict, total=False):
 
 class Member(_MemberOptional):
     _id: str
+
+class ReadyMemberUser(TypedDict):
+    server: str
+    user: str
+
+class ReadyMember(_MemberOptional):
+    _id: ReadyMemberUser
+
+class ReadyEventPayload(BasePayload):
+    users: list[User]
+    servers: list[Server]
+    channels: list[Channel]
+    members: list[ReadyMember]
+
+class MessageEventPayload(BasePayload, Message):
+    pass
+
+class Autumn(TypedDict):
+    id: str
 
 Permission = tuple[int, int]
 

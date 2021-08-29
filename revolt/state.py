@@ -48,6 +48,7 @@ class State:
 
     def add_member(self, server_id: str, payload: MemberPayload) -> Optional[Member]:
         server = self.get_server(server_id)
+
         if not server:
             return
 

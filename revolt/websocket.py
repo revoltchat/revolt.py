@@ -1,9 +1,10 @@
 from __future__ import annotations
-from revolt.payloads import MessageEventPayload
 
-from typing import Callable, TYPE_CHECKING, Coroutine, cast
+from typing import Callable, TYPE_CHECKING, cast
 import logging
 import asyncio
+
+from .payloads import Message as MessagePayload
 
 try:
     import ujson as json
@@ -12,7 +13,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     import aiohttp
-    from .payloads import BasePayload, AuthenticatePayload, ReadyEventPayload, Message as MessagePayload
+    from .payloads import BasePayload, AuthenticatePayload, ReadyEventPayload, MessageEventPayload, Member as MemberPayload
     from .state import State
 
 logger = logging.getLogger("revolt")
@@ -44,7 +45,7 @@ class WebsocketHandler:
 
     async def handle_event(self, payload: BasePayload):
         event_type = payload["type"].lower()
-        print(event_type)
+
         try:
             func = getattr(self, f"handle_{event_type}")
         except:
@@ -65,6 +66,11 @@ class WebsocketHandler:
 
         for channel in payload["channels"]:
             self.state.add_channel(channel)
+
+        for member in payload["members"]:
+            server_id = member["_id"]["server"]
+            member_payload: MemberPayload = member | {"_id": member["_id"]["user"]}  # type: ignore
+            self.state.add_member(server_id, member_payload)
 
         self.dispatch("ready")
 
