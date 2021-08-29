@@ -14,13 +14,30 @@ def flattern_user(member: Member, user: User):
         setattr(member, attr, getattr(user, attr))
 
 class Member(User):
+    """Represents a member of a server, subclasses :class:`User`
+    
+    Attributes
+    -----------
+    nickname: Optional[:class:`str`]
+        The nickname of the member if any
+    roles: list[:class:`Role`]
+        The roles of the member, ordered by the role's rank in decending order
+    server: :class:`Server`
+        The server the member belongs to
+    """
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
         assert user
         flattern_user(self, user)
 
         self._state = state
-        self.id = data["_id"]["user"]
         self.nickname = data.get("nickname")
-        self.roles = [server.get_role(role_id) for role_id in data.get("roles", [])]
+        roles = []
+
+        for role in (server.get_role(role_id) for role_id in data.get("roles", [])):
+            if role:
+                roles.append(role)
+
+        self.roles = sorted(roles, key=lambda role: role.rank, reverse=True)
+        
         self.server = server

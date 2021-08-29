@@ -11,6 +11,25 @@ if TYPE_CHECKING:
     from .types import Message as MessagePayload
 
 class Message:
+    """Represents a message
+    
+    Attributes
+    -----------
+    id: :class:`str`
+        The id of the message
+    content: :class:`str`
+        The content of the message, this will not include system message's content
+    attachments: list[:class:`Asset`]
+        The attachments of the message
+    embeds: list[:class:`Embed`]
+        The embeds of the message
+    channel: :class:`Messageable`
+        The channel the message was sent in
+    server: :class:`Server`
+        The server the message was sent in
+    author: Union[:class:`Member`, :class:`User`]
+        The author of the message, will be :class:`User` in DMs
+    """
     def __init__(self, data: MessagePayload, state: State):
         self.state = state
         

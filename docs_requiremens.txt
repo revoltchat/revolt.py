@@ -1,0 +1,2 @@
+Sphinx==4.1.2
+sphinx-nameko-theme==0.0.3

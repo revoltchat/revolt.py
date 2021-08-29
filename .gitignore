@@ -3,3 +3,5 @@
 test.py
 dist
 *.egg-info
+docs/_build
+.vscode

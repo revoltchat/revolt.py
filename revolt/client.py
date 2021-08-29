@@ -23,6 +23,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger("revolt")
 
 class Client:
+    """The client for interacting with revolt
+    
+    Parameters
+    -----------
+    session: :class:`aiohttp.ClientSession`
+        The aiohttp session to use for http request and the websocket
+    token: :class:`str`
+        The bots token
+    api_url: :class:`str`
+        The api url for the revolt instance you are connecting to, by default it uses the offical instance hosted at revolt.chat
+    max_messages: :class:`int`
+        The max amount of messages stored in the cache, by default this is 5k
+    """
     def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
         self.session = session
         self.token = token
@@ -37,6 +50,15 @@ class Client:
         self.listeners: dict[str, list[tuple[Callable[..., bool], asyncio.Future[Any]]]] = {}
 
     def dispatch(self, event: str, *args: Any):
+        """Dispatch an event, this is typically used for testing and internals.
+        
+        Parameters
+        ----------
+        event: class:`str`
+            The name of the event to dispatch, not including `on_`
+        args: :class:`Any`
+            The arguments passed to the event
+        """
         for check, future in self.listeners.pop(event, []):
             if check(*args):
                 if len(args) == 1:
@@ -53,6 +75,7 @@ class Client:
             return json.loads(await resp.text())
 
     async def start(self):
+        """Starts the client"""
         api_info = await self.get_api_info()
 
         self.api_info = api_info
@@ -62,19 +85,69 @@ class Client:
         await self.websocket.start()
 
     def get_user(self, id: str) -> Optional[User]:
+        """Gets a user from the cache
+        
+        Parameters
+        -----------
+        id: :class:`str`
+            The id of the user
+        
+        Returns
+        --------
+        Optional[:class:`User`]
+            The user if found
+        """
         self.state.get_user(id)
 
     def get_channel(self, id: str) -> Optional[Channel]:
+        """Gets a channel from the cache
+        
+        Parameters
+        -----------
+        id: :class:`str`
+            The id of the channel
+        
+        Returns
+        --------
+        Optional[:class:`Channel`]
+            The channel if found
+        """
         self.state.get_channel(id)
 
     def get_server(self, id: str) -> Optional[Server]:
+        """Gets a server from the cache
+        
+        Parameters
+        -----------
+        id: :class:`str`
+            The id of the server
+        
+        Returns
+        --------
+        Optional[:class:`Server`]
+            The server if found
+        """
         self.state.get_server(id)
 
-    def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None) -> asyncio.Future[Any]:
+    async def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None) -> Any:
+        """Waits for an event
+        
+        Parameters
+        -----------
+        event: :class:`str`
+            The name of the event to wait for, without the `on_`
+        check: Optional[Callable[..., :class:`bool`]]
+            A function that says what event to wait_for, this function takes the same parameters as the event you are waiting for and should return a bool saying if that is the event you want
+
+        Returns
+        --------
+        Any
+            The parameters of the event
+        """
         if not check:
             check = lambda *_: True
 
         future = asyncio.get_running_loop().create_future()
         self.listeners.setdefault(event, []).append((check, future))
 
-        return future
+        return await future
