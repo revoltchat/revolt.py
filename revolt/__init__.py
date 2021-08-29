@@ -11,3 +11,5 @@ from .permissions import Permissions
 from .role import Role
 from .server import Server
 from .user import User
+
+__version__ = (0, 0, 1)

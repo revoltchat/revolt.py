@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'Revolt.py'
 copyright = '2021-present, Zomatree'
 author = 'Zomatree'
-
+version = "0.0.1"
 
 # -- General configuration ---------------------------------------------------
 
