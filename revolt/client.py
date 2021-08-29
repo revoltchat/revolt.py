@@ -22,9 +22,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("revolt")
 
-R = TypeVar("R")
-Coro = Coroutine[Any, Any, R]
-
 class Client:
     def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
         self.session = session
@@ -37,7 +34,16 @@ class Client:
         self.state: State
         self.websocket: WebsocketHandler
 
+        self.listeners: dict[str, list[tuple[Callable[..., bool], asyncio.Future[Any]]]] = {}
+
     def dispatch(self, event: str, *args: Any):
+        for check, future in self.listeners.pop(event, []):
+            if check(*args):
+                if len(args) == 1:
+                    future.set_result(args[0])
+                else:
+                    future.set_result(args)
+
         func = getattr(self, f"on_{event}", None)
         if func:
             asyncio.create_task(func(*args))
@@ -53,7 +59,6 @@ class Client:
         self.http = HttpClient(self.session, self.token, self.api_url, self.api_info)
         self.state = State(self.http, api_info, self.max_messages)
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
-        
         await self.websocket.start()
 
     def get_user(self, id: str) -> Optional[User]:
@@ -64,3 +69,12 @@ class Client:
 
     def get_server(self, id: str) -> Optional[Server]:
         self.state.get_server(id)
+
+    def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None) -> asyncio.Future[Any]:
+        if not check:
+            check = lambda *_: True
+
+        future = asyncio.get_running_loop().create_future()
+        self.listeners.setdefault(event, []).append((check, future))
+
+        return future
