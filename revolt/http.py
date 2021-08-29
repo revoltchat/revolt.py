@@ -14,7 +14,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     import aiohttp
-    from .payloads import ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload
+    from .types import ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload, GetServerMembers
     from .file import File
 
 class HttpClient:

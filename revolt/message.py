@@ -9,7 +9,7 @@ from .channel import TextChannel
 
 if TYPE_CHECKING:
     from .state import State
-    from .payloads import Message as MessagePayload
+    from .types import Message as MessagePayload
 
 class Message:
     def __init__(self, data: MessagePayload, state: State):

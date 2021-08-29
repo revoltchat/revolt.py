@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .state import State
-    from .payloads import Member as MemberPayload
+    from .types import Member as MemberPayload
     from .server import Server
 
 class Member:

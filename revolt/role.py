@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .state import State
-    from .payloads import Role as RolePayload
+    from .types import Role as RolePayload
 
 class Role:
     def __init__(self, data: RolePayload, role_id: str, state: State):

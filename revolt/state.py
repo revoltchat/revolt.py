@@ -11,7 +11,7 @@ from .member import Member
 
 if TYPE_CHECKING:
     from .http import HttpClient
-    from .payloads import ApiInfo, User as UserPayload, Channel as ChannelPayload, Server as ServerPayload, Message as MessagePayload, Member as MemberPayload
+    from .types import ApiInfo, User as UserPayload, Channel as ChannelPayload, Server as ServerPayload, Message as MessagePayload, Member as MemberPayload
 
 class State:
     def __init__(self, http: HttpClient, api_info: ApiInfo, max_messages: int):

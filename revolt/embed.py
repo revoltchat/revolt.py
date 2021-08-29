@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .payloads import Embed as EmbedPayload
+    from .types import Embed as EmbedPayload
 
 class Embed:
     @classmethod

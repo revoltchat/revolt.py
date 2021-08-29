@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .state import State
-    from .payloads import User as UserPayload
+    from .types import User as UserPayload
 
 class User:
     def __init__(self, data: UserPayload, state: State):

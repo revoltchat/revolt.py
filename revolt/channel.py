@@ -5,7 +5,7 @@ from .messageable import Messageable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .payloads import Channel as ChannelPayload
+    from .types import Channel as ChannelPayload
     from .state import State
 
 class Channel:

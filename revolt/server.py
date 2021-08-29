@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from .payloads import Server as ServerPayload
+    from .types import Server as ServerPayload
     from .state import State
     from .member import Member
     from .role import Role

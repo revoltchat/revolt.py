@@ -4,16 +4,22 @@ from typing import Callable, TYPE_CHECKING, cast
 import logging
 import asyncio
 
-from .payloads import Message as MessagePayload
+from .types import Message as MessagePayload
 
 try:
     import ujson as json
 except ImportError:
     import json
 
+try:
+    import msgpack
+    use_msgpack = True
+except ImportError:
+    use_msgpack = False
+
 if TYPE_CHECKING:
     import aiohttp
-    from .payloads import BasePayload, AuthenticatePayload, ReadyEventPayload, MessageEventPayload, Member as MemberPayload
+    from .types import BasePayload, AuthenticatePayload, ReadyEventPayload, MessageEventPayload, Member as MemberPayload
     from .state import State
 
 logger = logging.getLogger("revolt")
@@ -28,10 +34,14 @@ class WebsocketHandler:
         self.websocket: aiohttp.ClientWebSocketResponse
 
     async def send_payload(self, payload: BasePayload):
-        await self.websocket.send_str(json.dumps(payload))
+        if use_msgpack:
+            await self.websocket.send_bytes(msgpack.packb(payload))  # type: ignore
+        else:
+            await self.websocket.send_str(json.dumps(payload))
 
     async def heartbeat(self):
         while not self.websocket.closed:
+            logger.info("Sending hearbeat")
             await self.send_payload({"type": "Ping"})
             await asyncio.sleep(15)
 
@@ -45,7 +55,7 @@ class WebsocketHandler:
 
     async def handle_event(self, payload: BasePayload):
         event_type = payload["type"].lower()
-
+        logger.debug("Recieved event %s %s", event_type, payload)
         try:
             func = getattr(self, f"handle_{event_type}")
         except:
@@ -68,9 +78,9 @@ class WebsocketHandler:
             self.state.add_channel(channel)
 
         for member in payload["members"]:
-            server_id = member["_id"]["server"]
-            member_payload: MemberPayload = member | {"_id": member["_id"]["user"]}  # type: ignore
-            self.state.add_member(server_id, member_payload)
+            self.state.add_member(member["_id"]["server"], member)
+
+        await self.state.fetch_all_server_members()
 
         self.dispatch("ready")
 
@@ -79,10 +89,19 @@ class WebsocketHandler:
         self.dispatch("message", message)
 
     async def start(self):
-        self.websocket = await self.session.ws_connect(self.ws_url)
+        if use_msgpack:
+            url = f"{self.ws_url}?format=msgpack"
+        else:
+            url = f"{self.ws_url}?format=json"
 
+        self.websocket = await self.session.ws_connect(url)
         await self.send_authenticate()
         asyncio.create_task(self.heartbeat())
 
         async for msg in self.websocket:
-            await self.handle_event(json.loads(msg.data))
+            if use_msgpack:
+                payload = msgpack.unpackb(msg.data)
+            else:
+                payload = json.loads(msg.data)
+
+            await self.handle_event(payload)

@@ -15,7 +15,7 @@ except ImportError:
     import json
 
 if TYPE_CHECKING:
-    from .payloads import ApiInfo
+    from .types import ApiInfo
     from .user import User
     from .server import Server
     from .channel import Channel

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
-    from .payloads import File as FilePayload
+    from .types import File as FilePayload
     from .state import State
     from io import IOBase
 class Asset:
