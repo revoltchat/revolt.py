@@ -78,13 +78,13 @@ Role
     :members:
 
 Server
-~~~~~~~~~~
+~~~~~~~
 
 .. autoclass:: Server
     :members:
 
 User
-~~~~~~~~~~
+~~~~~
 
 .. autoclass:: User
     :members:
