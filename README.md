@@ -6,6 +6,8 @@ This library will be focused on making bots and i will not implement anything on
 
 Support server: https://app.revolt.chat/invite/FDXER6hr
 
+Documentation is [here](https://revoltpy.readthedocs.io/en/latest/)
+
 ## Example
 
 More examples in the [examples folder](https://github.com/zomatree/revolt.py/blob/master/examples)
