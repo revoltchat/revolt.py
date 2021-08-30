@@ -10,8 +10,17 @@ if TYPE_CHECKING:
     from .types import User as UserPayload, UserRelation
 
 class Relation(NamedTuple):
+    """A namedtuple representing a relation between the bot and a user
+    
+    Attributes
+    -----------
+    type: :class:`RelationshipType`
+        The type of relationship
+    user: :class:`User`
+        The user the relationship is for
+    """
     type: RelationshipType
-    user: Optional["User"]
+    user: User
 
 class Status(NamedTuple):
     text: Optional[str]
@@ -38,6 +47,12 @@ class User:
         The user flags
     avatar: :class:`Asset`
         The users avatar if they have one
+    relations: list[:class:`Relation`]
+        A list of the users relations
+    relationship: Optional[:class:`RelationshipType`]
+        The relationship between the user and the bot
+    status: Optional[:class:`Status`]
+        The users status
     """
     __flattern_attributes__ = ("id", "name", "bot", "owner", "badges", "online", "flags")
 
@@ -61,7 +76,14 @@ class User:
         avatar = data.get("avatar")
         self.avatar = Asset(avatar, state) if avatar else None
 
-        self.relations = [Relation(RelationshipType(relation["status"]), state.get_user(relation["_id"])) for relation in data.get("relations", [])]
+        relations = []
+
+        for relation in data.get("relations", []):
+            user = state.get_user(relation["_id"])
+            if user:
+                relations.append(Relation(RelationshipType(relation["status"]), user))
+        self.relations = relations
+
         relationship = data.get("relationship")
         self.relationship = RelationshipType(relationship) if relationship else None
 
