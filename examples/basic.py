@@ -1,16 +1,3 @@
-# Revolt.py
-
-An async library to interact with the https://revolt.chat api.
-
-This library will be focused on making bots and i will not implement anything only for user accounts.
-
-Support server: https://app.revolt.chat/invite/FDXER6hr
-
-## Example
-
-More examples in the [examples folder](https://github.com/zomatree/revolt.py/blob/master/examples)
-
-```py
 import revolt
 import asyncio
 import aiohttp
@@ -26,4 +13,3 @@ async def main():
         await client.start()
 
 asyncio.run(main())
-```
