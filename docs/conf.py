@@ -32,6 +32,8 @@ version = "0.0.1"
 extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
+    "sphinx_toolbox.installation",
+    "sphinx_toolbox.more_autodoc.autonamedtuple"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -42,6 +44,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+add_module_names = False
 
 # -- Options for HTML output -------------------------------------------------
 

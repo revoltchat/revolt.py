@@ -10,19 +10,12 @@ if TYPE_CHECKING:
     from .types import User as UserPayload, UserRelation
 
 class Relation(NamedTuple):
-    """A namedtuple representing a relation between the bot and a user
-    
-    Attributes
-    -----------
-    type: :class:`RelationshipType`
-        The type of relationship
-    user: :class:`User`
-        The user the relationship is for
-    """
+    """A namedtuple representing a relation between the bot and a user"""
     type: RelationshipType
     user: User
 
 class Status(NamedTuple):
+    """A namedtuple representing a users status"""
     text: Optional[str]
     presence: Optional[PresenceType]
 

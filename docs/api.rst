@@ -35,26 +35,26 @@ DMChannel
     :members:
 
 GroupDMChannel
-~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. autoclass:: GroupDMChannel
     :members:
 
 TextChannel
-~~~~~~~~~~
+~~~~~~~~~~~~
 
 .. autoclass:: TextChannel
     :members:
 
 VoiceChannel
-~~~~~~~~~~
+~~~~~~~~~~~~
 
 .. autoclass:: VoiceChannel
     :members:
 
 
 Embed
-~~~~~~~~~~
+~~~~~~
 
 .. autoclass:: Embed
     :members:
@@ -108,8 +108,20 @@ User
 .. autoclass:: User
     :members:
 
+Relation
+~~~~~~~~~
+
+.. autonamedtuple:: Relation
+
+
+Status
+~~~~~~~
+
+.. autonamedtuple:: Status
+
+
 Enums
-------
+======
 
 The api uses enums to say what variant of something is, these represent those enums
 
