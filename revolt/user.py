@@ -15,7 +15,7 @@ class Relation(NamedTuple):
 
 class Status(NamedTuple):
     text: Optional[str]
-    presence: PresenceType
+    presence: Optional[PresenceType]
 
 class User:
     """Represents a user
@@ -66,4 +66,8 @@ class User:
         self.relationship = RelationshipType(relationship) if relationship else None
 
         status = data.get("status")
-        self.status = Status(status.get("text"), PresenceType(status["presence"])) if status else None
+        if status:
+            presence = status.get("presence")
+            self.status = Status(status.get("text"), PresenceType(presence) if presence else None) if status else None
+        else:
+            self.status = None

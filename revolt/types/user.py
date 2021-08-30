@@ -10,10 +10,8 @@ Relation = Literal["Blocked", "BlockedOther", "Friend", "Incoming", "None", "Out
 class UserBot(TypedDict):
     owner: str
 
-class _OptionalStatus(TypedDict, total=False):
+class Status(TypedDict, total=False):
     text: str
-
-class Status(_OptionalStatus):
     presence: Literal["Busy", "Idle", "Invisible", "Online"]
 
 class UserRelation(TypedDict):
