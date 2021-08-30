@@ -32,6 +32,7 @@ class WebsocketHandler:
         self.dispatch = dispatch
         self.state = state
         self.websocket: aiohttp.ClientWebSocketResponse
+        self.loop = asyncio.get_running_loop()
 
     async def send_payload(self, payload: BasePayload):
         if use_msgpack:
@@ -42,7 +43,7 @@ class WebsocketHandler:
     async def heartbeat(self):
         while not self.websocket.closed:
             logger.info("Sending hearbeat")
-            await self.send_payload({"type": "Ping"})
+            await self.websocket.ping()
             await asyncio.sleep(15)
 
     async def send_authenticate(self):
@@ -104,4 +105,4 @@ class WebsocketHandler:
             else:
                 payload = json.loads(msg.data)
 
-            await self.handle_event(payload)
+            self.loop.create_task(self.handle_event(payload))

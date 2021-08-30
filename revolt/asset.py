@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .errors import AutumnDisabled
+from .enums import AssetType
+
 if TYPE_CHECKING:
     from .types import File as FilePayload
     from .state import State
@@ -12,22 +15,26 @@ class Asset:
     
     Attributes
     -----------
-    id: str
+    id: :class:`str`
         The id of the asset
-    tag: str
+    tag: :class:`str`
         The tag of the asset, this corrasponds to where the asset is used
-    size: int
+    size: :class:`int`
         Amount of bytes in the file
-    filename: str
+    filename: :class:`str`
         The name of the file
-    height: Optional[int]
+    height: Optional[:class:`int`]
         The height of the file if it is an image or video
-    width: Optional[int]
+    width: Optional[:class:`int`]
         The width of the file if it is an image or video
-    content_type: str
-        The content type of the file 
+    content_type: :class:`str`
+        The content type of the file
+    type: :class:`AssetType`
+        The type of asset it is
     """
     def __init__(self, data: FilePayload, state: State):
+        self.state = state
+
         self.id = data['_id']
         self.tag = data['tag']
         self.size = data['size']
@@ -44,6 +51,8 @@ class Asset:
 
         self.content_type = data["content_type"]
 
+        self.type = AssetType(metadata["type"])
+
     async def read(self) -> bytes:
         """Reads the files content into bytes"""
         ...
@@ -57,3 +66,29 @@ class Asset:
             The file to write too.
         """
         fp.write(await self.read())
+
+    @property
+    def url(self) -> str:
+        """Returns the url for the asset
+        
+        .. note:: This can error if autumn is disabled on the instance of revolt
+        
+        Returns
+        --------
+        :class:`str`
+            The url
+
+        Raises
+        -------
+        :class:`AutumnDisabled`
+            Raises if autumn is disabled
+        
+        """
+        enabled = self.state.api_info["features"]["autumn"]["enabled"]
+        
+        if not enabled:
+            raise AutumnDisabled
+
+        base_url = self.state.api_info["features"]["autumn"]["url"]
+
+        return f"{base_url}/{self.tag}/{self.id}"

@@ -1,10 +1,21 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple, Optional
+
+from .asset import Asset
+from .enums import RelationshipType, PresenceType
 
 if TYPE_CHECKING:
     from .state import State
-    from .types import User as UserPayload
+    from .types import User as UserPayload, UserRelation
+
+class Relation(NamedTuple):
+    type: RelationshipType
+    user: Optional["User"]
+
+class Status(NamedTuple):
+    text: Optional[str]
+    presence: PresenceType
 
 class User:
     """Represents a user
@@ -25,6 +36,8 @@ class User:
         Whether or not the user is online
     flags: :class:`int`
         The user flags
+    avatar: :class:`Asset`
+        The users avatar if they have one
     """
     __flattern_attributes__ = ("id", "name", "bot", "owner", "badges", "online", "flags")
 
@@ -45,6 +58,12 @@ class User:
         self.online = data.get("online", False)
         self.flags = data.get("flags", 0)
 
-        # avatar
-        # relations
-        # relationship
+        avatar = data.get("avatar")
+        self.avatar = Asset(avatar, state) if avatar else None
+
+        self.relations = [Relation(RelationshipType(relation["status"]), state.get_user(relation["_id"])) for relation in data.get("relations", [])]
+        relationship = data.get("relationship")
+        self.relationship = RelationshipType(relationship) if relationship else None
+
+        status = data.get("status")
+        self.status = Status(status.get("text"), PresenceType(status["presence"])) if status else None

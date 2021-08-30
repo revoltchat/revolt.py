@@ -1,5 +1,5 @@
 from .asset import Asset
-from .channel import DMChannel, Channel, GroupDMChannel, PartialTextChannel, SavedMessageChannel, VoiceChannel
+from .channel import DMChannel, Channel, GroupDMChannel, SavedMessageChannel, VoiceChannel
 from .client import Client
 from .embed import Embed
 from .errors import HTTPError, RevoltError, ServerError

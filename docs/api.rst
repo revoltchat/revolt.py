@@ -34,6 +34,25 @@ DMChannel
 .. autoclass:: DMChannel
     :members:
 
+GroupDMChannel
+~~~~~~~~~~
+
+.. autoclass:: GroupDMChannel
+    :members:
+
+TextChannel
+~~~~~~~~~~
+
+.. autoclass:: TextChannel
+    :members:
+
+VoiceChannel
+~~~~~~~~~~
+
+.. autoclass:: VoiceChannel
+    :members:
+
+
 Embed
 ~~~~~~~~~~
 
@@ -88,3 +107,78 @@ User
 
 .. autoclass:: User
     :members:
+
+Enums
+------
+
+The api uses enums to say what variant of something is, these represent those enums
+
+All enums subclass `aenum.Enum`.
+
+.. class:: ChannelType
+
+    Specifies the type of channel.
+
+    .. attribute:: saved_message
+
+        A private channel only you can access.
+    .. attribute:: direct_message
+        
+        A private direct message channel between you and another user
+    .. attribute:: group
+        
+        A private group channel for messages between a group of users
+    .. attribute:: text_channel
+
+        A text channel in a server
+    .. attribute:: voice_channel
+
+        A voice only channel
+
+.. class:: PresenceType
+
+    Specifies what a users presence is
+
+    .. attribute:: busy
+
+        The user is busy and wont receive notification
+    .. attribute:: idle
+
+        The user is idle
+    .. attribute:: invisible
+
+        The user is invisible, you will never receive this, instead they will appear offline
+    .. attribute:: online
+
+        The user is online
+
+    .. attribute:: offline
+
+        The user is offline or invisible
+
+.. attribute:: RelationshipType
+
+    Specifies the relationship between two users
+
+    .. attribute:: blocked
+
+        You have blocked them
+    .. attribute:: blocked_other
+
+        They have blocked you
+    .. attribute:: friend
+
+        You are friends with them
+    .. attribute:: incoming_friend_request
+
+        They are sending you a friend request
+    .. attribute:: none
+        
+        You have no relationship with them
+    .. attribute:: outgoing_friend_request
+
+        You are sending them a friend request
+    
+    .. attribute:: user
+
+        That user is yourself

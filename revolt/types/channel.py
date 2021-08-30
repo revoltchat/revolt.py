@@ -16,7 +16,7 @@ class SavedMessages(_NonceChannel, BaseChannel):
     user: str
     channel_type: Literal["SavedMessage"]
 
-class DirectMessage(_NonceChannel, BaseChannel):
+class DMChannel(_NonceChannel, BaseChannel):
     active: bool
     recipients: list[str]
     last_message: Message
@@ -42,7 +42,7 @@ class TextChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
     server: str
     name: str
     description: str
-    last_message: Message
+    last_message: str
     channel_type: Literal["TextChannel"]
 
 class _VoiceChannelOptional(TypedDict, total=False):
@@ -56,4 +56,4 @@ class VoiceChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
     description: str
     channel_type: Literal["VoiceChannel"]
 
-Channel = Union[SavedMessages, DirectMessage, Group, TextChannel, VoiceChannel]
+Channel = Union[SavedMessages, DMChannel, Group, TextChannel, VoiceChannel]

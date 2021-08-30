@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from .asset import Asset
 from .embed import Embed
-from .channel import TextChannel, PartialTextChannel, Messageable
+from .channel import Messageable
 
 if TYPE_CHECKING:
     from .state import State
@@ -38,13 +38,16 @@ class Message:
         self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]
         self.embeds = [Embed.from_dict(embed) for embed in data.get("embeds", [])]
 
-        channel = state.get_channel(data["channel"]) or PartialTextChannel(data["channel"], state)
+        channel = state.get_channel(data["channel"])
         assert isinstance(channel, Messageable)
         self.channel = channel
 
         self.server = self.channel and self.channel.server
         
-        if isinstance(self.channel, TextChannel) and self.server:
-            self.author = state.get_member(self.server.id, data["author"])
+        if self.server:
+            author = state.get_member(self.server.id, data["author"])
         else:
-            self.author = state.get_user(data["author"])
+            author = state.get_user(data["author"])
+
+        assert author
+        self.author = author

@@ -28,5 +28,5 @@ class Server(TypedDict):
     _id: str
     owner: str
     name: str
-    channels: list[Channel]
+    channels: list[str]
     default_permissions: Permission

@@ -75,6 +75,11 @@ class State:
         self.messages.appendleft(message)
         return message
 
+    def get_message(self, message_id: str) -> Optional[Message]:
+        for msg in self.messages:
+            if msg.id == message_id:
+                return msg
+
     async def fetch_all_server_members(self):
         for server_id in self.servers.keys():
             data = await self.http.get_server_members(server_id)

@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from .permissions import Permissions
-from .channel import channel_factory
+from .role import Role
+from .channel import Channel
 
 if TYPE_CHECKING:
     from .types import Server as ServerPayload
     from .state import State
     from .member import Member
-    from .role import Role
-    from .channel import Channel
 
 class Server:
     """Represents a server
@@ -33,7 +32,7 @@ class Server:
         
         self._members: dict[str, Member] = {}
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, state) for role_id, role in data.get("roles", {}).items()}
-        channels = [channel_factory(channel, state) for channel in data.get("channels", [])]
+        channels = cast(list[Channel], list(filter(bool, [state.get_channel(channel_id) for channel_id in data["channels"]])))
         self._channels: dict[str, Channel] = {channel.id: channel for channel in channels}
 
     @property
