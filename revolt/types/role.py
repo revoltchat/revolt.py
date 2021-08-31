@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Tuple, TypedDict
 
-Permission = tuple[int, int]
+Permission = Tuple[int, int]
 
 class _RoleOptional(TypedDict, total=False):
     colour: str

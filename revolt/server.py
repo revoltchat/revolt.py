@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, List, Optional, cast
 
 from .permissions import Permissions
 from .role import Role
@@ -32,7 +32,7 @@ class Server:
         
         self._members: dict[str, Member] = {}
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, state) for role_id, role in data.get("roles", {}).items()}
-        channels = cast(list[Channel], list(filter(bool, [state.get_channel(channel_id) for channel_id in data["channels"]])))
+        channels = cast(List[Channel], list(filter(bool, [state.get_channel(channel_id) for channel_id in data["channels"]])))
         self._channels: dict[str, Channel] = {channel.id: channel for channel in channels}
 
     @property
