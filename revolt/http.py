@@ -18,6 +18,7 @@ if TYPE_CHECKING:
         ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload, GetServerMembers, User as UserPayload,
         Server, Member, UserProfile, ServerInvite, ServerBans, Channel, DMChannel, TextChannel, VoiceChannel, Role)
     from .file import File
+    from .enums import SortType
 
 T = TypeVar("T")
 Request = Coroutine[Any, Any, T]
@@ -104,6 +105,80 @@ class HttpClient:
             json["attachments"] = attachment_ids
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
+
+    async def edit_message(self, channel: str, message: str, content: str) -> Request[None]:
+        json = {"content": content}
+        return await self.request("PATCH", f"/channels/{channel}/messages/{message}", json=json)
+
+    async def delete_message(self, channel: str, message: str) -> Request[None]:
+        return await self.request("DELETE", f"/channels/{channel}/messages/{message}")
+
+    async def fetch_message(self, channel: str, message: str) -> Request[MessagePayload]:
+        return await self.request("GET", f"/channels/{channel}/messages/{message}")
+    
+    async def fetch_messages(
+        self, 
+        channel: str, 
+        sort: SortType,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None, 
+        nearby: Optional[str] = None, 
+        include_users: Optional[bool] = None
+    ) -> Request[Union[list[MessagePayload], dict[str, Union[MessagePayload, UserPayload, Member]]]]:
+
+        json = {}
+        json["sort"] = sort.value
+
+        if limit:
+            json["limit"] = limit
+
+        if before:
+            json["before"] = before
+
+        if after:
+            json["after"] = after
+
+        if nearby:
+            json["nearby"] = nearby
+
+        if include_users:
+            json["include_users"] = include_users
+
+        return await self.request("GET", f"/channels/{channel}/messages", json=json)
+
+    async def search_messages(
+        self, 
+        channel: str, 
+        query: str,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None,
+        sort: Optional[SortType] = None,
+        include_users: Optional[bool] = None
+    ) -> Request[Union[list[MessagePayload], dict[str, Union[MessagePayload, UserPayload, Member]]]]:
+
+        json = {}
+        json["query"] = query
+
+        if limit:
+            json["limit"] = limit
+
+        if before:
+            json["before"] = before
+
+        if after:
+            json["after"] = after
+
+        if sort:
+            json["sort"] = sort.value
+
+        if include_users:
+            json["include_users"] = include_users
+
+        return await self.request("POST", f"/channels/{channel}/messages/search", json=json)
 
     async def request_file(self, url: str) -> bytes:
         async with self.session.get(url) as resp:

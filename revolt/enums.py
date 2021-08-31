@@ -35,3 +35,8 @@ class AssetType(enum.Enum):
     text = "Text"
     audio = "Audio"
     file = "File"
+
+class SortType(enum.Enum):
+    latest = "Latest"
+    oldest = "Oldest"
+    relevance = "Relevance"
