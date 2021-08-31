@@ -55,7 +55,7 @@ class Asset:
 
     async def read(self) -> bytes:
         """Reads the files content into bytes"""
-        ...
+        return await self.state.http.request_file(self.url)
 
     async def save(self, fp: IOBase):
         """Reads the files content and saves it to a file

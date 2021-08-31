@@ -1,4 +1,5 @@
 from __future__ import annotations
+from _typeshed import StrOrBytesPath
 
 
 from typing import TYPE_CHECKING, TypedDict
@@ -30,3 +31,20 @@ class Server(TypedDict):
     name: str
     channels: list[str]
     default_permissions: Permission
+
+class _OptionalBannedUser(TypedDict, total=False):
+    avatar: File
+
+class BannedUser(_OptionalBannedUser):
+    _id: str
+    username: str
+
+class _OptionalBan(TypedDict, total=False):
+    reason: str
+
+class Ban(_OptionalBan):
+    _id: str
+
+class ServerBans(TypedDict):
+    users: list[BannedUser]
+    bans: list[Ban]

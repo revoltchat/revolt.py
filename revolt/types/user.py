@@ -31,3 +31,7 @@ class _OptionalUser(TypedDict, total=False):
 class User(_OptionalUser):
     _id: str
     username: str
+
+class UserProfile(TypedDict, total=False):
+    content: str
+    background: File

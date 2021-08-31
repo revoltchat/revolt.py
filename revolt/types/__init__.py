@@ -3,6 +3,7 @@ from .embed import *
 from .file import *
 from .gateway import *
 from .http import *
+from .invite import *
 from .member import *
 from .message import *
 from .role import *

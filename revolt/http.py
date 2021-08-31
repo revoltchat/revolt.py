@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Coroutine, Optional, TYPE_CHECKING, Literal, TypeVar
+from typing import Any, Coroutine, Optional, TYPE_CHECKING, Literal, TypeVar, Union
 import aiohttp
 import ulid
 
@@ -14,7 +14,9 @@ except ImportError:
 
 if TYPE_CHECKING:
     import aiohttp
-    from .types import ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload, GetServerMembers
+    from .types import (
+        ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload, GetServerMembers, User as UserPayload,
+        Server, Member, UserProfile, ServerInvite, ServerBans, Channel, DMChannel, TextChannel, VoiceChannel, Role)
     from .file import File
 
 T = TypeVar("T")
@@ -48,8 +50,12 @@ class HttpClient:
         kwargs["headers"] = headers
 
         async with self.session.request(method, url, **kwargs) as resp:
-            response = _json.loads(await resp.text())
-    
+            text = await resp.text()
+            if text:
+                response = _json.loads(await resp.text())
+            else:
+                response = text
+
         resp_code = resp.status
 
         if 200 <= resp_code <= 300:
@@ -99,5 +105,89 @@ class HttpClient:
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
 
-    def get_server_members(self, server_id: str) -> Request[GetServerMembers]:
+    async def request_file(self, url: str) -> bytes:
+        async with self.session.get(url) as resp:
+            return await resp.content.read()
+
+    def fetch_user(self, user_id: str) -> Request[UserPayload]:
+        return self.request("GET", f"/users/{user_id}")
+
+    def fetch_profile(self, user_id: str) -> Request[UserProfile]:
+        return self.request("GET", f"/users/{user_id}/profile")
+
+    def fetch_default_avatar(self, user_id: str) -> Request[bytes]:
+        return self.request_file(f"{self.api_url}/users/{user_id}/default_avatar")
+    
+    def fetch_dm_channels(self) -> Request[list[Channel]]:
+        return self.request("GET", "/users/dms")
+
+    def open_dm(self, user_id: str) -> Request[DMChannel]:
+        return self.request("GET", f"/users/{user_id}/dm")
+
+    def fetch_channel(self, channel_id: str) -> Request[Channel]:
+        return self.request("GET", f"/channels/{channel_id}")
+
+    def close_channel(self, channel_id: str) -> Request[None]:
+        return self.request("DELETE", f"/channels/{channel_id}")
+
+    def fetch_server(self, server_id: str) -> Request[Server]:
+        return self.request("GET", f"/servers/{server_id}")
+
+    def delete_leave_server(self, server_id: str) -> Request[None]:
+        return self.request("DELETE", f"/servers/{server_id}")
+
+    def create_channel(self, server_id: str, channel_type: Literal["Text", "Voice"], name: str, description: Optional[str]) -> Request[Union[TextChannel, VoiceChannel]]:
+        payload = {
+            "type": channel_type,
+            "name": name
+        }
+
+        if description:
+            payload["description"] = description
+
+        return self.request("POST", f"/servers/{server_id}/channels", json=payload)
+
+    def fetch_server_invites(self, server_id: str) -> Request[list[ServerInvite]]:
+        return self.request("GET", f"/servers/{server_id}/invites")
+
+    def fetch_member(self, server_id: str, member_id: str) -> Request[Member]:
+        return self.request("GET", f"/servers/{server_id}/members/{member_id}")
+
+    def kick_member(self, server_id: str, member_id: str) -> Request[None]:
+        return self.request("DELETE", f"/servers/{server_id}/members/{member_id}")
+
+    def fetch_members(self, server_id: str) -> Request[GetServerMembers]:
         return self.request("GET", f"/servers/{server_id}/members")
+
+    def ban_member(self, server_id: str, member_id: str, reason: Optional[str]) -> Request[GetServerMembers]:
+        payload = {"reason": reason} if reason else None
+
+        return self.request("PUT", f"/servers/{server_id}/bans/{member_id}", json=payload, nonce=False)
+
+    def unban_member(self, server_id: str, member_id: str) -> Request[None]:
+        return self.request("DELETE", f"/servers/{server_id}/bans/{member_id}")
+    
+    def fetch_bans(self, server_id: str) -> Request[ServerBans]:
+        return self.request("GET", f"/servers/{server_id}/bans")
+
+    def set_role_permissions(self, server_id: str, role_id: str, server_permissions: int, channel_permissions: int) -> Request[None]:
+        payload = {
+            "server": server_permissions,
+            "channel": channel_permissions
+        }
+
+        return self.request("PUT", f"/servers/{server_id}/permissions/{role_id}", json=payload, nonce=False)
+    
+    def set_default_permissions(self, server_id: str, server_permissions: int, channel_permissions: int) -> Request[None]:
+        payload = {
+            "server": server_permissions,
+            "channel": channel_permissions
+        }
+
+        return self.request("PUT", f"/servers/{server_id}/permissions/default", json=payload, nonce=False)
+
+    def create_role(self, server_id: str, name: str) -> Request[Role]:
+        return self.request("POST", f"/servers/{server_id}/roles", json={"name": name}, nonce=False)
+
+    def delete_role(self, server_id: str, role_id: str) -> Request[None]:
+        return self.request("DELETE", f"/servers/{server_id}/roles/{role_id}")
