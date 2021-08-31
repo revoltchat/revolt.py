@@ -27,7 +27,7 @@ setup(
 
     keywords="wrapper, async, api, websockets, http",
     packages=find_packages(),
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     extras_require={
         "speedups": ["ujson", "aiohttp[speedups]==3.7.4.post0", "msgpack==1.0.2"],
     },
