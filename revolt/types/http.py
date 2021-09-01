@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, TypedDict
 if TYPE_CHECKING:
     from .user import User
     from .member import Member
+    from . message import Message
 
 class ApiFeature(TypedDict):
     enabled: bool
@@ -32,5 +33,10 @@ class Autumn(TypedDict):
     id: str
 
 class GetServerMembers(TypedDict):
+    members: list[Member]
+    users: list[User]
+
+class MessageWithUserData(TypedDict):
+    messages: list[Message]
     members: list[Member]
     users: list[User]

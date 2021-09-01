@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     import aiohttp
     from .types import (
         ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload, GetServerMembers, User as UserPayload,
-        Server, Member, UserProfile, ServerInvite, ServerBans, Channel, DMChannel, TextChannel, VoiceChannel, Role)
+        Server, Member, UserProfile, ServerInvite, ServerBans, Channel, DMChannel, TextChannel, VoiceChannel, Role, MessageWithUserData)
     from .file import File
     from .enums import SortType
 
@@ -126,7 +126,7 @@ class HttpClient:
         after: Optional[str] = None, 
         nearby: Optional[str] = None, 
         include_users: Optional[bool] = None
-    ) -> Request[Union[list[MessagePayload], dict[str, Union[MessagePayload, UserPayload, Member]]]]:
+    ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
 
         json = {"sort": sort.value}
 
@@ -157,7 +157,7 @@ class HttpClient:
         after: Optional[str] = None,
         sort: Optional[SortType] = None,
         include_users: Optional[bool] = None
-    ) -> Request[Union[list[MessagePayload], dict[str, Union[MessagePayload, UserPayload, Member]]]]:
+    ) ->Request[Union[list[MessagePayload], MessageWithUserData]]:
 
         json = {"query": query}
 
