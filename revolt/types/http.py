@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, TypedDict
 if TYPE_CHECKING:
     from .user import User
     from .member import Member
-    from . message import Message
+    from .message import Message
 
 class ApiFeature(TypedDict):
     enabled: bool
