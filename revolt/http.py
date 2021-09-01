@@ -106,17 +106,17 @@ class HttpClient:
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
 
-    async def edit_message(self, channel: str, message: str, content: str) -> Request[None]:
+    def edit_message(self, channel: str, message: str, content: str) -> Request[None]:
         json = {"content": content}
-        return await self.request("PATCH", f"/channels/{channel}/messages/{message}", json=json)
+        return self.request("PATCH", f"/channels/{channel}/messages/{message}", json=json)
 
-    async def delete_message(self, channel: str, message: str) -> Request[None]:
-        return await self.request("DELETE", f"/channels/{channel}/messages/{message}")
+    def delete_message(self, channel: str, message: str) -> Request[None]:
+        return self.request("DELETE", f"/channels/{channel}/messages/{message}")
 
-    async def fetch_message(self, channel: str, message: str) -> Request[MessagePayload]:
-        return await self.request("GET", f"/channels/{channel}/messages/{message}")
+    def fetch_message(self, channel: str, message: str) -> Request[MessagePayload]:
+        return self.request("GET", f"/channels/{channel}/messages/{message}")
     
-    async def fetch_messages(
+    def fetch_messages(
         self, 
         channel: str, 
         sort: SortType,
@@ -128,8 +128,7 @@ class HttpClient:
         include_users: Optional[bool] = None
     ) -> Request[Union[list[MessagePayload], dict[str, Union[MessagePayload, UserPayload, Member]]]]:
 
-        json = {}
-        json["sort"] = sort.value
+        json = {"sort": sort.value}
 
         if limit:
             json["limit"] = limit
@@ -146,9 +145,9 @@ class HttpClient:
         if include_users:
             json["include_users"] = include_users
 
-        return await self.request("GET", f"/channels/{channel}/messages", json=json)
+        return self.request("GET", f"/channels/{channel}/messages", json=json)
 
-    async def search_messages(
+    def search_messages(
         self, 
         channel: str, 
         query: str,
@@ -160,8 +159,7 @@ class HttpClient:
         include_users: Optional[bool] = None
     ) -> Request[Union[list[MessagePayload], dict[str, Union[MessagePayload, UserPayload, Member]]]]:
 
-        json = {}
-        json["query"] = query
+        json = {"query": query}
 
         if limit:
             json["limit"] = limit
@@ -178,7 +176,7 @@ class HttpClient:
         if include_users:
             json["include_users"] = include_users
 
-        return await self.request("POST", f"/channels/{channel}/messages/search", json=json)
+        return self.request("POST", f"/channels/{channel}/messages/search", json=json)
 
     async def request_file(self, url: str) -> bytes:
         async with self.session.get(url) as resp:
