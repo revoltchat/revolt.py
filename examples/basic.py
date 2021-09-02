@@ -1,6 +1,9 @@
-import revolt
 import asyncio
+
 import aiohttp
+
+import revolt
+
 
 class Client(revolt.Client):
     async def on_message(self, message: revolt.Message):

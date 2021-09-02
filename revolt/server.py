@@ -2,14 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, cast
 
+from .channel import Channel
 from .permissions import Permissions
 from .role import Role
-from .channel import Channel
 
 if TYPE_CHECKING:
-    from .types import Server as ServerPayload
-    from .state import State
     from .member import Member
+    from .state import State
+    from .types import Server as ServerPayload
+
+
+__all__ = ("Server",)
 
 class Server:
     """Represents a server

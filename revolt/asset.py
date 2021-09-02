@@ -2,13 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .errors import AutumnDisabled
 from .enums import AssetType
+from .errors import AutumnDisabled
 
 if TYPE_CHECKING:
-    from .types import File as FilePayload
-    from .state import State
     from io import IOBase
+
+    from .state import State
+    from .types import File as FilePayload
+
+
+__all__ = ("Asset",)
 
 class Asset:
     """Represents a file on revolt

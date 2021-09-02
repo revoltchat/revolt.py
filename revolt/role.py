@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
     from .state import State
     from .types import Role as RolePayload
+
+
+__all__ = ("Role",)
 
 class Role:
     """Represents a role
