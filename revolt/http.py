@@ -232,7 +232,7 @@ class HttpClient:
         if include_users:
             json["include_users"] = include_users
 
-        return self.request("POST", f"/channels/{channel}/messages/search", json=json)
+        return self.request("POST", f"/channels/{channel}/search", json=json)
 
     async def request_file(self, url: str) -> bytes:
         async with self.session.get(url) as resp:
