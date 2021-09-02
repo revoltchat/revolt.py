@@ -6,11 +6,12 @@ if TYPE_CHECKING:
     from .file import File
 
 __all__ = (
+    "UserRelation",
     "Relation",
     "UserBot",
     "Status",
     "User",
-    "UserProfile"
+    "UserProfile",
 )
 
 Relation = Literal["Blocked", "BlockedOther", "Friend", "Incoming", "None", "Outgoing", "User"]

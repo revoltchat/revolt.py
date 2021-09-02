@@ -12,7 +12,7 @@ __all__ = (
     "Server",
     "BannedUser",
     "Ban",
-    "ServerBans"
+    "ServerBans",
 )
 
 class SystemMessagesConfig(TypedDict, total=False):

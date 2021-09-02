@@ -3,7 +3,7 @@ __all__ = (
     "HTTPError",
     "ServerError",
     "FeatureDisabled",
-    "AutumnDisabled"
+    "AutumnDisabled",
 )
 
 class RevoltError(Exception):

@@ -11,7 +11,7 @@ __all__ = (
     "VosoFeature",
     "ApiInfo",
     "Autumn",
-    "GetServerMembers"
+    "GetServerMembers",
 )
 
 class ApiFeature(TypedDict):

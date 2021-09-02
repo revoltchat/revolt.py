@@ -8,11 +8,12 @@ if TYPE_CHECKING:
 
 
 __all__ = (
+    "SavedMessages"
     "DMChannel",
     "Group",
     "TextChannel",
     "VoiceChannel",
-    "Channel"
+    "Channel",
 )
 
 class _NonceChannel(TypedDict, total=False):

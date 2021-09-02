@@ -3,7 +3,7 @@ from typing import Literal, TypedDict, Union
 __all__ = (
     "GroupInvite",
     "ServerInvite",
-    "Invite"
+    "Invite",
 )
 
 class GroupInvite(TypedDict):

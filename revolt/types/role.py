@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from typing import TypedDict
 
-__all__ = ("Role",)
+__all__ = (
+    "Permission",
+    "Role",
+)
 
 Permission = tuple[int, int]
 

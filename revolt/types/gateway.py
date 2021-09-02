@@ -12,9 +12,10 @@ if TYPE_CHECKING:
 
 
 __all__ = (
+    "BasePayload",
     "AuthenticatePayload",
     "ReadyEventPayload",
-    "MessageEventPayload"
+    "MessageEventPayload",
 )
 
 class BasePayload(TypedDict):
