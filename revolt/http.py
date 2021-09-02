@@ -29,7 +29,7 @@ class HttpClient:
         self.api_url = api_url
         self.api_info = api_info
 
-    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict] = None, nonce: bool = True) -> Any:
+    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict[str, Any]] = None, nonce: bool = True) -> Any:
         url = f"{self.api_url}{route}"
 
         kwargs = {}
@@ -43,7 +43,7 @@ class HttpClient:
             headers["Content-Type"] = "application/json"
 
             if nonce:
-                json["nonce"] = ulid.new().str
+                json["nonce"] = ulid.new().str # type: ignore
 
             kwargs["data"] = _json.dumps(json)
 
@@ -86,7 +86,7 @@ class HttpClient:
             return response
 
     async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[EmbedPayload]], attachments: Optional[list[File]]) -> MessagePayload:
-        json = {}
+        json: dict[str, Any] = {}
         
         if content:
             json["content"] = content
@@ -95,7 +95,7 @@ class HttpClient:
             json["embeds"] = embeds
 
         if attachments:
-            attachment_ids = []
+            attachment_ids: list[str] = []
 
             for attachment in attachments:
                 data = await self.upload_file(attachment, "attachments")
