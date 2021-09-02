@@ -1,7 +1,8 @@
-from typing import Optional, Union
-
 import io
 import os
+from typing import Optional, Union
+
+__all__ = ("File",)
 
 class File:
     """Respresents a file about to be uploaded to revolt

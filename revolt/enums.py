@@ -7,6 +7,14 @@ if TYPE_CHECKING:
 else:
     import aenum as enum
 
+
+__all__ = (
+    "ChannelType",
+    "PresenceType",
+    "RelationshipType",
+    "AssetType"
+)
+
 class ChannelType(enum.Enum):
     saved_message = "SavedMessage"
     direct_message = "DirectMessage"

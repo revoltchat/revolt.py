@@ -5,6 +5,9 @@ from typing import TYPE_CHECKING, TypedDict
 if TYPE_CHECKING:
     from .file import File
 
+
+__all__ = ("Member",)
+
 class _MemberOptional(TypedDict, total=False):
     nickname: str
     avatar: File

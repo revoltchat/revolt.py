@@ -3,8 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypedDict, Union
 
 if TYPE_CHECKING:
-    from .file import File
     from .embed import Embed
+    from .file import File
+
+
+__all__ = ("Message",)
 
 class UserAddContent(TypedDict):
     id: str
@@ -24,7 +27,7 @@ class UserLeftContent(TypedDict):
 class UserKickedContent(TypedDict):
     id: str
 
-class UserBanned(TypedDict):
+class UserBannedContent(TypedDict):
     id: str
 
 class ChannelRenameContent(TypedDict):
@@ -34,7 +37,7 @@ class ChannelRenameContent(TypedDict):
 class ChannelDescriptionChangeContent(TypedDict):
     by: str
 
-class ChannelIconChanged(TypedDict):
+class ChannelIconChangeContent(TypedDict):
     by: str
 
 class _OptionalMessage(TypedDict):
@@ -45,4 +48,4 @@ class Message(_OptionalMessage):
     _id: str
     channel: str
     author: str
-    content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBanned, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChanged]
+    content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBannedContent, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChangeContent]

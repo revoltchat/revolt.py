@@ -3,12 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .asset import Asset
-from .embed import Embed
 from .channel import Messageable
+from .embed import Embed
 
 if TYPE_CHECKING:
     from .state import State
     from .types import Message as MessagePayload
+
+
+__all__ = ("Message",)
 
 class Message:
     """Represents a message

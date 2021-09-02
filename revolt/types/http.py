@@ -3,8 +3,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
-    from .user import User
     from .member import Member
+    from .user import User
+
+
+__all__ = (
+    "VosoFeature",
+    "ApiInfo",
+    "Autumn",
+    "GetServerMembers"
+)
 
 class ApiFeature(TypedDict):
     enabled: bool

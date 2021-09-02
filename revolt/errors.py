@@ -1,3 +1,11 @@
+__all__ = (
+    "RevoltError",
+    "HTTPError",
+    "ServerError",
+    "FeatureDisabled",
+    "AutumnDisabled"
+)
+
 class RevoltError(Exception):
     "Base exception for revolt"
 

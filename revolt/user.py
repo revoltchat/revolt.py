@@ -3,11 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, NamedTuple, Optional
 
 from .asset import Asset
-from .enums import RelationshipType, PresenceType
+from .enums import PresenceType, RelationshipType
 
 if TYPE_CHECKING:
     from .state import State
-    from .types import User as UserPayload, UserRelation
+    from .types import User as UserPayload
+    from .types import UserRelation
+
+
+__all__ = ("User",)
 
 class Relation(NamedTuple):
     """A namedtuple representing a relation between the bot and a user"""

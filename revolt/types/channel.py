@@ -1,10 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict, Literal, Union
+from typing import TYPE_CHECKING, Literal, TypedDict, Union
 
 if TYPE_CHECKING:
-    from .message import Message
     from .file import File
+    from .message import Message
+
+
+__all__ = (
+    "DMChannel",
+    "Group",
+    "TextChannel",
+    "VoiceChannel",
+    "Channel"
+)
 
 class _NonceChannel(TypedDict, total=False):
     nonce: str

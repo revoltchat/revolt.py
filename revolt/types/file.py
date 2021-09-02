@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict, Literal, Union
+from typing import TYPE_CHECKING, Literal, TypedDict, Union
+
+__all__ = ("File",)
 
 class SizedMetadata(TypedDict):
     type: Literal["Image", "Video"]
