@@ -65,7 +65,7 @@ class VoiceChannel(Channel):
     def __init__(self, data: ChannelPayload, state: State):
         super().__init__(data, state)
 
-def channel_factory(data: ChannelPayload, state) -> Channel:
+def channel_factory(data: ChannelPayload, state: State) -> Channel:
     if data["channel_type"] == "SavedMessage":
         return SavedMessageChannel(data, state)
     elif data["channel_type"] == "DirectMessage":
