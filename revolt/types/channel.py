@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 __all__ = (
-    "SavedMessages"
+    "SavedMessages",
     "DMChannel",
     "Group",
     "TextChannel",
