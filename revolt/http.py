@@ -122,11 +122,11 @@ class HttpClient:
         channel: str, 
         sort: SortType,
         *, 
-        limit: Optional[int] = None, 
-        before: Optional[str] = None, 
-        after: Optional[str] = None, 
-        nearby: Optional[str] = None, 
-        include_users: Optional[Literal[False]] = None
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ..., 
+        nearby: Optional[str] = ..., 
+        include_users: Literal[False] = ...
     ) -> Request[list[MessagePayload]]:
         ...
     
@@ -136,11 +136,11 @@ class HttpClient:
         channel: str, 
         sort: SortType,
         *, 
-        limit: Optional[int] = None, 
-        before: Optional[str] = None, 
-        after: Optional[str] = None, 
-        nearby: Optional[str] = None, 
-        include_users: Literal[True] = None
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ..., 
+        nearby: Optional[str] = ..., 
+        include_users: Literal[True] = ...
     ) -> Request[MessageWithUserData]:
         ...
 
@@ -153,10 +153,10 @@ class HttpClient:
         before: Optional[str] = None, 
         after: Optional[str] = None, 
         nearby: Optional[str] = None, 
-        include_users: Optional[bool] = None
+        include_users: bool = False
     ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
 
-        json = {"sort": sort.value}
+        json = {"sort": sort.value, "include_users": include_users}
 
         if limit:
             json["limit"] = limit
@@ -170,9 +170,6 @@ class HttpClient:
         if nearby:
             json["nearby"] = nearby
 
-        if include_users:
-            json["include_users"] = include_users
-
         return self.request("GET", f"/channels/{channel}/messages", json=json)
 
     @overload
@@ -181,11 +178,11 @@ class HttpClient:
         channel: str, 
         query: str,
         *, 
-        limit: Optional[int] = None, 
-        before: Optional[str] = None, 
-        after: Optional[str] = None,
-        sort: Optional[SortType] = None,
-        include_users: Optional[Literal[False]] = None
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ...,
+        sort: Optional[SortType] = ...,
+        include_users: Literal[False] = ...
     ) ->Request[list[MessagePayload]]:
         ...
 
@@ -195,11 +192,11 @@ class HttpClient:
         channel: str, 
         query: str,
         *, 
-        limit: Optional[int] = None, 
-        before: Optional[str] = None, 
-        after: Optional[str] = None,
-        sort: Optional[SortType] = None,
-        include_users: Literal[True] = None
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ...,
+        sort: Optional[SortType] = ...,
+        include_users: Literal[True] = ...
     ) ->Request[MessageWithUserData]:
         ...
 
@@ -212,10 +209,10 @@ class HttpClient:
         before: Optional[str] = None, 
         after: Optional[str] = None,
         sort: Optional[SortType] = None,
-        include_users: Optional[bool] = None
+        include_users: Optional[bool] = False
     ) ->Request[Union[list[MessagePayload], MessageWithUserData]]:
 
-        json = {"query": query}
+        json = {"query": query, "include_users": include_users}
 
         if limit:
             json["limit"] = limit
@@ -228,9 +225,6 @@ class HttpClient:
 
         if sort:
             json["sort"] = sort.value
-
-        if include_users:
-            json["include_users"] = include_users
 
         return self.request("POST", f"/channels/{channel}/search", json=json)
 
