@@ -30,7 +30,7 @@ class HttpClient:
         self.api_url = api_url
         self.api_info = api_info
 
-    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict] = None, nonce: bool = True) -> Any:
+    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict] = None, nonce: bool = True, params: Optional[dict] = None) -> Any:
         url = f"{self.api_url}{route}"
 
         kwargs = {}
@@ -49,6 +49,9 @@ class HttpClient:
             kwargs["data"] = _json.dumps(json)
 
         kwargs["headers"] = headers
+
+        if params:
+            kwargs["params"] = params
 
         async with self.session.request(method, url, **kwargs) as resp:
             text = await resp.text()
@@ -156,7 +159,7 @@ class HttpClient:
         include_users: bool = False
     ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
 
-        json = {"sort": sort.value, "include_users": include_users}
+        json = {"sort": sort.value, "include_users": str(include_users)}
 
         if limit:
             json["limit"] = limit
@@ -170,7 +173,7 @@ class HttpClient:
         if nearby:
             json["nearby"] = nearby
 
-        return self.request("GET", f"/channels/{channel}/messages", json=json)
+        return self.request("GET", f"/channels/{channel}/messages", params=json)
 
     @overload
     def search_messages(
