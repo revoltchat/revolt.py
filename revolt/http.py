@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Coroutine, Optional, TYPE_CHECKING, Literal, TypeVar, Union
+from typing import Any, Coroutine, Optional, TYPE_CHECKING, Literal, TypeVar, Union, overload
 import aiohttp
 import ulid
 
@@ -116,6 +116,34 @@ class HttpClient:
     def fetch_message(self, channel: str, message: str) -> Request[MessagePayload]:
         return self.request("GET", f"/channels/{channel}/messages/{message}")
     
+    @overload
+    def fetch_messages(
+        self, 
+        channel: str, 
+        sort: SortType,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None, 
+        nearby: Optional[str] = None, 
+        include_users: Optional[Literal[False]] = None
+    ) -> Request[list[MessagePayload]]:
+        ...
+    
+    @overload
+    def fetch_messages(
+        self, 
+        channel: str, 
+        sort: SortType,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None, 
+        nearby: Optional[str] = None, 
+        include_users: Literal[True] = None
+    ) -> Request[MessageWithUserData]:
+        ...
+
     def fetch_messages(
         self, 
         channel: str, 
@@ -146,6 +174,34 @@ class HttpClient:
             json["include_users"] = include_users
 
         return self.request("GET", f"/channels/{channel}/messages", json=json)
+
+    @overload
+    def search_messages(
+        self, 
+        channel: str, 
+        query: str,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None,
+        sort: Optional[SortType] = None,
+        include_users: Optional[Literal[False]] = None
+    ) ->Request[list[MessagePayload]]:
+        ...
+
+    @overload
+    def search_messages(
+        self, 
+        channel: str, 
+        query: str,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None,
+        sort: Optional[SortType] = None,
+        include_users: Literal[True] = None
+    ) ->Request[MessageWithUserData]:
+        ...
 
     def search_messages(
         self, 
