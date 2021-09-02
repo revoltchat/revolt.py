@@ -129,7 +129,7 @@ class Client:
         """
         self.state.get_server(id)
 
-    async def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None) -> Any:
+    async def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None, timeout: Optional[float] = None) -> Any:
         """Waits for an event
         
         Parameters
@@ -138,6 +138,13 @@ class Client:
             The name of the event to wait for, without the `on_`
         check: Optional[Callable[..., :class:`bool`]]
             A function that says what event to wait_for, this function takes the same parameters as the event you are waiting for and should return a bool saying if that is the event you want
+        timeout: Optional[:class:`float`]
+            Time in seconds to wait for the event. By default it waits forever
+
+        Raises
+        -------
+        asyncio.TimeoutError
+            If timeout is provided and it was reached
 
         Returns
         --------
@@ -150,4 +157,4 @@ class Client:
         future = asyncio.get_running_loop().create_future()
         self.listeners.setdefault(event, []).append((check, future))
 
-        return await future
+        return await asyncio.wait_for(future, timeout)

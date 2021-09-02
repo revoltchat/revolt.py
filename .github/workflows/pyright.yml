@@ -1,0 +1,18 @@
+on: [push, pull_request]
+name: pyright
+jobs:
+  pyright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - uses: BSFishy/pip-action@v1
+        with:
+          requirements: pyright_requirements.txt
+      - uses: jakebailey/pyright-action@v1
+        with:
+          lib: true
+          python-version: 3.9.7
+          working-directory: revolt

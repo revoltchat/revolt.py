@@ -47,7 +47,7 @@ class User:
     status: Optional[:class:`Status`]
         The users status
     """
-    __flattern_attributes__ = ("id", "name", "bot", "owner", "badges", "online", "flags")
+    __flattern_attributes__ = ("id", "name", "bot", "owner", "badges", "online", "flags", "avatar", "relations", "relationship", "status")
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
