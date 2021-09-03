@@ -198,7 +198,7 @@ class HttpClient:
         after: Optional[str] = ...,
         sort: Optional[SortType] = ...,
         include_users: Literal[False] = ...
-    ) ->Request[list[MessagePayload]]:
+    ) -> Request[list[MessagePayload]]:
         ...
 
     @overload
