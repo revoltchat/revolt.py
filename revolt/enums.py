@@ -13,6 +13,7 @@ __all__ = (
     "PresenceType",
     "RelationshipType",
     "AssetType",
+    "SortType",
 )
 
 class ChannelType(enum.Enum):
@@ -43,3 +44,8 @@ class AssetType(enum.Enum):
     text = "Text"
     audio = "Audio"
     file = "File"
+
+class SortType(enum.Enum):
+    latest = "Latest"
+    oldest = "Oldest"
+    relevance = "Relevance"

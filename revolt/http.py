@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, TypeVar,
+from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, overload, TypeVar,
                     Union)
 
 import aiohttp
@@ -18,11 +18,12 @@ if TYPE_CHECKING:
     import aiohttp
 
     from .file import File
+    from .enums import SortType
     from .types import ApiInfo
     from .types import Autumn as AutumnPayload
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
-    from .types import GetServerMembers, Member
+    from .types import GetServerMembers, Member, MessageWithUserData
     from .types import Message as MessagePayload
     from .types import Role, Server, ServerBans, ServerInvite, TextChannel
     from .types import User as UserPayload
@@ -41,7 +42,7 @@ class HttpClient:
         self.api_url = api_url
         self.api_info = api_info
 
-    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict[str, Any]] = None, nonce: bool = True) -> Any:
+    async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict[str, Any]] = None, nonce: bool = True, params: Optional[dict[str, Any]] = None) -> Any:
         url = f"{self.api_url}{route}"
 
         kwargs = {}
@@ -60,6 +61,9 @@ class HttpClient:
             kwargs["data"] = _json.dumps(json)
 
         kwargs["headers"] = headers
+
+        if params:
+            kwargs["params"] = params
 
         async with self.session.request(method, url, **kwargs) as resp:
             text = await resp.text()
@@ -116,6 +120,128 @@ class HttpClient:
             json["attachments"] = attachment_ids
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
+
+    def edit_message(self, channel: str, message: str, content: str) -> Request[None]:
+        json = {"content": content}
+        return self.request("PATCH", f"/channels/{channel}/messages/{message}", json=json)
+
+    def delete_message(self, channel: str, message: str) -> Request[None]:
+        return self.request("DELETE", f"/channels/{channel}/messages/{message}")
+
+    def fetch_message(self, channel: str, message: str) -> Request[MessagePayload]:
+        return self.request("GET", f"/channels/{channel}/messages/{message}")
+    
+    @overload
+    def fetch_messages(
+        self, 
+        channel: str, 
+        sort: SortType,
+        *, 
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ..., 
+        nearby: Optional[str] = ..., 
+        include_users: Literal[False] = ...
+    ) -> Request[list[MessagePayload]]:
+        ...
+    
+    @overload
+    def fetch_messages(
+        self, 
+        channel: str, 
+        sort: SortType,
+        *, 
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ..., 
+        nearby: Optional[str] = ..., 
+        include_users: Literal[True] = ...
+    ) -> Request[MessageWithUserData]:
+        ...
+
+    def fetch_messages(
+        self, 
+        channel: str, 
+        sort: SortType,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None, 
+        nearby: Optional[str] = None, 
+        include_users: bool = False
+    ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
+
+        json = {"sort": sort.value, "include_users": str(include_users)}
+
+        if limit:
+            json["limit"] = limit
+
+        if before:
+            json["before"] = before
+
+        if after:
+            json["after"] = after
+
+        if nearby:
+            json["nearby"] = nearby
+
+        return self.request("GET", f"/channels/{channel}/messages", params=json)
+
+    @overload
+    def search_messages(
+        self, 
+        channel: str, 
+        query: str,
+        *, 
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ...,
+        sort: Optional[SortType] = ...,
+        include_users: Literal[False] = ...
+    ) -> Request[list[MessagePayload]]:
+        ...
+
+    @overload
+    def search_messages(
+        self, 
+        channel: str, 
+        query: str,
+        *, 
+        limit: Optional[int] = ..., 
+        before: Optional[str] = ..., 
+        after: Optional[str] = ...,
+        sort: Optional[SortType] = ...,
+        include_users: Literal[True] = ...
+    ) -> Request[MessageWithUserData]:
+        ...
+
+    def search_messages(
+        self, 
+        channel: str, 
+        query: str,
+        *, 
+        limit: Optional[int] = None, 
+        before: Optional[str] = None, 
+        after: Optional[str] = None,
+        sort: Optional[SortType] = None,
+        include_users: bool = False
+    ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
+
+        json = {"query": query, "include_users": include_users}
+
+        if limit:
+            json["limit"] = limit
+
+        if before:
+            json["before"] = before
+
+        if after:
+            json["after"] = after
+
+        if sort:
+            json["sort"] = sort.value
+
+        return self.request("POST", f"/channels/{channel}/search", json=json)
 
     async def request_file(self, url: str) -> bytes:
         async with self.session.get(url) as resp:
