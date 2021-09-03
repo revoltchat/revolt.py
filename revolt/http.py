@@ -224,8 +224,8 @@ class HttpClient:
         before: Optional[str] = None, 
         after: Optional[str] = None,
         sort: Optional[SortType] = None,
-        include_users: Optional[bool] = False
-    ) ->Request[Union[list[MessagePayload], MessageWithUserData]]:
+        include_users: bool = False
+    ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
 
         json = {"query": query, "include_users": include_users}
 
