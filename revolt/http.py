@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, overload TypeVar,
+from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, overload, TypeVar,
                     Union)
 
 import aiohttp
