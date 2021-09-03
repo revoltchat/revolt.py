@@ -212,7 +212,7 @@ class HttpClient:
         after: Optional[str] = ...,
         sort: Optional[SortType] = ...,
         include_users: Literal[True] = ...
-    ) ->Request[MessageWithUserData]:
+    ) -> Request[MessageWithUserData]:
         ...
 
     def search_messages(
