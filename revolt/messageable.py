@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from .state import State
-    from .message import Message
     from .embed import Embed
     from .file import File
+    from .message import Message
+    from .state import State
+
+
+__all__ = ("Messageable",)
 
 class Messageable:
     """Base class for all channels that you can send messages in

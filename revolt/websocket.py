@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Callable, TYPE_CHECKING, cast
-import logging
 import asyncio
+import logging
+from typing import TYPE_CHECKING, Callable, cast
 
 from .types import Message as MessagePayload
 
@@ -19,8 +19,14 @@ except ImportError:
 
 if TYPE_CHECKING:
     import aiohttp
-    from .types import BasePayload, AuthenticatePayload, ReadyEventPayload, MessageEventPayload, Member as MemberPayload
+
     from .state import State
+    from .types import AuthenticatePayload, BasePayload
+    from .types import Member as MemberPayload
+    from .types import MessageEventPayload, ReadyEventPayload
+
+
+__all__ = ("WebsocketHandler",)
 
 logger = logging.getLogger("revolt")
 

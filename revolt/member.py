@@ -5,9 +5,12 @@ from typing import TYPE_CHECKING
 from .user import User
 
 if TYPE_CHECKING:
+    from .server import Server
     from .state import State
     from .types import Member as MemberPayload
-    from .server import Server
+
+
+__all__ = ("Member",)
 
 def flattern_user(member: Member, user: User):
     for attr in user.__flattern_attributes__:

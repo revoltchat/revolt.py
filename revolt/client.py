@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-import aiohttp
-from typing import Any, Callable, TypeVar, Coroutine, TYPE_CHECKING, Optional
 import logging
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional, TypeVar
+
+import aiohttp
 
 from .http import HttpClient
 from .state import State
@@ -15,10 +16,13 @@ except ImportError:
     import json
 
 if TYPE_CHECKING:
+    from .channel import Channel
+    from .server import Server
     from .types import ApiInfo
     from .user import User
-    from .server import Server
-    from .channel import Channel
+
+
+__all__ = ("Client",)
 
 logger = logging.getLogger("revolt")
 

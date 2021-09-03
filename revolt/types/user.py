@@ -1,9 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict, Literal
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 if TYPE_CHECKING:
     from .file import File
+
+__all__ = (
+    "UserRelation",
+    "Relation",
+    "UserBot",
+    "Status",
+    "User",
+    "UserProfile",
+)
 
 Relation = Literal["Blocked", "BlockedOther", "Friend", "Incoming", "None", "Outgoing", "User"]
 

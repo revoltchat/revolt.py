@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Coroutine, Optional, TYPE_CHECKING, Literal, TypeVar, Union, overload
+from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, overload TypeVar,
+                    Union)
+
 import aiohttp
 import ulid
 
@@ -14,11 +16,21 @@ except ImportError:
 
 if TYPE_CHECKING:
     import aiohttp
-    from .types import (
-        ApiInfo, Autumn as AutumnPayload, Message as MessagePayload, Embed as EmbedPayload, GetServerMembers, User as UserPayload,
-        Server, Member, UserProfile, ServerInvite, ServerBans, Channel, DMChannel, TextChannel, VoiceChannel, Role, MessageWithUserData)
+
     from .file import File
     from .enums import SortType
+    from .types import ApiInfo
+    from .types import Autumn as AutumnPayload
+    from .types import Channel, DMChannel
+    from .types import Embed as EmbedPayload
+    from .types import GetServerMembers, Member, MessageWithUserData
+    from .types import Message as MessagePayload
+    from .types import Role, Server, ServerBans, ServerInvite, TextChannel
+    from .types import User as UserPayload
+    from .types import UserProfile, VoiceChannel
+
+
+__all__ = ("HttpClient",)
 
 T = TypeVar("T")
 Request = Coroutine[Any, Any, T]

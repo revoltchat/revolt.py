@@ -2,13 +2,20 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from .messageable import Messageable
 from .enums import ChannelType
+from .messageable import Messageable
 
 if TYPE_CHECKING:
-    from .types import Channel as ChannelPayload, SavedMessages as SavedMessagesPayload, DMChannel as DMChannelPayload, Group as GroupDMChannelPayload, TextChannel as TextChannelPayload 
     from .state import State
+    from .types import Channel as ChannelPayload
+    from .types import DMChannel as DMChannelPayload
+    from .types import Group as GroupDMChannelPayload
+    from .types import SavedMessages as SavedMessagesPayload
+    from .types import TextChannel as TextChannelPayload
     from .user import User
+
+
+__all__ = ("Channel",)
 
 class Channel:
     """Base class for all channels
