@@ -13,6 +13,7 @@ __all__ = (
     "PresenceType",
     "RelationshipType",
     "AssetType",
+    "SortType",
 )
 
 class ChannelType(enum.Enum):
