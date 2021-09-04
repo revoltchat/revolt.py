@@ -29,6 +29,8 @@ class Channel:
     server: Optional[:class:`Server`]
         The server the channel is part of
     """
+    __slots__ = ("state", "id", "channel_type", "server")
+    
     def __init__(self, data: ChannelPayload, state: State):
         self.state = state
         self.id = data["_id"]
@@ -46,6 +48,8 @@ class DMChannel(Channel, Messageable):
         super().__init__(data, state)
 
 class GroupDMChannel(Channel, Messageable):
+    __slots__ = ("recipients", "name", "owner")
+
     """A group DM channel"""
     def __init__(self, data: GroupDMChannelPayload, state: State):
         super().__init__(data, state)
@@ -54,6 +58,8 @@ class GroupDMChannel(Channel, Messageable):
         self.owner = state.get_user(data["owner"])
 
 class TextChannel(Channel, Messageable):
+    __slots__ = ("name", "description", "last_message", "last_message_id")
+
     """A text channel"""
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)

@@ -52,6 +52,7 @@ class User:
         The users status
     """
     __flattern_attributes__ = ("id", "name", "bot", "owner", "badges", "online", "flags", "avatar", "relations", "relationship", "status")
+    __slots__ = (*__flattern_attributes__, "state")
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state

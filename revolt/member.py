@@ -28,6 +28,8 @@ class Member(User):
     server: :class:`Server`
         The server the member belongs to
     """
+    __slots__ = ("_state", "nickname", "roles", "server")
+    
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
         assert user

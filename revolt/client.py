@@ -40,6 +40,8 @@ class Client:
     max_messages: :class:`int`
         The max amount of messages stored in the cache, by default this is 5k
     """
+    __slots__ = ("session", "token", "api_url", "max_messages", "api_info", "http", "state", "websocket", "listeners")
+    
     def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
         self.session = session
         self.token = token

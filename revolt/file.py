@@ -16,6 +16,8 @@ class File:
     spoiler: bool
         Determines if the file will be a spoiler, this prefexes the filename with `SPOILER_`
     """
+    __slots__ = ("f", "spoiler", "filename")
+    
     def __init__(self, file: Union[str, bytes], *, filename: Optional[str] = None, spoiler: bool = False):
         if isinstance(file, str):
             self.f = open(file, "rb")
@@ -25,10 +27,7 @@ class File:
         if filename is None and isinstance(file, str):
             filename = self.f.name
             
-        if spoiler or (filename and filename.startswith("SPOILER_")):
-            self.spoiler = True
-        else:
-            self.spoiler = False
+        self.spoiler = spoiler or (filename and filename.startswith("SPOILER_"))
 
         if self.spoiler and (filename and not filename.startswith("SPOILER_")):
             filename = f"SPOILER_{filename}"
