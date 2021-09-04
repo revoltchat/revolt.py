@@ -60,8 +60,12 @@ class User:
         self.name = data["username"]
         
         bot = data.get("bot")
-        self.bot = bool(bot)
-        self.owner = state.get_user(bot["owner"]) if self.bot else None
+        if bot:
+            self.bot = True
+            self.owner = state.get_user(bot["owner"])
+        else:
+            self.bot = False
+            self.owner = None
 
         self.badges = data.get("badges", 0)
         self.online = data.get("online", False)
