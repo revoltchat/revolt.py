@@ -36,6 +36,8 @@ T = TypeVar("T")
 Request = Coroutine[Any, Any, T]
 
 class HttpClient:
+    __slots__ = ("session", "token", "api_url", "api_info")
+
     def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str, api_info: ApiInfo):
         self.session = session
         self.token = token

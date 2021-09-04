@@ -20,6 +20,8 @@ class Messageable:
         The id of the channel
     """
     id: str
+    
+    __slots__ = ("state", "id")
 
     def __init__(self, state: State):
         self.state = state

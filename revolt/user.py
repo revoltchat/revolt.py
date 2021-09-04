@@ -52,6 +52,7 @@ class User:
         The users status
     """
     __flattern_attributes__ = ("id", "name", "bot", "owner", "badges", "online", "flags", "avatar", "relations", "relationship", "status")
+    __slots__ = (*__flattern_attributes__, "state")
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
@@ -59,12 +60,8 @@ class User:
         self.name = data["username"]
         
         bot = data.get("bot")
-        if bot:
-            self.bot = True
-            self.owner = state.get_user(bot["owner"])
-        else:
-            self.bot = False
-            self.owner = None
+        self.bot = bool(bot)
+        self.owner = state.get_user(bot["owner"]) if self.bot else None
 
         self.badges = data.get("badges", 0)
         self.online = data.get("online", False)

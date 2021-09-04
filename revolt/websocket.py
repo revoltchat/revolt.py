@@ -31,6 +31,8 @@ __all__ = ("WebsocketHandler",)
 logger = logging.getLogger("revolt")
 
 class WebsocketHandler:
+    __slots__ = ("session", "token", "ws_url", "dispatch", "state", "websocket", "loop")
+
     def __init__(self, session: aiohttp.ClientSession, token: str, ws_url: str, dispatch: Callable[..., None], state: State):
         self.session = session
         self.token = token

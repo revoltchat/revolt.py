@@ -33,6 +33,8 @@ class Message:
     author: Union[:class:`Member`, :class:`User`]
         The author of the message, will be :class:`User` in DMs
     """
+    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "server", "author")
+    
     def __init__(self, data: MessagePayload, state: State):
         self.state = state
         

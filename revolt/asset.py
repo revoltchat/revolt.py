@@ -36,6 +36,8 @@ class Asset:
     type: :class:`AssetType`
         The type of asset it is
     """
+    __slots__ = ("state", "id", "tag", "size", "filename", "content_type", "width", "height", "type")
+    
     def __init__(self, data: FilePayload, state: State):
         self.state = state
 
@@ -54,7 +56,6 @@ class Asset:
             self.width = None
 
         self.content_type = data["content_type"]
-
         self.type = AssetType(metadata["type"])
 
     async def read(self) -> bytes:

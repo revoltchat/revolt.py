@@ -22,6 +22,8 @@ if TYPE_CHECKING:
 __all__ = ("State",)
 
 class State:
+    __slots__ = ("http", "api_info", "max_messages", "users", "channels", "servers", "messages")
+
     def __init__(self, http: HttpClient, api_info: ApiInfo, max_messages: int):
         self.http = http
         self.api_info = api_info
@@ -38,10 +40,8 @@ class State:
     def get_member(self, server_id: str, member_id: str) -> Optional[Member]:
         server = self.servers.get(server_id)
         
-        if not server:
-            return
-        
-        return server.get_member(member_id)
+        if server:
+            return server.get_member(member_id)
 
     def get_channel(self, id: str) -> Optional[Channel]:
         return self.channels.get(id)

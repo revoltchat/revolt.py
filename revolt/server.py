@@ -26,6 +26,8 @@ class Server:
     owner: Optional[:class:`Member`]
         The owner of the server
     """
+    __slots__ = ("state", "id", "name", "owner", "default_permissions", "_members", "_roles", "_channels")
+    
     def __init__(self, data: ServerPayload, state: State):
         self.state = state
         self.id = data["_id"]
