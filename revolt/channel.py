@@ -58,7 +58,7 @@ class GroupDMChannel(Channel, Messageable):
         self.owner = state.get_user(data["owner"])
 
 class TextChannel(Channel, Messageable):
-    __slots__ = ("name", "description", "last_message", "last_message_id") # "server" is already an attribute of "Channel" class
+    __slots__ = ("name", "description", "last_message", "last_message_id")
 
     """A text channel"""
     def __init__(self, data: TextChannelPayload, state: State):
