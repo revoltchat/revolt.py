@@ -20,11 +20,9 @@ class Messageable:
         The id of the channel
     """
     id: str
-    
-    __slots__ = ("state", "id")
+    state: State
 
-    def __init__(self, state: State):
-        self.state = state
+    __slots__ = ()
 
     async def send(self, content: Optional[str] = None, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None) -> Message:
         """Sends a message in a channel, you must send at least one of either `content`, `embeds` or `attachments`

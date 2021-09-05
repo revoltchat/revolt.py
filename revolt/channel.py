@@ -63,7 +63,6 @@ class TextChannel(Channel, Messageable):
     """A text channel"""
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
-        Messageable.__init__(self, state)
         
         self.server = state.get_server(data["server"])
         self.name = data["name"]
