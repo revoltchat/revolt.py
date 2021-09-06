@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from .message import Message
 
@@ -16,6 +16,8 @@ __all__ = (
     "AuthenticatePayload",
     "ReadyEventPayload",
     "MessageEventPayload",
+    "MessageUpdateEditedData",
+    "MessageUpdateData",
     "MessageUpdateEventPayload",
     "MessageDeleteEventPayload",
 )
@@ -35,9 +37,11 @@ class ReadyEventPayload(BasePayload):
 class MessageEventPayload(BasePayload, Message):
     pass
 
+MessageUpdateEditedData = TypedDict("MessageUpdateEditedData", {"$date": str})
+
 class MessageUpdateData(TypedDict):
     content: str
-    edited: dict[str, Any]
+    edited: MessageUpdateEditedData
 
 class MessageUpdateEventPayload(BasePayload):
     channel: str
