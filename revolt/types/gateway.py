@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from .message import Message
 
@@ -16,6 +16,8 @@ __all__ = (
     "AuthenticatePayload",
     "ReadyEventPayload",
     "MessageEventPayload",
+    "MessageUpdateEventPayload",
+    "MessageDeleteEventPayload",
 )
 
 class BasePayload(TypedDict):
@@ -32,3 +34,16 @@ class ReadyEventPayload(BasePayload):
 
 class MessageEventPayload(BasePayload, Message):
     pass
+
+class MessageUpdateData(TypedDict):
+    content: str
+    edited: dict[str, Any]
+
+class MessageUpdateEventPayload(BasePayload):
+    channel: str
+    data: MessageUpdateData
+    id: str
+
+class MessageDeleteEventPayload(BasePayload):
+    channel: str
+    id: str
