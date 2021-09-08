@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Callable, cast
 
-from .types import Message as MessagePayload
+from .types import Message as MessagePayload, MessageUpdateEventPayload, MessageDeleteEventPayload
 
 try:
     import ujson as json
@@ -96,6 +96,32 @@ class WebsocketHandler:
     async def handle_message(self, payload: MessageEventPayload):
         message = self.state.add_message(cast(MessagePayload, payload))
         self.dispatch("message", message)
+
+    async def handle_messageupdate(self, payload: MessageUpdateEventPayload):
+        self.dispatch("raw_message_update", payload)
+
+        message = self.state.get_message(payload["id"])
+        if message:
+            data = payload["data"]
+            kwargs = {}
+
+            if data["content"]:
+                kwargs["content"] = data["content"]
+
+            if data["edited"]["$date"]:
+                kwargs["edited_at"] = data["edited"]["$date"]
+
+            message._update(**kwargs)
+
+            self.dispatch("message_update", message)
+
+    async def handle_messagedelete(self, payload: MessageDeleteEventPayload):
+        self.dispatch("raw_message_delete", payload)
+
+        message = self.state.get_message(payload["id"])
+        if message:
+            self.state.messages.remove(message)
+            self.dispatch("message_delete", message)
 
     async def start(self):
         if use_msgpack:

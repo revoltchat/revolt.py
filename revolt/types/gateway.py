@@ -16,6 +16,10 @@ __all__ = (
     "AuthenticatePayload",
     "ReadyEventPayload",
     "MessageEventPayload",
+    "MessageUpdateEditedData",
+    "MessageUpdateData",
+    "MessageUpdateEventPayload",
+    "MessageDeleteEventPayload",
 )
 
 class BasePayload(TypedDict):
@@ -32,3 +36,18 @@ class ReadyEventPayload(BasePayload):
 
 class MessageEventPayload(BasePayload, Message):
     pass
+
+MessageUpdateEditedData = TypedDict("MessageUpdateEditedData", {"$date": str})
+
+class MessageUpdateData(TypedDict):
+    content: str
+    edited: MessageUpdateEditedData
+
+class MessageUpdateEventPayload(BasePayload):
+    channel: str
+    data: MessageUpdateData
+    id: str
+
+class MessageDeleteEventPayload(BasePayload):
+    channel: str
+    id: str
