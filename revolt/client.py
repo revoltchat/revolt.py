@@ -103,7 +103,7 @@ class Client:
         Optional[:class:`User`]
             The user if found
         """
-        self.state.get_user(id)
+        return self.state.get_user(id)
 
     def get_channel(self, id: str) -> Optional[Channel]:
         """Gets a channel from the cache
@@ -118,7 +118,7 @@ class Client:
         Optional[:class:`Channel`]
             The channel if found
         """
-        self.state.get_channel(id)
+        return self.state.get_channel(id)
 
     def get_server(self, id: str) -> Optional[Server]:
         """Gets a server from the cache
@@ -133,7 +133,7 @@ class Client:
         Optional[:class:`Server`]
             The server if found
         """
-        self.state.get_server(id)
+        return self.state.get_server(id)
 
     async def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None, timeout: Optional[float] = None) -> Any:
         """Waits for an event
