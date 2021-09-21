@@ -42,12 +42,12 @@ class Client:
     """
     __slots__ = ("session", "token", "api_url", "max_messages", "api_info", "http", "state", "websocket", "listeners")
     
-    def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
-        self.session = session
-        self.token = token
+    def __init__(self, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
         self.api_url = api_url
         self.max_messages = max_messages
-        
+
+        self.session: aiohttp.ClientSession
+        self.token: str
         self.api_info: ApiInfo
         self.http: HttpClient
         self.state: State
@@ -89,6 +89,16 @@ class Client:
         self.state = State(self.http, api_info, self.max_messages)
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
         await self.websocket.start()
+
+    def run(self, token: str):
+        """Creates the asyncio loop and starts the client"""
+        async def runner():
+            async with aiohttp.ClientSession() as session:
+                self.session = session
+                await self.start()
+
+        self.token = token
+        asyncio.run(runner())
 
     def get_user(self, id: str) -> Optional[User]:
         """Gets a user from the cache
