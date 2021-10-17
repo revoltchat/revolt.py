@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .user import User
 
@@ -46,3 +46,12 @@ class Member(User):
         self.roles = sorted(roles, key=lambda role: role.rank, reverse=True)
         
         self.server = server
+
+    @property
+    def owner(self) -> Optional[User]:
+        owner_id = self.owner_id
+
+        if not owner_id:
+            return
+
+        return self.state.get_user(owner_id)

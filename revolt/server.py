@@ -26,13 +26,13 @@ class Server:
     owner: Optional[:class:`Member`]
         The owner of the server
     """
-    __slots__ = ("state", "id", "name", "owner", "default_permissions", "_members", "_roles", "_channels")
+    __slots__ = ("state", "id", "name", "owner_id", "default_permissions", "_members", "_roles", "_channels")
     
     def __init__(self, data: ServerPayload, state: State):
         self.state = state
         self.id = data["_id"]
         self.name = data["name"]
-        self.owner = state.get_member(self.id, data["owner"])
+        self.owner_id = data["owner"]
         self.default_permissions = Permissions(data["default_permissions"])
         
         self._members: dict[str, Member] = {}
@@ -55,7 +55,7 @@ class Server:
         """list[:class:`Member`] Gets all channels in the server"""
         return list(self._channels.values())
 
-    def get_role(self, role_id: str) -> Optional[Role]:
+    def get_role(self, role_id: str) -> Role:
         """Gets a role from the cache
         
         Parameters
@@ -65,12 +65,12 @@ class Server:
         
         Returns
         --------
-        Optional[:class:`Role`]
-            The role if found
+        :class:`Role`
+            The role
         """
-        return self._roles.get(role_id)
+        return self._roles[role_id]
 
-    def get_member(self, member_id: str) -> Optional[Member]:
+    def get_member(self, member_id: str) -> Member:
         """Gets a member from the cache
         
         Parameters
@@ -80,12 +80,12 @@ class Server:
         
         Returns
         --------
-        Optional[:class:`Member`]
-            The member if found
+        :class:`Member`
+            The member
         """
-        return self._members.get(member_id)
+        return self._members[member_id]
 
-    def get_channel(self, channel_id: str) -> Optional[Channel]:
+    def get_channel(self, channel_id: str) -> Channel:
         """Gets a channel from the cache
         
         Parameters
@@ -95,7 +95,16 @@ class Server:
         
         Returns
         --------
-        Optional[:class:`Channel`]
-            The channel if found
+        :class:`Channel`
+            The channel
         """
-        self._channels.get(channel_id)
+        return self._channels[channel_id]
+
+    @property
+    def owner(self) -> Optional[Member]:
+        owner_id = self.owner_id
+
+        if not owner_id:
+            return
+
+        return self.get_member(owner_id)

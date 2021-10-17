@@ -34,35 +34,29 @@ class State:
         self.servers: dict[str, Server] = {}
         self.messages: deque[Message] = deque()
 
-    def get_user(self, id: str) -> Optional[User]:
-        return self.users.get(id)
+    def get_user(self, id: str) -> User:
+        return self.users[id]
 
-    def get_member(self, server_id: str, member_id: str) -> Optional[Member]:
-        server = self.servers.get(server_id)
-        
-        if server:
-            return server.get_member(member_id)
+    def get_member(self, server_id: str, member_id: str) -> Member:
+        server = self.servers[server_id]
+        return server.get_member(member_id)
 
-    def get_channel(self, id: str) -> Optional[Channel]:
-        return self.channels.get(id)
+    def get_channel(self, id: str) -> Channel:
+        return self.channels[id]
 
-    def get_server(self, id: str) -> Optional[Server]:
-        return self.servers.get(id)
+    def get_server(self, id: str) -> Server:
+        return self.servers[id]
 
     def add_user(self, payload: UserPayload) -> User:
         user = User(payload, self)
         self.users[user.id] = user
         return user
 
-    def add_member(self, server_id: str, payload: MemberPayload) -> Optional[Member]:
+    def add_member(self, server_id: str, payload: MemberPayload) -> Member:
         server = self.get_server(server_id)
-
-        if not server:
-            return
-
         member = Member(payload, server, self)
-
         server._members[member.id] = member
+
         return member
 
     def add_channel(self, payload: ChannelPayload) -> Channel:
@@ -83,10 +77,12 @@ class State:
         self.messages.appendleft(message)
         return message
 
-    def get_message(self, message_id: str) -> Optional[Message]:
+    def get_message(self, message_id: str) -> Message:
         for msg in self.messages:
             if msg.id == message_id:
                 return msg
+        
+        raise KeyError
 
     async def fetch_all_server_members(self):
         for server_id in self.servers.keys():

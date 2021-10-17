@@ -51,7 +51,7 @@ class User:
     status: Optional[:class:`Status`]
         The users status
     """
-    __flattern_attributes__ = ("id", "name", "bot", "owner", "badges", "online", "flags", "avatar", "relations", "relationship", "status")
+    __flattern_attributes__ = ("id", "name", "bot", "owner_id", "badges", "online", "flags", "avatar", "relations", "relationship", "status")
     __slots__ = (*__flattern_attributes__, "state")
 
     def __init__(self, data: UserPayload, state: State):
@@ -62,10 +62,10 @@ class User:
         bot = data.get("bot")
         if bot:
             self.bot = True
-            self.owner = state.get_user(bot["owner"])
+            self.owner_id = bot["owner"]
         else:
             self.bot = False
-            self.owner = None
+            self.owner_id = None
 
         self.badges = data.get("badges", 0)
         self.online = data.get("online", False)
@@ -91,3 +91,12 @@ class User:
             self.status = Status(status.get("text"), PresenceType(presence) if presence else None) if status else None
         else:
             self.status = None
+
+    @property
+    def owner(self) -> Optional[User]:
+        owner_id = self.owner_id
+
+        if not owner_id:
+            return
+
+        return self.state.get_user(owner_id)

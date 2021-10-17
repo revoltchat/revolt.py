@@ -55,6 +55,8 @@ class Client:
 
         self.listeners: dict[str, list[tuple[Callable[..., bool], asyncio.Future[Any]]]] = {}
 
+        super().__init__()
+
     def dispatch(self, event: str, *args: Any):
         """Dispatch an event, this is typically used for testing and internals.
         

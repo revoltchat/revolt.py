@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, Optional
 
 from .enums import ChannelType
 from .messageable import Messageable
@@ -12,8 +12,10 @@ if TYPE_CHECKING:
     from .types import Group as GroupDMChannelPayload
     from .types import SavedMessages as SavedMessagesPayload
     from .types import TextChannel as TextChannelPayload
+    from .types import VoiceChannel as VoiceChannelPayload
     from .user import User
-
+    from .server import Server
+    from .message import Message
 
 __all__ = ("Channel",)
 
@@ -29,13 +31,20 @@ class Channel:
     server: Optional[:class:`Server`]
         The server the channel is part of
     """
-    __slots__ = ("state", "id", "channel_type", "server")
-    
+    __slots__ = ("state", "id", "channel_type", "server_id")
+
     def __init__(self, data: ChannelPayload, state: State):
         self.state = state
         self.id = data["_id"]
         self.channel_type = ChannelType(data["channel_type"])
-        self.server = None
+        self.server_id = ""
+
+    @property
+    def server(self) -> Server:
+        return self.state.get_server(self.server_id)
+
+    def _update(self):
+        pass
 
 class SavedMessageChannel(Channel, Messageable):
     """The Saved Message Channel"""
@@ -53,29 +62,57 @@ class GroupDMChannel(Channel, Messageable):
     """A group DM channel"""
     def __init__(self, data: GroupDMChannelPayload, state: State):
         super().__init__(data, state)
-        self.recipients = cast(list[User], list(filter(bool, [state.get_user(user_id) for user_id in data["recipients"]])))
+        self.recipients = [state.get_user(user_id) for user_id in data["recipients"]]
         self.name = data["name"]
         self.owner = state.get_user(data["owner"])
 
+    def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None):
+        if name:
+            self.name = name
+        
+        if recipients:
+            self.recipients = [self.state.get_user(user_id) for user_id in recipients]
+
 class TextChannel(Channel, Messageable):
-    __slots__ = ("name", "description", "last_message", "last_message_id")
+    __slots__ = ("name", "description", "last_message_id", "server_id")
 
     """A text channel"""
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
         
-        self.server = state.get_server(data["server"])
+        self.server_id = data["server"]
         self.name = data["name"]
         self.description = data.get("description")
         
         last_message_id = data.get("last_message")
-        self.last_message = state.get_message(last_message_id)
         self.last_message_id = last_message_id
+
+    @property
+    def last_message(self) -> Message:
+        return self.state.get_message(self.last_message_id)
+
+    def _update(self, *, name: Optional[str] = None, description: Optional[str] = None):
+        if name:
+            self.name = name
+
+        if description:
+            self.description = description
 
 class VoiceChannel(Channel):
     """A voice channel"""
-    def __init__(self, data: ChannelPayload, state: State):
+    def __init__(self, data: VoiceChannelPayload, state: State):
         super().__init__(data, state)
+
+        self.server_id = data["server"]
+        self.name = data["name"]
+        self.description = data.get("description")
+
+    def _update(self, *, name: Optional[str] = None, description: Optional[str] = None):
+        if name:
+            self.name = name
+
+        if description:
+            self.description = description
 
 def channel_factory(data: ChannelPayload, state: State) -> Channel:
     if data["channel_type"] == "SavedMessage":

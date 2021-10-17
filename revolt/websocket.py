@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import copy
 from typing import TYPE_CHECKING, Callable, cast
 
-from .types import Message as MessagePayload, MessageUpdateEventPayload, MessageDeleteEventPayload
+from .types import Message as MessagePayload, MessageUpdateEventPayload, MessageDeleteEventPayload, ChannelCreateEventPayload, ChannelUpdateEventPayload, ChannelDeleteEventPayload, ChannelStartTypingEventPayload, ChannelDeleteTypingEventPayload
 
 try:
     import ujson as json
@@ -80,11 +81,12 @@ class WebsocketHandler:
         for user in payload["users"]:
             self.state.add_user(user)
 
+        for channel in payload["channels"]:
+            self.state.add_channel(channel)
+
         for server in payload["servers"]:
             self.state.add_server(server)
 
-        for channel in payload["channels"]:
-            self.state.add_channel(channel)
 
         for member in payload["members"]:
             self.state.add_member(member["_id"]["server"], member)
@@ -101,19 +103,19 @@ class WebsocketHandler:
         self.dispatch("raw_message_update", payload)
 
         message = self.state.get_message(payload["id"])
-        if message:
-            data = payload["data"]
-            kwargs = {}
 
-            if data["content"]:
-                kwargs["content"] = data["content"]
+        data = payload["data"]
+        kwargs = {}
 
-            if data["edited"]["$date"]:
-                kwargs["edited_at"] = data["edited"]["$date"]
+        if data["content"]:
+            kwargs["content"] = data["content"]
 
-            message._update(**kwargs)
+        if data["edited"]["$date"]:
+            kwargs["edited_at"] = data["edited"]["$date"]
 
-            self.dispatch("message_update", message)
+        message._update(**kwargs)
+
+        self.dispatch("message_update", message)
 
     async def handle_messagedelete(self, payload: MessageDeleteEventPayload):
         self.dispatch("raw_message_delete", payload)
@@ -122,6 +124,44 @@ class WebsocketHandler:
         if message:
             self.state.messages.remove(message)
             self.dispatch("message_delete", message)
+
+    async def handle_channelcreate(self, payload: ChannelCreateEventPayload):
+        channel = self.state.add_channel(payload)
+
+        self.dispatch("channel_create", channel)
+
+    async def handle_channelupdate(self, payload: ChannelUpdateEventPayload):
+        channel = self.state.get_channel(payload["id"])
+
+        old_channel = copy(channel)
+
+        channel._update(**payload["data"])
+
+        if clear := payload.get("clear"):
+            if clear == "Icon":
+                pass  # TODO
+
+            elif clear == "Description":
+                channel.description = None  # type: ignore
+
+        self.dispatch("channel_update", old_channel, channel)
+
+    async def handle_channeldelete(self, payload: ChannelDeleteEventPayload):
+        channel = self.state.channels.pop(payload["id"])
+
+        self.dispatch("channel_delete", channel)
+
+    async def handle_channelstarttyping(self, payload: ChannelStartTypingEventPayload):
+        channel = self.state.get_channel(payload["id"])
+        user = self.state.get_user(payload["user"])
+
+        self.dispatch("typing_start", channel, user)
+
+    async def handle_channeldeletetyping(self, payload: ChannelDeleteTypingEventPayload):
+        channel = self.state.get_channel(payload["id"])
+        user = self.state.get_user(payload["user"])
+
+        self.dispatch("typing_delete", channel, user)
 
     async def start(self):
         if use_msgpack:
