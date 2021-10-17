@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, TypedDict, Union
 
 from .message import Message
+from .channel import Channel, SavedMessages, DMChannel, Group, TextChannel, VoiceChannel
 
 if TYPE_CHECKING:
-    from .channel import Channel
     from .member import Member
     from .server import Server
     from .user import User
@@ -20,6 +20,11 @@ __all__ = (
     "MessageUpdateData",
     "MessageUpdateEventPayload",
     "MessageDeleteEventPayload",
+    "ChannelCreateEventPayload",
+    "ChannelUpdateEventPayload",
+    "ChannelDeleteEventPayload",
+    "ChannelStartTypingEventPayload",
+    "ChannelDeleteTypingEventPayload"
 )
 
 class BasePayload(TypedDict):
@@ -51,3 +56,34 @@ class MessageUpdateEventPayload(BasePayload):
 class MessageDeleteEventPayload(BasePayload):
     channel: str
     id: str
+
+class ChannelCreateEventPayload_SavedMessages(BasePayload, SavedMessages):
+    pass
+
+class ChannelCreateEventPayload_Group(BasePayload, Group):
+    pass
+
+class ChannelCreateEventPayload_TextChannel(BasePayload, TextChannel):
+    pass
+
+class ChannelCreateEventPayload_VoiceChannel(BasePayload, VoiceChannel):
+    pass
+
+class ChannelCreateEventPayload_DMChannel(BasePayload, DMChannel):
+    pass
+
+ChannelCreateEventPayload = Union[ChannelCreateEventPayload_Group, ChannelCreateEventPayload_Group, ChannelCreateEventPayload_TextChannel, ChannelCreateEventPayload_VoiceChannel, ChannelCreateEventPayload_DMChannel]
+
+class ChannelUpdateEventPayload(BasePayload):
+    id: str
+    data: ...
+    clear: ...
+
+class ChannelDeleteEventPayload(BasePayload):
+    id: str
+
+class ChannelStartTypingEventPayload(BasePayload):
+    id: str
+    user: str
+
+ChannelDeleteTypingEventPayload = ChannelStartTypingEventPayload
