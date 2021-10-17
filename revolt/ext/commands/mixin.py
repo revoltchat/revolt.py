@@ -28,7 +28,7 @@ class CommandsMeta(type):
         self._commands = commands
 
         for command in commands:
-            command._client = self  # typing: ignore
+            command._client = self  # type: ignore
 
         return self
 
