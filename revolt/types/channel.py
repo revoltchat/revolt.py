@@ -46,7 +46,7 @@ class Group(_NonceChannel, _GroupOptional, BaseChannel):
 class _TextChannelOptional(TypedDict, total=False):
     icon: File
     default_permissions: int
-    role_permissions: int
+    role_permissions: dict[str, int]
 
 class TextChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
     server: str
