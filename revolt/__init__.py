@@ -9,7 +9,7 @@ from .file import File
 from .member import Member
 from .message import Message
 from .messageable import Messageable
-from .permissions import Permissions
+from .permissions import ChannelPermissions, ServerPermissions
 from .role import Role
 from .server import Server
 from .user import Relation, Status, User

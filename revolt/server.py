@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, cast
 
 from .channel import Channel
-from .permissions import Permissions
+from .permissions import ServerPermissions
 from .role import Role
 
 if TYPE_CHECKING:
@@ -33,10 +33,10 @@ class Server:
         self.id = data["_id"]
         self.name = data["name"]
         self.owner_id = data["owner"]
-        self.default_permissions = Permissions(data["default_permissions"])
+        self.default_permissions = ServerPermissions(*data["default_permissions"])
         
         self._members: dict[str, Member] = {}
-        self._roles: dict[str, Role] = {role_id: Role(role, role_id, state) for role_id, role in data.get("roles", {}).items()}
+        self._roles: dict[str, Role] = {role_id: Role(role, role_id, state, self) for role_id, role in data.get("roles", {}).items()}
         channels = cast(list[Channel], list(filter(bool, [state.get_channel(channel_id) for channel_id in data["channels"]])))
         self._channels: dict[str, Channel] = {channel.id: channel for channel in channels}
 
@@ -108,3 +108,12 @@ class Server:
             return
 
         return self.get_member(owner_id)
+
+    async def set_default_permissions(self, permissions: ServerPermissions) -> None:
+        """Sets the default server permissions.
+        Parameters
+        -----------
+        permissions: :class:`ServerPermissions`
+            The new default server permissions
+        """
+        await self.state.http.set_default_permissions(self.id, *permissions.value)

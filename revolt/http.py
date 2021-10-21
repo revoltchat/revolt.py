@@ -270,6 +270,14 @@ class HttpClient:
     def close_channel(self, channel_id: str) -> Request[None]:
         return self.request("DELETE", f"/channels/{channel_id}")
 
+    def set_channel_role_permissions(self, channel_id: str, role_id: str, channel_permissions: int) -> Request[None]:
+        payload = {"permissions": channel_permissions}
+        return self.request("PUT", f"/channels/{channel_id}/permissions/{role_id}", json=payload)
+
+    def set_channel_default_permissions(self, channel_id: str, channel_permissions: int) -> Request[None]:
+        payload = {"permissions": channel_permissions}
+        return self.request("PUT", f"/channels/{channel_id}/permissions/default", json=payload)
+
     def fetch_server(self, server_id: str) -> Request[Server]:
         return self.request("GET", f"/servers/{server_id}")
 
@@ -312,16 +320,20 @@ class HttpClient:
 
     def set_role_permissions(self, server_id: str, role_id: str, server_permissions: int, channel_permissions: int) -> Request[None]:
         payload = {
-            "server": server_permissions,
-            "channel": channel_permissions
+            "permissions": {
+                "server": server_permissions,
+                "channel": channel_permissions
+            }
         }
 
         return self.request("PUT", f"/servers/{server_id}/permissions/{role_id}", json=payload, nonce=False)
     
     def set_default_permissions(self, server_id: str, server_permissions: int, channel_permissions: int) -> Request[None]:
         payload = {
-            "server": server_permissions,
-            "channel": channel_permissions
+            "permissions": {
+                "server": server_permissions,
+                "channel": channel_permissions
+            }
         }
 
         return self.request("PUT", f"/servers/{server_id}/permissions/default", json=payload, nonce=False)

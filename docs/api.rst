@@ -87,7 +87,10 @@ Messageable
 Permissions
 ~~~~~~~~~~~~
 
-.. autoclass:: Permissions
+.. autoclass:: ChannelPermissions
+    :members:
+
+.. autoclass:: ServerPermissions
     :members:
 
 Role
