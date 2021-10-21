@@ -1,7 +1,5 @@
 import asyncio
-
 import aiohttp
-
 import revolt
 
 
