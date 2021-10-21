@@ -79,7 +79,7 @@ class GroupDMChannel(Channel, Messageable):
             self.recipients = [self.state.get_user(user_id) for user_id in recipients]
 
     async def set_default_permissions(self, permissions: ChannelPermissions) -> None:
-        """Sets the default permissions for a group
+        """Sets the default permissions for a group.
         Parameters
         -----------
         permissions: :class:`ChannelPermissions`
@@ -119,7 +119,7 @@ class TextChannel(Channel, Messageable):
             self.description = description
 
     async def set_default_permissions(self, permissions: ChannelPermissions) -> None:
-        """Sets the default permissions for a channel
+        """Sets the default permissions for a channel.
         Parameters
         -----------
         permissions: :class:`ChannelPermissions`
@@ -128,7 +128,7 @@ class TextChannel(Channel, Messageable):
         await self.state.http.set_channel_default_permissions(self.id, permissions.value)
 
     async def set_role_permissions(self, role: Role, permissions: ChannelPermissions) -> None:
-        """Sets the permissions for a role in a channel
+        """Sets the permissions for a role in a channel.
         Parameters
         -----------
         permissions: :class:`ChannelPermissions`
@@ -159,7 +159,7 @@ class VoiceChannel(Channel):
             self.description = description
 
     async def set_default_permissions(self, permissions: ChannelPermissions) -> None:
-        """Sets the default permissions for a voice channel
+        """Sets the default permissions for a voice channel.
         Parameters
         -----------
         permissions: :class:`ChannelPermissions`

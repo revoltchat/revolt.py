@@ -90,7 +90,7 @@ class _Permission:
         return (self._value >> bit_pos) & 1 == 1
 
 class ChannelPermissions(_Permission):
-    """Represents the channel permissions for a role as seen in channel settings """
+    """Represents the channel permissions for a role as seen in channel settings."""
     
     __slots__ = ()
 
@@ -166,7 +166,7 @@ class ChannelPermissions(_Permission):
         return self._check(7)
 
 class ServerPermissions:
-    """Represents the server permissions for a role as seen in server settings """
+    """Represents the server permissions for a role as seen in server settings."""
     
     __slots__ = ("_server_perms", "_channel_perms", )
 

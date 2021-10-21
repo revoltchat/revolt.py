@@ -110,7 +110,7 @@ class Server:
         return self.get_member(owner_id)
 
     async def set_default_permissions(self, permissions: ServerPermissions) -> None:
-        """Sets the default server permissions
+        """Sets the default server permissions.
         Parameters
         -----------
         permissions: :class:`ServerPermissions`

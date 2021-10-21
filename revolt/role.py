@@ -49,7 +49,7 @@ class Role:
         return self.colour
 
     async def set_permissions(self, permissions: ServerPermissions) -> None:
-        """Sets the permissions for a role in a server
+        """Sets the permissions for a role in a server.
         Parameters
         -----------
         permissions: :class:`ServerPermissions`
