@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import copy
+from copy import copy
 from typing import TYPE_CHECKING, Callable, cast
 
 from .types import Message as MessagePayload, MessageUpdateEventPayload, MessageDeleteEventPayload, ChannelCreateEventPayload, ChannelUpdateEventPayload, ChannelDeleteEventPayload, ChannelStartTypingEventPayload, ChannelDeleteTypingEventPayload
