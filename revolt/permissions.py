@@ -206,7 +206,7 @@ class ServerPermissions:
 
     @classmethod
     def all(cls) -> ServerPermissions:
-        # channel permissions here do not have manage server permission
+        # channel permissions here do not have manage channel permission
         return cls(0b00000000000000001111000000111111, 0b00000000000000000000000011110111)
 
     # view server and view channel are always present and therefore are included in every permission below
@@ -323,7 +323,7 @@ class ServerPermissions:
         return cls(1, 0b00000000000000000000000010000001)
 
     @property
-    def can_view(self) -> bool:
+    def can_view_channel(self) -> bool:
         return self._channel_perms._check(0)
 
     @property
