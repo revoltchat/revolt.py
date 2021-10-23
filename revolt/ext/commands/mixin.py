@@ -34,8 +34,6 @@ class CommandsMeta(type):
 class CommandsMixin(metaclass=CommandsMeta):
     """Main class that adds commands, this class should be subclassed along with `revolt.Client`."""
 
-    __slots__ = ("_commands", "all_commands")
-
     _commands: list[Command]
     dispatch: Callable[..., None]
 
