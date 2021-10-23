@@ -15,4 +15,4 @@ from .role import Role
 from .server import Server
 from .user import Relation, Status, User
 
-__version__ = (0, 0, 1)
+__version__ = (0, 1, 0)

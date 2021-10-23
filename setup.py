@@ -8,14 +8,14 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="revolt.py",
-    version="0.0.1",
+    version="0.1.0",
     description="Python wrapper around revolt.chat",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Zomatree/revolt.py",
     author="Zomatree",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 3 - Beta",
 
         "Intended Audience :: Developers",
 
