@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypedDict, Union
 
+from .channel import (Channel, DMChannel, Group, SavedMessages, TextChannel,
+                      VoiceChannel)
 from .message import Message
-from .channel import Channel, SavedMessages, DMChannel, Group, TextChannel, VoiceChannel
 
 if TYPE_CHECKING:
     from .member import Member

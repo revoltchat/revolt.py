@@ -5,7 +5,11 @@ import logging
 from copy import copy
 from typing import TYPE_CHECKING, Callable, cast
 
-from .types import Message as MessagePayload, MessageUpdateEventPayload, MessageDeleteEventPayload, ChannelCreateEventPayload, ChannelUpdateEventPayload, ChannelDeleteEventPayload, ChannelStartTypingEventPayload, ChannelDeleteTypingEventPayload
+from .types import (ChannelCreateEventPayload, ChannelDeleteEventPayload,
+                    ChannelDeleteTypingEventPayload,
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
+from .types import Message as MessagePayload
+from .types import MessageDeleteEventPayload, MessageUpdateEventPayload
 
 try:
     import ujson as json

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from .enums import ChannelType
 from .messageable import Messageable
 from .permissions import ChannelPermissions
 
 if TYPE_CHECKING:
+    from .message import Message
     from .role import Role
+    from .server import Server
     from .state import State
     from .types import Channel as ChannelPayload
     from .types import DMChannel as DMChannelPayload
@@ -16,8 +18,6 @@ if TYPE_CHECKING:
     from .types import TextChannel as TextChannelPayload
     from .types import VoiceChannel as VoiceChannelPayload
     from .user import User
-    from .server import Server
-    from .message import Message
 
 __all__ = ("Channel",)
 

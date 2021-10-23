@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Optional
+
 import revolt
 from revolt.utils import copy_doc
 

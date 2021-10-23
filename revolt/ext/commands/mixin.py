@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from typing import Any, Callable, Union
+
 import revolt
 
-from .context import Context
 from .command import Command
+from .context import Context
 from .errors import CommandNotFound
 
 __all__ = (

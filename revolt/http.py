@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, overload, TypeVar,
-                    Union)
+from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, TypeVar,
+                    Union, overload)
 
 import aiohttp
 import ulid
@@ -17,15 +17,16 @@ except ImportError:
 if TYPE_CHECKING:
     import aiohttp
 
-    from .file import File
     from .enums import SortType
+    from .file import File
     from .types import ApiInfo
     from .types import Autumn as AutumnPayload
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
-    from .types import GetServerMembers, Member, MessageWithUserData
+    from .types import GetServerMembers, Member
     from .types import Message as MessagePayload
-    from .types import Role, Server, ServerBans, ServerInvite, TextChannel
+    from .types import (MessageWithUserData, Role, Server, ServerBans,
+                        ServerInvite, TextChannel)
     from .types import User as UserPayload
     from .types import UserProfile, VoiceChannel
 

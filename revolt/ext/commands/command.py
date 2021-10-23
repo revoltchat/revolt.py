@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import traceback
-import revolt
-from typing import Callable, Coroutine, Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional
 
+import revolt
 from revolt.utils import copy_doc
 
 if TYPE_CHECKING:
