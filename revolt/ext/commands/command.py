@@ -4,6 +4,8 @@ import traceback
 import revolt
 from typing import Callable, Coroutine, Any, Optional, TYPE_CHECKING
 
+from revolt.utils import copy_doc
+
 if TYPE_CHECKING:
     from .context import Context
 
@@ -34,9 +36,9 @@ class Command:
         self.name = name
         self.aliases = aliases
 
-    async def invoke(self, context: Context, args: list[str]) -> Any:
+    async def invoke(self, context: Context, args: list[Any]) -> Any:
         """Runs the command and calls the error handler if the command errors.
-        
+
         Parameters
         -----------
         context: :class:`Context`
@@ -48,6 +50,10 @@ class Command:
             return await self.callback(self._client, context, *args)
         except Exception as err:
             return await self._error_handler(context, err)
+
+    @copy_doc(invoke)
+    def __call__(self, context: Context, args: list[Any]) -> Any:
+        return self.invoke(context, args)
 
     def error(self, func: Callable[..., Coroutine[Any, Any, Any]]):
         """Sets the error handler for the command.
@@ -73,7 +79,7 @@ class Command:
     async def _error_handler(ctx: Context, error: Exception):
         traceback.print_exception(type(error), error, error.__traceback__)
 
-def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None):
+def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command] = Command):
     """Turns a function into a :class:`Command`.
     
     Parameters
@@ -89,6 +95,6 @@ def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None):
         The command
     """
     def inner(func: Callable[..., Coroutine[Any, Any, Any]]):
-        return Command(func, name or func.__name__, aliases or [])
+        return cls(func, name or func.__name__, aliases or [])
     
     return inner
