@@ -15,7 +15,7 @@ setup(
     url="https://github.com/Zomatree/revolt.py",
     author="Zomatree",
     classifiers=[
-        "Development Status :: 3 - Beta",
+        "Development Status :: 4 - Beta",
 
         "Intended Audience :: Developers",
 
