@@ -48,5 +48,5 @@ class Message(_OptionalMessage):
     _id: str
     channel: str
     author: str
-    mentions: List[int]
+    mentions: List[str]
     content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBannedContent, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChangeContent]

@@ -42,7 +42,7 @@ class Message:
     
     def __init__(self, data: MessagePayload, state: State):
         self.state = state
-        self.mentions = data["mentions"]
+        self.mentions = [self.state.get_member(self.server.id, mention) for mention in data["mentions"]]
         self.id = data["_id"]
         self.content = data["content"]
         self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]
