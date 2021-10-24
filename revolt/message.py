@@ -10,6 +10,7 @@ from .embed import Embed
 if TYPE_CHECKING:
     from .state import State
     from .types import Message as MessagePayload
+    from .user import User
 
 
 __all__ = ("Message",)
@@ -42,7 +43,7 @@ class Message:
     
     def __init__(self, data: MessagePayload, state: State):
         self.state = state
-        self.mentions = [self.state.get_member(self.server.id, mention) for mention in data["mentions"]]
+        self.mentions: list[User] = [self.state.get_user(mention) for mention in data["mentions"]]
         self.id = data["_id"]
         self.content = data["content"]
         self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]

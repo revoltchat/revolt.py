@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, TypedDict, Union
+from typing import TYPE_CHECKING, TypedDict, Union
 
 if TYPE_CHECKING:
     from .embed import Embed
@@ -48,5 +48,5 @@ class Message(_OptionalMessage):
     _id: str
     channel: str
     author: str
-    mentions: List[str]
+    mentions: list[str]
     content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBannedContent, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChangeContent]
