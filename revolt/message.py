@@ -35,12 +35,14 @@ class Message:
         The author of the message, will be :class:`User` in DMs
     edited_at: Optional[:class:`datetime.datetime`]
         The time at which the message was edited, will be None if the message has not been edited
+    mentions: List[:class:int]
+        The user IDs which were mentioned in the message
     """
-    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "server", "author", "edited_at")
+    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "server", "author", "edited_at", "mentions")
     
     def __init__(self, data: MessagePayload, state: State):
         self.state = state
-        
+        self.mentions = data["mentions"]
         self.id = data["_id"]
         self.content = data["content"]
         self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]
