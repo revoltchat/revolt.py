@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict, Union
+from typing import TYPE_CHECKING, TypedDict, Union, Literal
 
 from .channel import (Channel, DMChannel, Group, SavedMessages, TextChannel,
                       VoiceChannel)
@@ -25,7 +25,8 @@ __all__ = (
     "ChannelUpdateEventPayload",
     "ChannelDeleteEventPayload",
     "ChannelStartTypingEventPayload",
-    "ChannelDeleteTypingEventPayload"
+    "ChannelDeleteTypingEventPayload",
+    "ServerUpdateEventPayload"
 )
 
 class BasePayload(TypedDict):
@@ -78,7 +79,7 @@ ChannelCreateEventPayload = Union[ChannelCreateEventPayload_Group, ChannelCreate
 class ChannelUpdateEventPayload(BasePayload):
     id: str
     data: ...
-    clear: ...
+    clear: Literal["Icon", "Description"]
 
 class ChannelDeleteEventPayload(BasePayload):
     id: str
@@ -88,3 +89,8 @@ class ChannelStartTypingEventPayload(BasePayload):
     user: str
 
 ChannelDeleteTypingEventPayload = ChannelStartTypingEventPayload
+
+class ServerUpdateEventPayload(BasePayload):
+    id: str
+    data: dict
+    clear: Literal["Icon", "Banner", "Description"]

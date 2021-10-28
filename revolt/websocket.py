@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Callable, cast
 
 from .types import (ChannelCreateEventPayload, ChannelDeleteEventPayload,
                     ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload, ServerUpdateEventPayload)
 from .types import Message as MessagePayload
 from .types import MessageDeleteEventPayload, MessageUpdateEventPayload
 
@@ -161,11 +161,30 @@ class WebsocketHandler:
 
         self.dispatch("typing_start", channel, user)
 
-    async def handle_channeldeletetyping(self, payload: ChannelDeleteTypingEventPayload):
+    async def handle_channelstoptyping(self, payload: ChannelDeleteTypingEventPayload):
         channel = self.state.get_channel(payload["id"])
         user = self.state.get_user(payload["user"])
 
-        self.dispatch("typing_delete", channel, user)
+        self.dispatch("typing_stop", channel, user)
+
+    async def handle_serverupdate(self, payload: ServerUpdateEventPayload):
+        server = self.state.get_server(payload["id"])
+
+        old_server = copy(server)
+
+        server._update(**payload["data"])
+
+        if clear := payload.get("clear"):
+            if clear == "Icon":
+                server.icon = None
+
+            elif clear == "Banner":
+                server.banner = None
+
+            elif clear == "Description":
+                server.description = None
+
+        self.dispatch("server_update", old_server, server)
 
     async def start(self):
         if use_msgpack:

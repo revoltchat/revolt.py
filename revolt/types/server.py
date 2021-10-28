@@ -13,6 +13,7 @@ __all__ = (
     "BannedUser",
     "Ban",
     "ServerBans",
+    "SystemMessagesConfig"
 )
 
 class SystemMessagesConfig(TypedDict, total=False):
@@ -29,8 +30,9 @@ class _ServerOptional(TypedDict, total=False):
     roles: list[Role]
     icon: File
     banner: File
+    nsfw: bool
 
-class Server(TypedDict):
+class Server(_ServerOptional):
     _id: str
     owner: str
     name: str

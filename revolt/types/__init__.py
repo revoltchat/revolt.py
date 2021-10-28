@@ -1,3 +1,4 @@
+from .category import *
 from .channel import *
 from .embed import *
 from .file import *

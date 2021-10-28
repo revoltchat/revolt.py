@@ -9,4 +9,4 @@ __all__ = ("Category",)
 class Category(TypedDict):
     id: str
     title: str
-    channels: list[Channel]
+    channels: list[str]

@@ -105,6 +105,20 @@ Server
 .. autoclass:: Server
     :members:
 
+Category
+~~~~~~~~~
+
+.. autoclass:: Category
+    :members:
+
+
+SystemMessages
+~~~~~~~~~~~~~~~
+
+.. autoclass:: SystemMessages
+    :members:
+
+
 User
 ~~~~~
 
