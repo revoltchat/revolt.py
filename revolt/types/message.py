@@ -40,9 +40,14 @@ class ChannelDescriptionChangeContent(TypedDict):
 class ChannelIconChangeContent(TypedDict):
     by: str
 
+MessageEdited = TypedDict("MessageEdited", {"$date": str})
+
 class _OptionalMessage(TypedDict):
     attachments: list[File]
     embeds: list[Embed]
+    mentions: list[str]
+    replies: list[str]
+    edited: MessageEdited
 
 class Message(_OptionalMessage):
     _id: str

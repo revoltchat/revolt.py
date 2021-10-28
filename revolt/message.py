@@ -16,7 +16,7 @@ __all__ = ("Message",)
 
 class Message:
     """Represents a message
-    
+
     Attributes
     -----------
     id: :class:`str`
@@ -35,12 +35,18 @@ class Message:
         The author of the message, will be :class:`User` in DMs
     edited_at: Optional[:class:`datetime.datetime`]
         The time at which the message was edited, will be None if the message has not been edited
+    mentions: list[Union[:class:`Member`, :class:`User`]]
+        The users or members that where mentioned in the message
+    replies: list[:class:`Message`]
+        The message's this message has replied to, this may not contain all the messages if they are outside the cache
+    reply_ids: list[:class:`str`]
+        The message's ids this message has replies to
     """
-    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "server", "author", "edited_at")
-    
+    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "server", "author", "edited_at", "mentions", "replies", "reply_ids")
+
     def __init__(self, data: MessagePayload, state: State):
         self.state = state
-        
+
         self.id = data["_id"]
         self.content = data["content"]
         self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]
@@ -51,7 +57,7 @@ class Message:
         self.channel = channel
 
         self.server = self.channel and self.channel.server
-        
+
         if self.server:
             author = state.get_member(self.server.id, data["author"])
         else:
@@ -60,7 +66,25 @@ class Message:
         assert author
         self.author = author
 
-        self.edited_at: Optional[datetime.datetime] = None
+        if edited_at := data.get("edited"):
+            self.edited_at: Optional[datetime.datetime] = datetime.datetime.strptime(edited_at["$date"], "%Y-%m-%dT%H:%M:%S.%f%z")
+
+        if self.server:
+            self.mentions = [self.server.get_member(member_id) for member_id in data.get("mentions", [])]
+        else:
+            self.mentions = [state.get_user(member_id) for member_id in data.get("mentions", [])]
+
+        self.replies = []
+        self.reply_ids = []
+
+        for reply in data.get("replies", []):
+            try:
+                message = state.get_message(reply)
+                self.replies.append(message)
+            except KeyError:
+                pass
+
+            self.reply_ids.append(reply)
 
     def _update(self, *, content: Optional[str] = None, edited_at: Optional[str] = None) -> Message:
         if content:
