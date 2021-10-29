@@ -1,17 +1,22 @@
 from __future__ import annotations
 
 from typing import Any, Callable, Union
+import re
 
 import revolt
 
 from .command import Command
 from .context import Context
-from .errors import CommandNotFound
+from .errors import CommandNotFound, NoClosingQuote
 
 __all__ = (
     "CommandsMeta",
     "CommandsMixin"
 )
+
+quote_regex = re.compile(r"[\"']")
+chunk_regex = re.compile(r"\S+")
+
 
 class CommandsMeta(type):
     _commands: list[Command]
@@ -108,26 +113,26 @@ class CommandsMixin(metaclass=CommandsMeta):
             The arguments from the content
         """
         args = []
+        i = 0
 
-        temp: list[str] = []
-        quoted = False
-        quote_char = ""
+        while i < len(content):
+            char = content[i]
 
-        for char in content:
-            if char == " " and not quoted:
-                args.append("".join(temp))
-                temp = []
-
-            elif char in ["\"", "'"] and not quoted:
-                quoted = True
-                quote_char = char            
-
-            elif char == quote_char and quoted:
-                quoted = False
-                args.append("".join(temp))
-
+            if re.match(quote_regex, char):
+                try:
+                    j = content.index(char, i + 1)
+                    args.append(content[i + 1:j])
+                    i = j
+                except ValueError:
+                    raise NoClosingQuote("Missing closing quote.")
             else:
-                temp.append(char)
+                match = chunk_regex.match(content, i)
+
+                if match:
+                    args.append(match.group())
+                    i = match.end()
+
+            i += 1
 
         return args
 
