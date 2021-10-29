@@ -172,12 +172,12 @@ class CommandsMixin(metaclass=CommandsMeta):
         try:
             command = self.get_command(command_name)
         except KeyError:
-            return self.dispatch("command_error", Context(None, command_name, message), CommandNotFound(command_name))
+            return self.dispatch("command_error", Context(None, command_name, args, message), CommandNotFound(command_name))
 
-        context = self.get_context(message)(command, command_name, message)
+        context = self.get_context(message)(command, command_name, args, message)
 
         try:
-            return await context.invoke(args)
+            return await context.invoke()
         except Exception as e:
             self.dispatch("command_error", context, e)
 
