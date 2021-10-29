@@ -78,6 +78,9 @@ Message
 .. autoclass:: Message
     :members:
 
+.. autoclass:: MessageReply
+    :members:
+
 Messageable
 ~~~~~~~~~~~~
 
