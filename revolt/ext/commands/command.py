@@ -17,7 +17,7 @@ __all__ = (
 
 class Command:
     """Class for holding info about a command.
-    
+
     Parameters
     -----------
     callback: Callable[..., Coroutine[Any, Any, Any]]
@@ -78,6 +78,9 @@ class Command:
     @staticmethod
     async def _error_handler(ctx: Context, error: Exception):
         traceback.print_exception(type(error), error, error.__traceback__)
+
+    def __repr__(self) -> str:
+        return f"<Command name={self.name}>"
 
 def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command] = Command):
     """Turns a function into a :class:`Command`.
