@@ -4,10 +4,13 @@ from typing import Any, Callable, Union
 import re
 
 import revolt
+import traceback
 
+from .view import StringView
 from .command import Command
 from .context import Context
-from .errors import CommandNotFound, NoClosingQuote
+from .errors import CommandNotFound
+
 
 __all__ = (
     "CommandsMeta",
@@ -43,7 +46,7 @@ class CommandsMixin(metaclass=CommandsMeta):
     dispatch: Callable[..., None]
 
     def __init__(self, *args, **kwargs):
-        self.all_commands = {}
+        self.all_commands: dict[str, Command] = {}
 
         for command in self._commands:
             self.all_commands[command.name] = command
@@ -99,42 +102,8 @@ class CommandsMixin(metaclass=CommandsMeta):
         """
         self.all_commands[name] = command
 
-    def split_content(self, content: str) -> list[str]:
-        """Splits a string into seperate parameters, overwrite this function to change how arguments are split.
-
-        Parameters
-        -----------
-        content: :class:`str`
-            The content of the message
-
-        Returns
-        --------
-        list[:class:`str`]
-            The arguments from the content
-        """
-        args = []
-        i = 0
-
-        while i < len(content):
-            char = content[i]
-
-            if re.match(quote_regex, char):
-                try:
-                    j = content.index(char, i + 1)
-                    args.append(content[i + 1:j])
-                    i = j
-                except ValueError:
-                    raise NoClosingQuote("Missing closing quote.")
-            else:
-                match = chunk_regex.match(content, i)
-
-                if match:
-                    args.append(match.group())
-                    i = match.end()
-
-            i += 1
-
-        return args
+    def get_view(self, message: revolt.Message) -> type[StringView]:
+        return StringView
 
     def get_context(self, message: revolt.Message) -> type[Context]:
         return Context
@@ -172,18 +141,31 @@ class CommandsMixin(metaclass=CommandsMeta):
         if not content:
             return
 
-        command_name, *args = self.split_content(content)
+        view = StringView(content)
+
+        try:
+            command_name = view.get_next_word()
+        except StopIteration:
+            return
+
+        context_cls = self.get_context(message)
 
         try:
             command = self.get_command(command_name)
         except KeyError:
-            return self.dispatch("command_error", Context(None, command_name, args, message), CommandNotFound(command_name))
+            context = context_cls(None, command_name, view, message)
+            return self.dispatch("command_error", context, CommandNotFound(command_name))
 
-        context = self.get_context(message)(command, command_name, args, message)
+        context = context_cls(command, command_name, view, message)
 
         try:
             return await context.invoke()
         except Exception as e:
             self.dispatch("command_error", context, e)
+
+
+    @staticmethod
+    async def command_error(ctx: Context, error: Exception):
+        traceback.print_exception(type(error), error, error.__traceback__)
 
     on_message = process_commands

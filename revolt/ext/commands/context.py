@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Optional, TYPE_CHECKING
 
 import revolt
 from revolt.utils import copy_doc
 
 from .command import Command
+
+if TYPE_CHECKING:
+    from .view import StringView
 
 __all__ = (
     "Context",
@@ -14,7 +17,7 @@ __all__ = (
 class Context:
     """Stores metadata the commands execution.
 
-    Parameters
+    Attributes
     -----------
     command: Optional[:class:`Command`]
         The command, this can be `None` when no command was found and the error handler is being executed
@@ -29,15 +32,19 @@ class Context:
     author: Union[:class:`Member`, :class:`User`]
         The user or member that invoked the commad, will be :class:`User` in DMs
     args: list[:class:`str`]
-        The arguments being passed to the command
+        The positional arguments being passed to the command
+    kwargs: dict[:class:`str`, Any]
+        The keyword arguments being passed to the command
     """
-    __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author")
+    __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs")
 
-    def __init__(self, command: Optional[Command], invoked_with: str, args: list[str], message: revolt.Message):
+    def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message):
         self.command = command
         self.invoked_with = invoked_with
-        self.args = args
+        self.view = view
         self.message = message
+        self.args = []
+        self.kwargs = {}
         self.server = message.server
         self.channel = message.channel
         self.author = message.author
@@ -52,8 +59,11 @@ class Context:
         args: list[:class:`str`]
             The args being passed to the command
         """
+
         if command := self.command:
-            return await command.invoke(self, self.args)
+            await command.parse_arguments(self)
+
+            return await command.invoke(self, *self.args, **self.kwargs)
 
     @copy_doc(revolt.Messageable.send)
     async def send(self, content: Optional[str] = None, *, embeds: Optional[list[revolt.Embed]] = None, embed: Optional[revolt.Embed] = None, attachments: Optional[list[revolt.File]] = None) -> revolt.Message:
