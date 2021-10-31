@@ -56,5 +56,5 @@ class Context:
             return await command.invoke(self, self.args)
 
     @copy_doc(revolt.Messageable.send)
-    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[revolt.Embed]] = None, embed: Optional[revolt.Embed] = None, attachments: Optional[list[revolt.File]] = None, replies: Optional[list[revolt.MessageReply]] = None) -> revolt.Message:
-        return await self.message.channel.send(content, embeds=embeds, embed=embed, attachments=attachments)
+    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[revolt.Embed]] = None, embed: Optional[revolt.Embed] = None, attachments: Optional[list[revolt.File]] = None, replies: Optional[list[revolt.MessageReply]] = None, reply: Optional[revolt.MessageReply] = None) -> revolt.Message:
+        return await self.message.channel.send(content, embeds=embeds, embed=embed, attachments=attachments, replies=replies, reply=reply)

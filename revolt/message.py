@@ -113,13 +113,13 @@ class Message:
         await self.state.http.delete_message(self.channel.id, self.id)
 
 class MessageReply(NamedTuple):
-    """A namedtuple which represents a reply to a message
+    """A namedtuple which represents a reply to a message.
 
     Parameters
     -----------
     message: :class:`Message`
         The message being replied to.
-    bool: :class:`bool`
+    mention: :class:`bool`
         Whether the reply should mention the author of the message. Defaults to false.
     """
     message: Message

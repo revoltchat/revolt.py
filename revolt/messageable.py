@@ -24,7 +24,7 @@ class Messageable:
 
     __slots__ = ()
 
-    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None) -> Message:
+    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None) -> Message:
         """Sends a message in a channel, you must send at least one of either `content`, `embeds` or `attachments`
 
         Parameters
@@ -45,6 +45,9 @@ class Messageable:
         """
         if embed:
             embeds = [embed]
+
+        if reply:
+            replies = [reply]
 
         embed_payload = [embed.to_dict() for embed in embeds] if embeds else None
         reply_payload = [reply.to_dict() for reply in replies] if replies else None
