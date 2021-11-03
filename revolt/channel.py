@@ -42,8 +42,8 @@ class Channel:
         self.server_id = ""
 
     @property
-    def server(self) -> Server:
-        return self.state.get_server(self.server_id)
+    def server(self) -> Optional[Server]:
+        return self.state.get_server(self.server_id) if self.server_id else None
 
     def _update(self):
         pass
