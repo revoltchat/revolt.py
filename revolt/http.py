@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
     from .types import GetServerMembers, Member
-    from .types import Message as MessagePayload
+    from .types import Message as MessagePayload, MessageReplyPayload
     from .types import (MessageWithUserData, Role, Server, ServerBans,
                         ServerInvite, TextChannel)
     from .types import User as UserPayload
@@ -104,7 +104,7 @@ class HttpClient:
         else:
             return response
 
-    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[EmbedPayload]], attachments: Optional[list[File]]) -> MessagePayload:
+    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[EmbedPayload]], attachments: Optional[list[File]], replies: Optional[list[MessageReplyPayload]]) -> MessagePayload:
         json: dict[str, Any] = {}
         
         if content:
@@ -121,6 +121,9 @@ class HttpClient:
                 attachment_ids.append(data["id"])
                 
             json["attachments"] = attachment_ids
+        
+        if replies:
+            json["replies"] = replies
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
 

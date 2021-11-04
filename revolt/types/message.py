@@ -7,7 +7,10 @@ if TYPE_CHECKING:
     from .file import File
 
 
-__all__ = ("Message",)
+__all__ = (
+    "Message",
+    "MessageReplyPayload",
+    )
 
 class UserAddContent(TypedDict):
     id: str
@@ -54,3 +57,7 @@ class Message(_OptionalMessage):
     channel: str
     author: str
     content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBannedContent, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChangeContent]
+
+class MessageReplyPayload(TypedDict):
+    id: str
+    mention: bool

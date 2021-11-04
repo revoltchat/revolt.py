@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional
 
 from .asset import Asset
 from .channel import Messageable
@@ -9,10 +9,13 @@ from .embed import Embed
 
 if TYPE_CHECKING:
     from .state import State
-    from .types import Message as MessagePayload
+    from .types import Message as MessagePayload, MessageReplyPayload
 
 
-__all__ = ("Message",)
+__all__ = (
+    "Message",
+    "MessageReply",
+)
 
 class Message:
     """Represents a message
@@ -108,3 +111,19 @@ class Message:
     async def delete(self) -> None:
         """Deletes the message. The bot can only delete its own messages and messages it has permission to delete """
         await self.state.http.delete_message(self.channel.id, self.id)
+
+class MessageReply(NamedTuple):
+    """A namedtuple which represents a reply to a message.
+
+    Parameters
+    -----------
+    message: :class:`Message`
+        The message being replied to.
+    mention: :class:`bool`
+        Whether the reply should mention the author of the message. Defaults to false.
+    """
+    message: Message
+    mention: bool = False
+
+    def to_dict(self) -> MessageReplyPayload:
+        return { "id": self.message.id, "mention": self.mention }

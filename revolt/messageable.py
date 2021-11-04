@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from .embed import Embed
     from .file import File
-    from .message import Message
+    from .message import Message, MessageReply
     from .state import State
 
 
@@ -24,7 +24,7 @@ class Messageable:
 
     __slots__ = ()
 
-    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None) -> Message:
+    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None) -> Message:
         """Sends a message in a channel, you must send at least one of either `content`, `embeds` or `attachments`
 
         Parameters
@@ -35,6 +35,8 @@ class Messageable:
             The attachments of the message
         embeds: Optional[list[:class:`Embed`]]
             The embeds of the message
+        replies: Optional[list[:class:`MessageReply`]]
+            The list of messages to reply to.
 
         Returns
         --------
@@ -44,7 +46,11 @@ class Messageable:
         if embed:
             embeds = [embed]
 
-        embed_payload = [embed.to_dict() for embed in embeds] if embeds else None
+        if reply:
+            replies = [reply]
 
-        message = await self.state.http.send_message(self.id, content, embed_payload, attachments)
+        embed_payload = [embed.to_dict() for embed in embeds] if embeds else None
+        reply_payload = [reply.to_dict() for reply in replies] if replies else None
+
+        message = await self.state.http.send_message(self.id, content, embed_payload, attachments, reply_payload)
         return self.state.add_message(message)
