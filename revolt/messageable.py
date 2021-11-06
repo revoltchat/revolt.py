@@ -13,16 +13,18 @@ __all__ = ("Messageable",)
 
 class Messageable:
     """Base class for all channels that you can send messages in
-    
+
     Attributes
     -----------
     id: :class:`str`
         The id of the channel
     """
-    id: str
     state: State
 
     __slots__ = ()
+
+    def _get_channel_id(self) -> str:
+        raise NotImplementedError
 
     async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None) -> Message:
         """Sends a message in a channel, you must send at least one of either `content`, `embeds` or `attachments`
@@ -52,5 +54,5 @@ class Messageable:
         embed_payload = [embed.to_dict() for embed in embeds] if embeds else None
         reply_payload = [reply.to_dict() for reply in replies] if replies else None
 
-        message = await self.state.http.send_message(self.id, content, embed_payload, attachments, reply_payload)
+        message = await self.state.http.send_message(self._get_channel_id(), content, embed_payload, attachments, reply_payload)
         return self.state.add_message(message)

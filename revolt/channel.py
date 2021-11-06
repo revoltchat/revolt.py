@@ -107,6 +107,9 @@ class TextChannel(Channel, Messageable):
         if role_perms := data.get("role_permissions"):
             self.role_permissions = {role_id: ChannelPermissions(perms) for role_id, perms in role_perms.items()}
 
+    def _get_channel_id(self) -> str:
+        return self.id
+
     @property
     def last_message(self) -> Message:
         return self.state.get_message(self.last_message_id)

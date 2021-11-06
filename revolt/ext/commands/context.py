@@ -14,7 +14,7 @@ __all__ = (
     "Context",
 )
 
-class Context:
+class Context(revolt.Messageable):
     """Stores metadata the commands execution.
 
     Attributes
@@ -37,6 +37,9 @@ class Context:
         The keyword arguments being passed to the command
     """
     __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs")
+
+    def _get_channel_id(self) -> str:
+        return self.channel.id
 
     def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message):
         self.command = command
