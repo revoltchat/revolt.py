@@ -8,7 +8,7 @@ from revolt.ext import commands
 
 class Client(commands.CommandsMixin, revolt.Client):
     async def get_prefix(self, message: revolt.Message):
-        return ">>>"
+        return "!"
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
