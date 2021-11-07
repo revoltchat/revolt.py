@@ -124,10 +124,13 @@ class WebsocketHandler:
     async def handle_messagedelete(self, payload: MessageDeleteEventPayload):
         self.dispatch("raw_message_delete", payload)
 
-        message = self.state.get_message(payload["id"])
-        if message:
-            self.state.messages.remove(message)
-            self.dispatch("message_delete", message)
+        try:
+            message = self.state.get_message(payload["id"])
+        except:
+            return
+
+        self.state.messages.remove(message)
+        self.dispatch("message_delete", message)
 
     async def handle_channelcreate(self, payload: ChannelCreateEventPayload):
         channel = self.state.add_channel(payload)
