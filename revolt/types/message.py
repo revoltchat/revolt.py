@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 __all__ = (
     "Message",
     "MessageReplyPayload",
+    "Masquerade"
     )
 
 class UserAddContent(TypedDict):
@@ -45,12 +46,17 @@ class ChannelIconChangeContent(TypedDict):
 
 MessageEdited = TypedDict("MessageEdited", {"$date": str})
 
+class Masquerade(TypedDict, total=False):
+    name: str
+    avatar: str
+
 class _OptionalMessage(TypedDict):
     attachments: list[File]
     embeds: list[Embed]
     mentions: list[str]
     replies: list[str]
     edited: MessageEdited
+    masquerade: Masquerade
 
 class Message(_OptionalMessage):
     _id: str

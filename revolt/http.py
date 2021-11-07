@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
     from .types import GetServerMembers, Member
-    from .types import Message as MessagePayload, MessageReplyPayload
+    from .types import Message as MessagePayload, MessageReplyPayload, Masquerade as MasqueradePayload 
     from .types import (MessageWithUserData, Role, Server, ServerBans,
                         ServerInvite, TextChannel)
     from .types import User as UserPayload
@@ -79,8 +79,8 @@ class HttpClient:
 
         if 200 <= resp_code <= 300:
             return response
-        elif resp_code == 400:
-            raise HTTPError
+        else:
+            raise HTTPError(resp_code)
 
     async def upload_file(self, file: File, tag: str) -> AutumnPayload:
         url = f"{self.api_info['features']['autumn']['url']}/{tag}"
@@ -104,12 +104,12 @@ class HttpClient:
         else:
             return response
 
-    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[EmbedPayload]], attachments: Optional[list[File]], replies: Optional[list[MessageReplyPayload]]) -> MessagePayload:
+    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[EmbedPayload]], attachments: Optional[list[File]], replies: Optional[list[MessageReplyPayload]], masquerade: Optional[MasqueradePayload]) -> MessagePayload:
         json: dict[str, Any] = {}
-        
+
         if content:
             json["content"] = content
-        
+
         if embeds:
             json["embeds"] = embeds
 
@@ -119,11 +119,14 @@ class HttpClient:
             for attachment in attachments:
                 data = await self.upload_file(attachment, "attachments")
                 attachment_ids.append(data["id"])
-                
+
             json["attachments"] = attachment_ids
-        
+
         if replies:
             json["replies"] = replies
+
+        if masquerade:
+            json["masquerade"] = masquerade
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
 

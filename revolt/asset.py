@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import mimetypes
 
 from .enums import AssetType
 from .errors import AutumnDisabled
@@ -35,8 +36,10 @@ class Asset:
         The content type of the file
     type: :class:`AssetType`
         The type of asset it is
+    url: :class:`str`
+        The assets url
     """
-    __slots__ = ("state", "id", "tag", "size", "filename", "content_type", "width", "height", "type")
+    __slots__ = ("state", "id", "tag", "size", "filename", "content_type", "width", "height", "type", "url")
     
     def __init__(self, data: FilePayload, state: State):
         self.state = state
@@ -58,6 +61,9 @@ class Asset:
         self.content_type = data["content_type"]
         self.type = AssetType(metadata["type"])
 
+        base_url = self.state.api_info["features"]["autumn"]["url"]
+        self.url = f"{base_url}/{self.tag}/{self.id}"
+
     async def read(self) -> bytes:
         """Reads the files content into bytes"""
         return await self.state.http.request_file(self.url)
@@ -72,28 +78,37 @@ class Asset:
         """
         fp.write(await self.read())
 
-    @property
-    def url(self) -> str:
-        """Returns the url for the asset
-        
-        .. note:: This can error if autumn is disabled on the instance of revolt
-        
-        Returns
-        --------
-        :class:`str`
-            The url
+class PartialAsset(Asset):
+    """Partial asset for when we get limited data about the asset
 
-        Raises
-        -------
-        :class:`AutumnDisabled`
-            Raises if autumn is disabled
-        
-        """
-        enabled = self.state.api_info["features"]["autumn"]["enabled"]
-        
-        if not enabled:
-            raise AutumnDisabled
+    Attributes
+    -----------
+    id: :class:`str`
+        The id of the asset, this will always be ``"0"``
+    tag: Optional[:class:`str`]
+        The tag of the asset, this corrasponds to where the asset is used, this will always be ``None``
+    size: :class:`int`
+        Amount of bytes in the file, this will always be ``0``
+    filename: :class:`str`
+        The name of the file, this be always be ``""``
+    height: Optional[:class:`int`]
+        The height of the file if it is an image or video, this will always be ``None``
+    width: Optional[:class:`int`]
+        The width of the file if it is an image or video, this will always be ``None``
+    content_type: Optional[:class:`str`]
+        The content type of the file, this is guessed from the url's file extension if it has one
+    type: :class:`AssetType`
+        The type of asset it is, this always be ``AssetType.file``
+    """
 
-        base_url = self.state.api_info["features"]["autumn"]["url"]
-
-        return f"{base_url}/{self.tag}/{self.id}"
+    def __init__(self, url: str, state: State):
+        self.state = state
+        self.id = "0"
+        self.tag = None
+        self.size = 0
+        self.filename = ""
+        self.height = None
+        self.width = None
+        self.content_type = mimetypes.guess_extension(url)
+        self.type = AssetType.file
+        self.url = url

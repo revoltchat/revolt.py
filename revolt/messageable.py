@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from .embed import Embed
     from .file import File
-    from .message import Message, MessageReply
+    from .message import Message, MessageReply, Masquerade
     from .state import State
 
 
@@ -26,7 +26,7 @@ class Messageable:
     def _get_channel_id(self) -> str:
         raise NotImplementedError
 
-    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None) -> Message:
+    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None, masquerade: Optional[Masquerade] = None) -> Message:
         """Sends a message in a channel, you must send at least one of either `content`, `embeds` or `attachments`
 
         Parameters
@@ -53,6 +53,7 @@ class Messageable:
 
         embed_payload = [embed.to_dict() for embed in embeds] if embeds else None
         reply_payload = [reply.to_dict() for reply in replies] if replies else None
+        masquerade_payload = masquerade.to_dict() if masquerade else None
 
-        message = await self.state.http.send_message(self._get_channel_id(), content, embed_payload, attachments, reply_payload)
+        message = await self.state.http.send_message(self._get_channel_id(), content, embed_payload, attachments, reply_payload, masquerade_payload)
         return self.state.add_message(message)

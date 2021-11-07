@@ -3,18 +3,19 @@ from __future__ import annotations
 import datetime
 from typing import TYPE_CHECKING, NamedTuple, Optional
 
-from .asset import Asset
+from .asset import Asset, PartialAsset
 from .channel import Messageable
 from .embed import Embed
 
 if TYPE_CHECKING:
     from .state import State
-    from .types import Message as MessagePayload, MessageReplyPayload
+    from .types import Message as MessagePayload, MessageReplyPayload, Masquerade as MasqueradePayload
 
 
 __all__ = (
     "Message",
     "MessageReply",
+    "Masquerade"
 )
 
 class Message:
@@ -66,8 +67,14 @@ class Message:
         else:
             author = state.get_user(data["author"])
 
-        assert author
         self.author = author
+
+        if masquerade := data.get("masquerade"):
+            if name := masquerade.get("name"):
+                self.author.masquerade_name = name
+
+            if avatar := masquerade.get("avatar"):
+                self.author.masquerade_avatar = PartialAsset(avatar, state)
 
         if edited_at := data.get("edited"):
             self.edited_at: Optional[datetime.datetime] = datetime.datetime.strptime(edited_at["$date"], "%Y-%m-%dT%H:%M:%S.%f%z")
@@ -127,3 +134,27 @@ class MessageReply(NamedTuple):
 
     def to_dict(self) -> MessageReplyPayload:
         return { "id": self.message.id, "mention": self.mention }
+
+class Masquerade(NamedTuple):
+    """A namedtuple which represents a message's masquerade.
+
+    Parameters
+    -----------
+    name: Optional[:class:`str`]
+        The name to display for the message
+    avatar: Optional[:class:`str`]
+        The avatar's url to display for the message
+    """
+    name: Optional[str] = None
+    avatar: Optional[str] = None
+
+    def to_dict(self) -> MasqueradePayload:
+        output: MasqueradePayload = {}
+
+        if name := self.name:
+            output["name"] = name
+
+        if avatar := self.avatar:
+            output["avatar"] = avatar
+
+        return output

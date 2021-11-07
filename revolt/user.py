@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 
-from .asset import Asset
+from .asset import Asset, PartialAsset
 from .enums import PresenceType, RelationshipType
 
 if TYPE_CHECKING:
@@ -30,8 +30,6 @@ class User:
     -----------
     id: :class:`str`
         The users id
-    name: :class:`str`
-        The users name
     bot: :class:`bool`
         Whether or not the user is a bot
     owner: Optional[:class:`User`]
@@ -42,8 +40,6 @@ class User:
         Whether or not the user is online
     flags: :class:`int`
         The user flags
-    avatar: :class:`Asset`
-        The users avatar if they have one
     relations: list[:class:`Relation`]
         A list of the users relations
     relationship: Optional[:class:`RelationshipType`]
@@ -51,14 +47,14 @@ class User:
     status: Optional[:class:`Status`]
         The users status
     """
-    __flattern_attributes__ = ("id", "name", "bot", "owner_id", "badges", "online", "flags", "avatar", "relations", "relationship", "status")
+    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar")
     __slots__ = (*__flattern_attributes__, "state")
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
         self.id = data["_id"]
-        self.name = data["username"]
-        
+        self.original_name = data["username"]
+
         bot = data.get("bot")
         if bot:
             self.bot = True
@@ -72,7 +68,7 @@ class User:
         self.flags = data.get("flags", 0)
 
         avatar = data.get("avatar")
-        self.avatar = Asset(avatar, state) if avatar else None
+        self.original_avatar = Asset(avatar, state) if avatar else None
 
         relations = []
 
@@ -92,6 +88,9 @@ class User:
         else:
             self.status = None
 
+        self.masquerade_avatar: Optional[PartialAsset] = None
+        self.masquerade_name: Optional[str] = None
+
     @property
     def owner(self) -> Optional[User]:
         owner_id = self.owner_id
@@ -100,3 +99,13 @@ class User:
             return
 
         return self.state.get_user(owner_id)
+
+    @property
+    def name(self) -> str:
+        """:class:`str` The name the user is displaying, this includes there orginal name and masqueraded name"""
+        return self.masquerade_name or self.original_name
+
+    @property
+    def avatar(self) -> Union[Asset, PartialAsset, None]:
+        """Optional[:class:`Asset`] The avatar the member is displaying, this includes there orginal avatar and masqueraded avatar"""
+        return self.masquerade_avatar or self.original_avatar
