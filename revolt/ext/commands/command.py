@@ -10,7 +10,7 @@ from revolt.utils import copy_doc
 
 if TYPE_CHECKING:
     from .context import Context
-
+    from .checks import Check
 
 __all__ = (
     "Command",
@@ -29,7 +29,7 @@ class Command:
     aliases: list[:class:`str`]
         The aliases of the command
     """
-    __slots__ = ("callback", "name", "aliases", "_client", "signature")
+    __slots__ = ("callback", "name", "aliases", "_client", "signature", "checks")
 
     _client: revolt.Client
 
@@ -38,6 +38,7 @@ class Command:
         self.name = name
         self.aliases = aliases
         self.signature = inspect.signature(self.callback)
+        self.checks: list[Check] = getattr(callback, "_checks", [])
 
     async def invoke(self, context: Context, *args, **kwargs) -> Any:
         """Runs the command and calls the error handler if the command errors.
@@ -85,10 +86,10 @@ class Command:
     @staticmethod
     async def convert_argument(arg: str, parameter: inspect.Parameter, context: Context):
         if annot := parameter.annotation:
-            func = getattr(annot, "__convert__")
+            func = getattr(annot, "__convert__", None)
 
             if func:
-                output = func(arg, context)
+                output = func(context, arg)
             else:
                 output = annot(arg)
 
@@ -114,7 +115,7 @@ class Command:
                 context.args.append(await self.convert_argument(context.view.get_next_word(), parameter, context))
 
     def __repr__(self) -> str:
-        return f"<Command name={self.name}>"
+        return f"<Command name=\"{self.name}>\""
 
 def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command] = Command):
     """A decorator that turns a function into a :class:`Command`.

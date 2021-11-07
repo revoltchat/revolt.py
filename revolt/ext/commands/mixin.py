@@ -9,7 +9,7 @@ import traceback
 from .view import StringView
 from .command import Command
 from .context import Context
-from .errors import CommandNotFound
+from .errors import CommandNotFound, CheckError
 
 
 __all__ = (
@@ -26,12 +26,13 @@ class CommandsMeta(type):
 
     def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
         commands: list[Command] = []
-
-        for value in attrs.values():
-            if isinstance(value, Command):
-                commands.append(value)
-
         self = super().__new__(cls, name, bases, attrs)
+
+        for base in reversed(self.__mro__):
+            for value in base.__dict__.values():
+                if isinstance(value, Command):
+                    commands.append(value)
+
         self._commands = commands
 
         for command in commands:
@@ -159,13 +160,39 @@ class CommandsMixin(metaclass=CommandsMeta):
         context = context_cls(command, command_name, view, message)
 
         try:
-            return await context.invoke()
+            self.dispatch("command", context)
+
+            if not await self.bot_check(context):
+                raise CheckError(f"the global check for the command failed")
+
+            if not await context.can_run():
+                raise CheckError(f"the check(s) for the command failed")
+
+            output = await context.invoke()
+            self.dispatch("after_command_invoke", context, output)
+
+            return output
         except Exception as e:
             self.dispatch("command_error", context, e)
 
 
     @staticmethod
-    async def command_error(ctx: Context, error: Exception):
+    async def on_command_error(ctx: Context, error: Exception):
         traceback.print_exception(type(error), error, error.__traceback__)
 
     on_message = process_commands
+
+    async def bot_check(self, context: Context) -> bool:
+        """A global check for the bot that stops commands from running on certain criteria.
+
+        Parameters
+        -----------
+        context: :class:`Context`
+            The context for the invokation of the command
+
+        Returns
+        --------
+        :class:`bool` represents if the command should run or not
+        """
+
+        return True

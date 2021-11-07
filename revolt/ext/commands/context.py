@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Optional, TYPE_CHECKING
 
 import revolt
-from revolt.utils import copy_doc
+from revolt.utils import maybe_coroutine
 
 from .command import Command
 
@@ -36,7 +36,7 @@ class Context(revolt.Messageable):
     kwargs: dict[:class:`str`, Any]
         The keyword arguments being passed to the command
     """
-    __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs")
+    __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs", "state")
 
     def _get_channel_id(self) -> str:
         return self.channel.id
@@ -51,6 +51,7 @@ class Context(revolt.Messageable):
         self.server = message.server
         self.channel = message.channel
         self.author = message.author
+        self.state = message.state
 
     async def invoke(self) -> Any:
         """Invokes the command, this is equal to `await command.invoke(context, context.args)`.
@@ -68,6 +69,7 @@ class Context(revolt.Messageable):
 
             return await command.invoke(self, *self.args, **self.kwargs)
 
-    @copy_doc(revolt.Messageable.send)
-    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[revolt.Embed]] = None, embed: Optional[revolt.Embed] = None, attachments: Optional[list[revolt.File]] = None, replies: Optional[list[revolt.MessageReply]] = None, reply: Optional[revolt.MessageReply] = None) -> revolt.Message:
-        return await self.message.channel.send(content, embeds=embeds, embed=embed, attachments=attachments, replies=replies, reply=reply)
+    async def can_run(self) -> bool:
+        """Runs all of the commands checks, and returns true if all of them pass"""
+        return all([await maybe_coroutine(check, self) for check in (self.command.checks if self.command else [])])
+

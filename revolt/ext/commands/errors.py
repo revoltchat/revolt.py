@@ -18,3 +18,6 @@ class CommandNotFound(Exception):
 
 class NoClosingQuote(Exception):
     """Raised when there is no closing quote for a command argument"""
+
+class CheckError(Exception):
+    """Raised when a check fails for a command"""
