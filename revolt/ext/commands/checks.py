@@ -1,13 +1,15 @@
-from typing import Callable, Coroutine, Any, Union, TYPE_CHECKING
+from typing import Callable, Coroutine, Any, TypeVar, Union
 from .command import Command
 from .context import Context
 
 __all__ = ("check", "Check")
 
-Check = Callable[[Context], Union[bool, Coroutine[Any, Any, bool]]]
+Check = Callable[[Context], Union[Any, Coroutine[Any, Any, Any]]]
+
+T = TypeVar("T", Callable[..., Any], Command)
 
 def check(check: Check):
-    def inner(func: Union[Callable[..., Any], Command]):
+    def inner(func: T) -> T:
         if isinstance(func, Command):
             func.checks.append(check)
         else:
