@@ -111,7 +111,7 @@ class Server:
         self._members: dict[str, Member] = {}
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, state, self) for role_id, role in data.get("roles", {}).items()}
 
-        channels = cast(list[Channel], list(filter(bool, [state.get_channel(channel_id) for channel_id in data["channels"]])))
+        channels = [state.get_channel(channel_id) for channel_id in data["channels"]]
         self._channels: dict[str, Channel] = {channel.id: channel for channel in channels}
 
     def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[PermissionPayload] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None):

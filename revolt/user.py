@@ -7,8 +7,7 @@ from .enums import PresenceType, RelationshipType
 
 if TYPE_CHECKING:
     from .state import State
-    from .types import User as UserPayload
-    from .types import UserRelation
+    from .types import User as UserPayload, Status as StatusPayload, File
 
 
 __all__ = ("User",)
@@ -22,6 +21,11 @@ class Status(NamedTuple):
     """A namedtuple representing a users status"""
     text: Optional[str]
     presence: Optional[PresenceType]
+
+class UserProfile(NamedTuple):
+    """A namedtuple representing a users profile"""
+    content: Optional[str]
+    background: Optional[Asset]
 
 class User:
     """Represents a user
@@ -47,7 +51,7 @@ class User:
     status: Optional[:class:`Status`]
         The users status
     """
-    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar")
+    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile")
     __slots__ = (*__flattern_attributes__, "state")
 
     def __init__(self, data: UserPayload, state: State):
@@ -88,6 +92,8 @@ class User:
         else:
             self.status = None
 
+        self.profile: Optional[UserProfile] = None
+
         self.masquerade_avatar: Optional[PartialAsset] = None
         self.masquerade_name: Optional[str] = None
 
@@ -109,3 +115,20 @@ class User:
     def avatar(self) -> Union[Asset, PartialAsset, None]:
         """Optional[:class:`Asset`] The avatar the member is displaying, this includes there orginal avatar and masqueraded avatar"""
         return self.masquerade_avatar or self.original_avatar
+
+    def _update(self, *, status: Optional[StatusPayload] = None, profile_content: Optional[str] = None, profile_background: Optional[File] = None, avatar: Optional[File] = None, online: Optional[bool] = None):
+        if status:
+            presence = status.get("presence")
+            self.status = Status(status.get("text"), PresenceType(presence) if presence else None)
+
+        if profile_background:
+            self.profile = UserProfile(self.profile.content if self.profile else None, Asset(profile_background, self.state))
+
+        if profile_content:
+            self.profile = UserProfile(profile_content, self.profile.background if self.profile else None)
+
+        if avatar:
+            self.original_avatar = Asset(avatar, self.state)
+
+        if online:
+            self.online = online

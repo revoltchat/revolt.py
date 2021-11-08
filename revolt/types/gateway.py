@@ -7,10 +7,9 @@ from .channel import (Channel, DMChannel, Group, SavedMessages, TextChannel,
 from .message import Message
 
 if TYPE_CHECKING:
-    from .member import Member
+    from .member import Member, MemberID
     from .server import Server
-    from .user import User
-
+    from .user import User, Status
 
 __all__ = (
     "BasePayload",
@@ -26,7 +25,15 @@ __all__ = (
     "ChannelDeleteEventPayload",
     "ChannelStartTypingEventPayload",
     "ChannelDeleteTypingEventPayload",
-    "ServerUpdateEventPayload"
+    "ServerUpdateEventPayload",
+    "ServerDeleteEventPayload",
+    "ServerMemberUpdateEventPayload",
+    "ServerMemberJoinEventPayload",
+    "ServerMemberLeaveEventPayload",
+    "ServerRoleUpdateEventPayload",
+    "ServerRoleDeleteEventPayload",
+    "UserUpdateEventPayload",
+    "UserRelationshipEventPayload"
 )
 
 class BasePayload(TypedDict):
@@ -94,3 +101,37 @@ class ServerUpdateEventPayload(BasePayload):
     id: str
     data: dict
     clear: Literal["Icon", "Banner", "Description"]
+
+class ServerDeleteEventPayload(BasePayload):
+    id: str
+
+class ServerMemberUpdateEventPayload(BasePayload):
+    id: MemberID
+    data: dict
+    clear: Literal["Nickname", "Avatar"]
+
+class ServerMemberJoinEventPayload(BasePayload):
+    id: str
+    user: str
+
+ServerMemberLeaveEventPayload = ServerMemberJoinEventPayload
+
+class ServerRoleUpdateEventPayload(BasePayload):
+    id: str
+    role_id: str
+    data: dict
+    clear: Literal["Color"]
+
+class ServerRoleDeleteEventPayload(BasePayload):
+    id: str
+    role_id: str
+
+class UserUpdateEventPayload(BasePayload):
+    id: str
+    data: dict
+    clear: Literal["ProfileContent", "ProfileBackground", "StatusText", "Avatar"]
+
+class UserRelationshipEventPayload(BasePayload):
+    id: str
+    user: str
+    status: Status

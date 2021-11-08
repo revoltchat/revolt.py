@@ -54,3 +54,15 @@ class Member(User):
     def avatar(self) -> Optional[Asset]:
         """Optional[:class:`Asset`] The avatar the member is displaying, this includes guild avatars and masqueraded avatar"""
         return self.masquerade_avatar or self.guild_avatar or self.original_avatar
+
+    def _update(self, *, nickname: Optional[str] = None, avatar: Optional[File] = None, roles: Optional[list[str]] = None):
+        if nickname:
+            self.nickname = nickname
+
+        if avatar:
+            self.guild_avatar = Asset(avatar, self.state)
+
+        if roles:
+            member_roles = [self.server.get_role(role_id) for role_id in roles]
+            self.roles = sorted(member_roles, key=lambda role: role.rank, reverse=True)
+

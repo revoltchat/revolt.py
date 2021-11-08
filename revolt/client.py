@@ -165,3 +165,10 @@ class Client:
         self.listeners.setdefault(event, []).append((check, future))
 
         return await asyncio.wait_for(future, timeout)
+
+    @property
+    def user(self) -> User:
+        user = self.websocket.user
+
+        assert user
+        return user

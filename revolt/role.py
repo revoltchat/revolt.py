@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .permissions import ServerPermissions
 
@@ -56,3 +56,16 @@ class Role:
             The new permissions for the role
         """
         await self.state.http.set_role_permissions(self.server.id, self.id, *permissions.value)
+
+    def _update(self, *, name: Optional[str] = None, colour: Optional[str] = None, hoist: Optional[bool] = None, rank: Optional[int] = None):
+        if name:
+            self.name = name
+
+        if colour:
+            self.colour = colour
+
+        if hoist:
+            self.hoist = hoist
+
+        if rank:
+            self.rank = rank

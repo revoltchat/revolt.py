@@ -5,9 +5,12 @@ import logging
 from copy import copy
 from typing import TYPE_CHECKING, Callable, cast
 
+from .enums import RelationshipType
+from .user import Status
+
 from .types import (ChannelCreateEventPayload, ChannelDeleteEventPayload,
                     ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload, ServerUpdateEventPayload)
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload, ServerUpdateEventPayload, UserRelationshipEventPayload, ServerRoleDeleteEventPayload, UserUpdateEventPayload, ServerDeleteEventPayload, ServerMemberUpdateEventPayload, ServerMemberJoinEventPayload, ServerMemberLeaveEventPayload, ServerRoleUpdateEventPayload)
 from .types import Message as MessagePayload
 from .types import MessageDeleteEventPayload, MessageUpdateEventPayload
 
@@ -36,7 +39,7 @@ __all__ = ("WebsocketHandler",)
 logger = logging.getLogger("revolt")
 
 class WebsocketHandler:
-    __slots__ = ("session", "token", "ws_url", "dispatch", "state", "websocket", "loop")
+    __slots__ = ("session", "token", "ws_url", "dispatch", "state", "websocket", "loop", "user", "ready")
 
     def __init__(self, session: aiohttp.ClientSession, token: str, ws_url: str, dispatch: Callable[..., None], state: State):
         self.session = session
@@ -46,6 +49,8 @@ class WebsocketHandler:
         self.state = state
         self.websocket: aiohttp.ClientWebSocketResponse
         self.loop = asyncio.get_running_loop()
+        self.user = None
+        self.ready = asyncio.Event()
 
     async def send_payload(self, payload: BasePayload):
         if use_msgpack:
@@ -71,6 +76,9 @@ class WebsocketHandler:
         event_type = payload["type"].lower()
         logger.debug("Recieved event %s %s", event_type, payload)
         try:
+            if event_type != "ready":
+                await self.ready.wait()
+
             func = getattr(self, f"handle_{event_type}")
         except:
             logger.debug("Unknown event '%s'", event_type)
@@ -82,8 +90,11 @@ class WebsocketHandler:
         logger.info("Successfully authenticated")
 
     async def handle_ready(self, payload: ReadyEventPayload):
-        for user in payload["users"]:
-            self.state.add_user(user)
+        for user_payload in payload["users"]:
+            user = self.state.add_user(user_payload)
+
+            if user.relationship == RelationshipType.user:
+                self.user = user
 
         for channel in payload["channels"]:
             self.state.add_channel(channel)
@@ -97,6 +108,7 @@ class WebsocketHandler:
 
         await self.state.fetch_all_server_members()
 
+        self.ready.set()
         self.dispatch("ready")
 
     async def handle_message(self, payload: MessageEventPayload):
@@ -188,6 +200,93 @@ class WebsocketHandler:
                 server.description = None
 
         self.dispatch("server_update", old_server, server)
+
+    async def handle_serverdelete(self, payload: ServerDeleteEventPayload):
+        server = self.state.servers.pop(payload["id"])
+
+        for channel in server.channels:
+            del self.state.channels[channel.id]
+
+        self.dispatch("server_delete", server)
+
+    async def handle_servermemberupdate(self, payload: ServerMemberUpdateEventPayload):
+        member = self.state.get_member(payload["id"]["server"], payload["id"]["user"])
+        old_member = copy(member)
+
+        if clear := payload.get("clear"):
+            if clear == "Nickname":
+                member.nickname = None
+            elif clear == "Avatar":
+                member.guild_avatar = None
+
+        member._update(**payload["data"])
+
+        self.dispatch("member_update", old_member, member)
+
+    async def handle_servermemberjoin(self, payload: ServerMemberJoinEventPayload):
+        member = self.state.add_member(payload["id"], {"_id": {"server": payload["id"], "user": payload["user"]}})
+        self.dispatch("member_join", member)
+
+    async def handle_memberleave(self, payload: ServerMemberLeaveEventPayload):
+        server = self.state.get_server(payload["id"])
+        member = server._members.pop(payload["user"])
+
+        self.dispatch("member_leave", member)
+
+    async def handle_serveroleupdate(self, payload: ServerRoleUpdateEventPayload):
+        server = self.state.get_server(payload["id"])
+        role = server.get_role(payload["role_id"])
+        old_role = copy(role)
+
+        if clear := payload.get("clear"):
+            if clear == "Colour":
+                role.colour = None
+
+        role._update(**payload["data"])
+
+        self.dispatch("role_update", old_role, role)
+
+    async def handle_serverroledelete(self, payload: ServerRoleDeleteEventPayload):
+        server = self.state.get_server(payload["id"])
+        role = server._roles.pop(payload["role_id"])
+
+        self.dispatch("role_delete", role)
+
+    async def handle_userupdate(self, payload: UserUpdateEventPayload):
+        user = self.state.get_user(payload["id"])
+        old_user = copy(user)
+
+        if clear := payload.get("clear"):
+            if clear == "ProfileContent":
+                ...
+            elif clear == "ProfileBackground":
+                ...
+            elif clear == "StatusText":
+                # user.status will never be none because they are trying to remove the text
+                if user.status.presence is None:  # type: ignore
+                    user.status = None
+                else:
+                    user.status = Status(None, user.status.presence)  # type: ignore
+
+            elif clear == "Avatar":
+                user.original_avatar = None
+
+        # the keys have . in them so i need to replace with _
+
+        data = payload["data"]
+        data["profile_content"] = data.get("profile.content", None)
+        data["profile_background"] = data.get("profile.background", None)
+
+        user._update(**data)
+
+        self.dispatch("user_update", old_user, user)
+
+    async def handle_userrelationship(self, payload: UserRelationshipEventPayload):
+        user = self.state.get_user(payload["user"])
+        old_relationship = user.relationship
+        user.relationship = RelationshipType(payload["status"])
+
+        self.dispatch("user_relationship_update", user, old_relationship, user.relationship)
 
     async def start(self):
         if use_msgpack:
