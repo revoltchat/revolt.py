@@ -4,6 +4,11 @@ from .errors import NoClosingQuote
 class StringView:
     def __init__(self, string: str):
         self.value = iter(string)
+        self.temp = ""
+        self.should_undo = False
+
+    def undo(self):
+        self.should_undo = True
 
     def next_char(self) -> str:
         return next(self.value)
@@ -12,6 +17,10 @@ class StringView:
         return "".join(self.value)
 
     def get_next_word(self) -> str:
+        if self.should_undo:
+            self.should_undo = False
+            return self.temp
+
         char = self.next_char()
         temp = []
 
@@ -35,5 +44,6 @@ class StringView:
                 pass
 
         output = "".join(temp)
+        self.temp = output
 
         return output

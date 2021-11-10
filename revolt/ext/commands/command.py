@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Optional, Union, get_args, get_origin
 
 import revolt
 import inspect
 from contextlib import suppress
-from revolt.utils import copy_doc
+from revolt.utils import copy_doc, maybe_coroutine
 
 if TYPE_CHECKING:
     from .context import Context
@@ -84,20 +84,33 @@ class Command:
         traceback.print_exception(type(error), error, error.__traceback__)
 
     @staticmethod
-    async def convert_argument(arg: str, parameter: inspect.Parameter, context: Context):
+    def extract_type(t):
+        if origin := get_origin(t):
+            if origin is Annotated:
+                return get_args(t)[1]
+
+        return t
+
+    @classmethod
+    async def convert_argument(cls, arg: str, parameter: inspect.Parameter, context: Context):
         if annot := parameter.annotation:
-            func = getattr(annot, "__convert__", None)
+            if annot is str:  # no converting is needed - its already a string
+                return arg
 
-            if func:
-                output = func(context, arg)
-            else:
-                output = annot(arg)
+            if origin := get_origin(annot):
+                if origin is Union:
+                    for converter in get_args(annot):
 
-            if inspect.isawaitable(output):
-                output = await output
+                        try:
+                            return await maybe_coroutine(converter, arg, context)
+                        except:
+                            if converter is None:
+                                context.view.undo()
+                                return None
 
-            return output
-
+                elif origin is Annotated:
+                    converter: Callable[[str, Context], Any] = get_args(annot)[1]  # the typehint affects the other if statement somehow
+                    return await maybe_coroutine(converter, arg, context)
         else:
             return arg
 
