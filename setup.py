@@ -6,6 +6,12 @@ here = pathlib.Path(__file__).parent.resolve()
 
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
+requirements = []
+
+with open('requirements.txt') as f:
+  requirements = f.read().splitlines()
+
+
 setup(
     name="revolt.py",
     version="0.1.1",
@@ -32,6 +38,7 @@ setup(
     extras_require={
         "speedups": ["ujson", "aiohttp[speedups]==3.7.4.post0", "msgpack==1.0.2"],
     },
+    install_requires=requirements,
     project_urls={
         "Bug Reports": "https://github.com/Zomatree/revolt.py/issues",
         "Source": "https://github.com/Zomatree/revolt.py/",
