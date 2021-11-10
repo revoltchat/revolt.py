@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from .server import Server
     from .state import State
     from .types import Member as MemberPayload
-
+    from .types import File
 
 __all__ = ("Member",)
 
@@ -65,4 +65,3 @@ class Member(User):
         if roles:
             member_roles = [self.server.get_role(role_id) for role_id in roles]
             self.roles = sorted(member_roles, key=lambda role: role.rank, reverse=True)
-
