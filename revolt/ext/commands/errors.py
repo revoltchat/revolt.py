@@ -1,9 +1,22 @@
+from revolt import RevoltError
+
 __all__ = (
+    "CommandError",
     "CommandNotFound",
-    "NoClosingQuote"
+    "NoClosingQuote",
+    "CheckError",
+    "NotBotOwner",
+    "NotServerOwner",
+    "ServerOnly",
+    "ConverterError",
+    "InvalidLiteralArgument",
+    "BadBoolArgument"
 )
 
-class CommandNotFound(Exception):
+class CommandError(RevoltError):
+    """base error for all command's related errors"""
+
+class CommandNotFound(CommandError):
     """Raised when a command isnt found.
 
     Parameters
@@ -16,8 +29,26 @@ class CommandNotFound(Exception):
     def __init__(self, command_name: str):
         self.command_name = command_name
 
-class NoClosingQuote(Exception):
+class NoClosingQuote(CommandError):
     """Raised when there is no closing quote for a command argument"""
 
-class CheckError(Exception):
+class CheckError(CommandError):
     """Raised when a check fails for a command"""
+
+class NotBotOwner(CheckError):
+    """Raised when the `is_bot_owner` check fails"""
+
+class NotServerOwner(CheckError):
+    """Raised when the `is_server_owner` check fails"""
+
+class ServerOnly(CheckError):
+    """Raised when a check requires the command to be ran in a server"""
+
+class ConverterError(CommandError):
+    """Base class for all converter errors"""
+
+class InvalidLiteralArgument(ConverterError):
+    """Raised when the argument is not a valid literal argument"""
+
+class BadBoolArgument(ConverterError):
+    """Raised when the bool converter fails"""

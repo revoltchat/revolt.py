@@ -9,6 +9,7 @@ from .command import Command
 
 if TYPE_CHECKING:
     from .view import StringView
+    from .client import CommandsClient
 
 __all__ = (
     "Context",
@@ -35,17 +36,20 @@ class Context(revolt.Messageable):
         The positional arguments being passed to the command
     kwargs: dict[:class:`str`, Any]
         The keyword arguments being passed to the command
+    client: :class:`CommandsClient`
+        The revolt client
     """
-    __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs", "state")
+    __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs", "state", "client")
 
     def _get_channel_id(self) -> str:
         return self.channel.id
 
-    def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message):
+    def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message, client: CommandsClient):
         self.command = command
         self.invoked_with = invoked_with
         self.view = view
         self.message = message
+        self.client = client
         self.args = []
         self.kwargs = {}
         self.server = message.server

@@ -14,7 +14,7 @@ from .errors import CommandNotFound, CheckError
 
 __all__ = (
     "CommandsMeta",
-    "CommandsMixin"
+    "CommandsClient"
 )
 
 quote_regex = re.compile(r"[\"']")
@@ -40,11 +40,10 @@ class CommandsMeta(type):
 
         return self
 
-class CommandsMixin(metaclass=CommandsMeta):
+class CommandsClient(revolt.Client, metaclass=CommandsMeta):
     """Main class that adds commands, this class should be subclassed along with `revolt.Client`."""
 
     _commands: list[Command]
-    dispatch: Callable[..., None]
 
     def __init__(self, *args, **kwargs):
         self.all_commands: dict[str, Command] = {}
@@ -142,7 +141,7 @@ class CommandsMixin(metaclass=CommandsMeta):
         if not content:
             return
 
-        view = StringView(content)
+        view = self.get_view(message)(content)
 
         try:
             command_name = view.get_next_word()
@@ -154,10 +153,10 @@ class CommandsMixin(metaclass=CommandsMeta):
         try:
             command = self.get_command(command_name)
         except KeyError:
-            context = context_cls(None, command_name, view, message)
+            context = context_cls(None, command_name, view, message, self)
             return self.dispatch("command_error", context, CommandNotFound(command_name))
 
-        context = context_cls(command, command_name, view, message)
+        context = context_cls(command, command_name, view, message, self)
 
         try:
             self.dispatch("command", context)
@@ -174,7 +173,6 @@ class CommandsMixin(metaclass=CommandsMeta):
             return output
         except Exception as e:
             self.dispatch("command_error", context, e)
-
 
     @staticmethod
     async def on_command_error(ctx: Context, error: Exception):

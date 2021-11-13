@@ -6,3 +6,4 @@ dist
 docs/_build
 .vscode
 .env
+.mypy_cache

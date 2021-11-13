@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import traceback
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Optional, Union, get_args, get_origin
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Literal, Optional, Union, get_args, get_origin
 
 import revolt
 import inspect
 from contextlib import suppress
 from revolt.utils import copy_doc, maybe_coroutine
+from .errors import InvalidLiteralArgument
 
 if TYPE_CHECKING:
     from .context import Context
@@ -111,6 +112,15 @@ class Command:
                 elif origin is Annotated:
                     converter: Callable[[str, Context], Any] = get_args(annot)[1]  # the typehint affects the other if statement somehow
                     return await maybe_coroutine(converter, arg, context)
+
+                elif origin is Literal:
+                    if arg in get_args(annot):
+                        return arg
+                    else:
+                        raise InvalidLiteralArgument(arg)
+            else:
+                annot: Callable[..., Any]
+                return await maybe_coroutine(annot, arg, context)
         else:
             return arg
 

@@ -1,10 +1,5 @@
 from typing import Annotated
-
-class ConverterError(Exception):
-    """Raised when a converter fails"""
-
-class BadBoolArgument(ConverterError):
-    """Raised when the bool converter fails"""
+from .errors import BadBoolArgument
 
 IntConverter = Annotated[int, lambda arg, _: int(arg)]
 

@@ -6,7 +6,7 @@ import revolt
 from revolt.ext import commands
 
 
-class Client(commands.CommandsMixin, revolt.Client):
+class Client(commands.CommandsClient):
     async def get_prefix(self, message: revolt.Message):
         return "!"
 
