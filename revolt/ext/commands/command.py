@@ -138,7 +138,7 @@ class Command:
                 context.args.append(await self.convert_argument(context.view.get_next_word(), parameter, context))
 
     def __repr__(self) -> str:
-        return f"<Command name=\"{self.name}>\""
+        return f"<Command name=\"{self.name}\">"
 
 def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command] = Command):
     """A decorator that turns a function into a :class:`Command`.
