@@ -7,7 +7,9 @@ from .enums import PresenceType, RelationshipType
 
 if TYPE_CHECKING:
     from .state import State
-    from .types import User as UserPayload, Status as StatusPayload, File
+    from .types import File
+    from .types import Status as StatusPayload
+    from .types import User as UserPayload
 
 
 __all__ = ("User",)

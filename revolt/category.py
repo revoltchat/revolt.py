@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
+    from .channel import Channel
     from .state import State
     from .types import Category as CategoryPayload
-    from .channel import Channel
 
 __all__ = ("Category",)
 

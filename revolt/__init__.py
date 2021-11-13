@@ -9,7 +9,7 @@ from .enums import (AssetType, ChannelType, PresenceType, RelationshipType,
 from .errors import HTTPError, RevoltError, ServerError
 from .file import File
 from .member import Member
-from .message import Message, MessageReply, Masquerade
+from .message import Masquerade, Message, MessageReply
 from .messageable import Messageable
 from .permissions import ChannelPermissions, ServerPermissions
 from .role import Role

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 import revolt
 from revolt.utils import maybe_coroutine
@@ -8,8 +8,8 @@ from revolt.utils import maybe_coroutine
 from .command import Command
 
 if TYPE_CHECKING:
-    from .view import StringView
     from .client import CommandsClient
+    from .view import StringView
 
 __all__ = (
     "Context",

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict, Union, Literal
+from typing import TYPE_CHECKING, Literal, TypedDict, Union
 
 from .channel import (Channel, DMChannel, Group, SavedMessages, TextChannel,
                       VoiceChannel)
@@ -9,7 +9,7 @@ from .message import Message
 if TYPE_CHECKING:
     from .member import Member, MemberID
     from .server import Server
-    from .user import User, Status
+    from .user import Status, User
 
 __all__ = (
     "BasePayload",

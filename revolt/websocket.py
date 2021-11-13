@@ -6,13 +6,18 @@ from copy import copy
 from typing import TYPE_CHECKING, Callable, cast
 
 from .enums import RelationshipType
-from .user import Status
-
 from .types import (ChannelCreateEventPayload, ChannelDeleteEventPayload,
                     ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload, ServerUpdateEventPayload, UserRelationshipEventPayload, ServerRoleDeleteEventPayload, UserUpdateEventPayload, ServerDeleteEventPayload, ServerMemberUpdateEventPayload, ServerMemberJoinEventPayload, ServerMemberLeaveEventPayload, ServerRoleUpdateEventPayload)
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
 from .types import Message as MessagePayload
-from .types import MessageDeleteEventPayload, MessageUpdateEventPayload
+from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
+                    ServerDeleteEventPayload, ServerMemberJoinEventPayload,
+                    ServerMemberLeaveEventPayload,
+                    ServerMemberUpdateEventPayload,
+                    ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
+                    ServerUpdateEventPayload, UserRelationshipEventPayload,
+                    UserUpdateEventPayload)
+from .user import Status
 
 try:
     import ujson as json

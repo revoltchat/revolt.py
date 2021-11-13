@@ -1,5 +1,6 @@
 import inspect
-from typing import Callable, Coroutine, TypeVar, Union, Any
+from typing import Any, Callable, Coroutine, TypeVar, Union
+
 from typing_extensions import ParamSpec
 
 __all__ = ("Missing", "copy_doc", "maybe_coroutine")

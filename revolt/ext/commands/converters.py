@@ -1,4 +1,5 @@
 from typing import Annotated
+
 from .errors import BadBoolArgument
 
 IntConverter = Annotated[int, lambda arg, _: int(arg)]

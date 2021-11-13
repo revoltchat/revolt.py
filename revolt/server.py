@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, cast, Union
+from typing import TYPE_CHECKING, Optional, Union, cast
 
+from .asset import Asset
+from .category import Category
 from .channel import Channel
 from .permissions import ServerPermissions
 from .role import Role
-from .asset import Asset
-from .category import Category
 
 if TYPE_CHECKING:
+    from .channel import TextChannel
     from .member import Member
     from .state import State
-    from .channel import TextChannel
-    from .types import (Server as ServerPayload, File as FilePayload, Permission as PermissionPayload, SystemMessagesConfig, Category as CategoryPayload)
+    from .types import Category as CategoryPayload
+    from .types import File as FilePayload
+    from .types import Permission as PermissionPayload
+    from .types import Server as ServerPayload
+    from .types import SystemMessagesConfig
 
 
 __all__ = ("Server", "SystemMessages")

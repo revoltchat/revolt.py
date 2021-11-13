@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 if TYPE_CHECKING:
     from .embed import Embed
     from .file import File
-    from .message import Message, MessageReply, Masquerade
+    from .message import Masquerade, Message, MessageReply
     from .state import State
 
 

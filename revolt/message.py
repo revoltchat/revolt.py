@@ -9,7 +9,9 @@ from .embed import Embed
 
 if TYPE_CHECKING:
     from .state import State
-    from .types import Message as MessagePayload, MessageReplyPayload, Masquerade as MasqueradePayload
+    from .types import Masquerade as MasqueradePayload
+    from .types import Message as MessagePayload
+    from .types import MessageReplyPayload
 
 
 __all__ = (

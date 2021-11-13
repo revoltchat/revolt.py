@@ -1,4 +1,4 @@
-from typing import Callable, Coroutine, Any, TypeVar, Union
+from typing import Any, Callable, Coroutine, TypeVar, Union
 
 from .command import Command
 from .context import Context

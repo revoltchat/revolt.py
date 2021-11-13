@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from .user import User
 from .asset import Asset
+from .user import User
 
 if TYPE_CHECKING:
     from .server import Server
     from .state import State
-    from .types import Member as MemberPayload
     from .types import File
+    from .types import Member as MemberPayload
 
 __all__ = ("Member",)
 

@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Union
 import re
+import traceback
+from typing import Any, Callable, Union
 
 import revolt
-import traceback
 
-from .view import StringView
 from .command import Command
 from .context import Context
-from .errors import CommandNotFound, CheckError
-
+from .errors import CheckError, CommandNotFound
+from .view import StringView
 
 __all__ = (
     "CommandsMeta",

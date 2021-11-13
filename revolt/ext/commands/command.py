@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+import inspect
 import traceback
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Literal, Optional, Union, get_args, get_origin
+from contextlib import suppress
+from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
+                    Literal, Optional, Union, get_args, get_origin)
 
 import revolt
-import inspect
-from contextlib import suppress
 from revolt.utils import copy_doc, maybe_coroutine
+
 from .errors import InvalidLiteralArgument
 
 if TYPE_CHECKING:
-    from .context import Context
     from .checks import Check
+    from .context import Context
 
 __all__ = (
     "Command",

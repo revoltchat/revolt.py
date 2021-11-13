@@ -23,10 +23,12 @@ if TYPE_CHECKING:
     from .types import Autumn as AutumnPayload
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
-    from .types import GetServerMembers, Member
-    from .types import Message as MessagePayload, MessageReplyPayload, Masquerade as MasqueradePayload 
-    from .types import (MessageWithUserData, Role, Server, ServerBans,
-                        ServerInvite, TextChannel)
+    from .types import GetServerMembers
+    from .types import Masquerade as MasqueradePayload
+    from .types import Member
+    from .types import Message as MessagePayload
+    from .types import (MessageReplyPayload, MessageWithUserData, Role, Server,
+                        ServerBans, ServerInvite, TextChannel)
     from .types import User as UserPayload
     from .types import UserProfile, VoiceChannel
 

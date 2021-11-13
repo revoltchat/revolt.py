@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 import mimetypes
+from typing import TYPE_CHECKING
 
 from .enums import AssetType
 from .errors import AutumnDisabled
