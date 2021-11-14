@@ -274,8 +274,8 @@ class WebsocketHandler:
         # the keys have . in them so i need to replace with _
 
         data = payload["data"]
-        data["profile_content"] = data.get("profile.content", None)
-        data["profile_background"] = data.get("profile.background", None)
+        data["profile_content"] = data.pop("profile.content", None)
+        data["profile_background"] = data.pop("profile.background", None)
 
         user._update(**data)
 
