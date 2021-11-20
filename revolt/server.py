@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union, cast
+from typing import TYPE_CHECKING, Optional
 
 from .asset import Asset
 from .category import Category
 from .channel import Channel
-from .permissions import ServerPermissions
+from .permissions import ChannelPermissions, ServerPermissions
 from .role import Role
 
 if TYPE_CHECKING:
@@ -89,14 +89,15 @@ class Server:
     banner: Optional[:class:`Asset`]
         The servers banner
     """
-    __slots__ = ("state", "id", "name", "owner_id", "default_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "categories")
+    __slots__ = ("state", "id", "name", "owner_id", "default_server_permissions", "default_channel_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "categories")
 
     def __init__(self, data: ServerPayload, state: State):
         self.state = state
         self.id = data["_id"]
         self.name = data["name"]
         self.owner_id = data["owner"]
-        self.default_permissions = ServerPermissions(*data["default_permissions"])
+        self.default_server_permissions = ServerPermissions._from_value(data["default_permissions"][0])
+        self.default_channel_permissions = ChannelPermissions._from_value(data["default_permissions"][1])
         self.description = data.get("description") or None
         self.nsfw = data.get("nsfw", False)
         self.system_messages = SystemMessages(data.get("system_messages", {}), state)
@@ -130,7 +131,8 @@ class Server:
         if banner:
             self.banner = Asset(banner, self.state)
         if default_permissions:
-            self.default_permissions = ServerPermissions(*default_permissions)
+            self.default_server_permissions = ServerPermissions._from_value(default_permissions[0])
+            self.default_channel_permissions = ChannelPermissions._from_value(default_permissions[1])
         if nsfw is not None:
             self.nsfw = nsfw
         if system_messages is not None:
@@ -203,11 +205,16 @@ class Server:
         """:class:`Member` The owner of the server"""
         return self.get_member(self.owner_id)
 
-    async def set_default_permissions(self, permissions: ServerPermissions) -> None:
+    async def set_default_permissions(self, *, server_permissions: Optional[ServerPermissions] = None, channel_permissions: Optional[ChannelPermissions] = None) -> None:
         """Sets the default server permissions.
         Parameters
         -----------
-        permissions: :class:`ServerPermissions`
+        server_permissions: Optional[:class:`ServerPermissions`]
             The new default server permissions
+        channel_permissions: Optional[:class:`ChannelPermissions`]
+            the new default channel permissions
         """
-        await self.state.http.set_default_permissions(self.id, *permissions.value)
+        server_value = (server_permissions or self.default_server_permissions).value
+        channel_value = (channel_permissions or self.default_channel_permissions).value
+
+        await self.state.http.set_default_permissions(self.id, server_value, channel_value)

@@ -69,12 +69,12 @@ class GroupDMChannel(Channel, Messageable):
         self.owner = state.get_user(data["owner"])
 
         if perms := data.get("permissions"):
-            self.permissions = ChannelPermissions(perms)
+            self.permissions = ChannelPermissions._from_value(perms)
 
     def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None):
         if name:
             self.name = name
-        
+
         if recipients:
             self.recipients = [self.state.get_user(user_id) for user_id in recipients]
 
@@ -93,19 +93,19 @@ class TextChannel(Channel, Messageable):
     """A text channel"""
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
-        
+
         self.server_id = data["server"]
         self.name = data["name"]
         self.description = data.get("description")
-        
+
         last_message_id = data.get("last_message")
         self.last_message_id = last_message_id
 
         if perms := data.get("default_permissions"):
-            self.default_permissions = ChannelPermissions(perms)
+            self.default_permissions = ChannelPermissions._from_value(perms)
 
         if role_perms := data.get("role_permissions"):
-            self.role_permissions = {role_id: ChannelPermissions(perms) for role_id, perms in role_perms.items()}
+            self.role_permissions = {role_id: ChannelPermissions._from_value(perms) for role_id, perms in role_perms.items()}
 
     def _get_channel_id(self) -> str:
         return self.id
@@ -149,10 +149,10 @@ class VoiceChannel(Channel):
         self.description = data.get("description")
 
         if perms := data.get("default_permissions"):
-            self.default_permissions = ChannelPermissions(perms)
+            self.default_permissions = ChannelPermissions._from_value(perms)
 
         if role_perms := data.get("role_permissions"):
-            self.role_permissions = {role_id: ChannelPermissions(perms) for role_id, perms in role_perms.items()}
+            self.role_permissions = {role_id: ChannelPermissions._from_value(perms) for role_id, perms in role_perms.items()}
 
     def _update(self, *, name: Optional[str] = None, description: Optional[str] = None):
         if name:

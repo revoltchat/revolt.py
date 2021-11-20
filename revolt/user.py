@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 
 from .asset import Asset, PartialAsset
 from .enums import PresenceType, RelationshipType
+from .flags import UserBadges
 
 if TYPE_CHECKING:
     from .state import State
@@ -40,7 +41,7 @@ class User:
         Whether or not the user is a bot
     owner: Optional[:class:`User`]
         The bot's owner if the user is a bot
-    badges: :class:`int`
+    badges: :class:`UserBadges`
         The users badges
     online: :class:`bool`
         Whether or not the user is online
@@ -69,7 +70,7 @@ class User:
             self.bot = False
             self.owner_id = None
 
-        self.badges = data.get("badges", 0)
+        self.badges = UserBadges._from_value(data.get("badges", 0))
         self.online = data.get("online", False)
         self.flags = data.get("flags", 0)
 

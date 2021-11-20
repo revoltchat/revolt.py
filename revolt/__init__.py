@@ -8,6 +8,7 @@ from .enums import (AssetType, ChannelType, PresenceType, RelationshipType,
                     SortType)
 from .errors import HTTPError, RevoltError, ServerError
 from .file import File
+from .flags import UserBadges
 from .member import Member
 from .message import Masquerade, Message, MessageReply
 from .messageable import Messageable

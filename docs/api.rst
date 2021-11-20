@@ -139,6 +139,12 @@ Status
 
 .. autonamedtuple:: Status
 
+UserBadges
+~~~~~~~~~~~
+
+.. autoclass:: UserBadges
+    :members:
+
 
 Enums
 ======
