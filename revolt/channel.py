@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, cast
+import asyncio
 
 from .enums import ChannelType
 from .messageable import Messageable
 from .permissions import ChannelPermissions
+from .voice_client import VoiceClient
+from .errors import FeatureDisabled
 
 if TYPE_CHECKING:
     from .message import Message
@@ -178,6 +181,24 @@ class VoiceChannel(Channel):
             The new channel permissions
         """
         await self.state.http.set_channel_role_permissions(self.id, role.id, permissions.value)
+
+    async def connect(self):
+        token = (await self.state.http.connect_to_voice(self.id))["token"]
+        voso = self.state.api_info["features"]["voso"]
+
+        if not voso["enabled"]:
+            raise FeatureDisabled("vortex is disabled.")
+
+        voice_client = VoiceClient(self.state.http.session, voso["ws"], self.id, token, self.state)
+
+        await voice_client.start()
+        await voice_client.send_authenticate()
+        print("auth")
+        await voice_client.send_initialize_transport()
+        print("init")
+        await voice_client.send_connect_transport()
+        print("connect")
+        return voice_client
 
 def channel_factory(data: ChannelPayload, state: State) -> Channel:
     if data["channel_type"] == "SavedMessage":

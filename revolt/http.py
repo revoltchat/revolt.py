@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from .types import Member
     from .types import Message as MessagePayload
     from .types import (MessageReplyPayload, MessageWithUserData, Role, Server,
-                        ServerBans, ServerInvite, TextChannel)
+                        ServerBans, ServerInvite, TextChannel, JoinCallResponse)
     from .types import User as UserPayload
     from .types import UserProfile, VoiceChannel
 
@@ -352,3 +352,6 @@ class HttpClient:
 
     def delete_role(self, server_id: str, role_id: str) -> Request[None]:
         return self.request("DELETE", f"/servers/{server_id}/roles/{role_id}")
+
+    def connect_to_voice(self, channel_id) -> Request[JoinCallResponse]:
+        return self.request("POST", f"/channels/{channel_id}/join_call")

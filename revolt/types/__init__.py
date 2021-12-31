@@ -10,3 +10,4 @@ from .message import *
 from .role import *
 from .server import *
 from .user import *
+from .voice import *

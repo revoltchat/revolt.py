@@ -7,13 +7,14 @@ if TYPE_CHECKING:
     from .message import Message
     from .user import User
 
-    
+
 __all__ = (
     "VosoFeature",
     "ApiInfo",
     "Autumn",
     "GetServerMembers",
     "MessageWithUserData",
+    "JoinCallResponse"
 )
 
 
@@ -50,3 +51,6 @@ class MessageWithUserData(TypedDict):
     messages: list[Message]
     members: list[Member]
     users: list[User]
+
+class JoinCallResponse(TypedDict):
+    token: str

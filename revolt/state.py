@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 from .channel import Channel, channel_factory
 from .member import Member
@@ -22,12 +22,13 @@ if TYPE_CHECKING:
 __all__ = ("State",)
 
 class State:
-    __slots__ = ("http", "api_info", "max_messages", "users", "channels", "servers", "messages")
+    __slots__ = ("http", "api_info", "max_messages", "users", "channels", "servers", "messages", "dispatch")
 
-    def __init__(self, http: HttpClient, api_info: ApiInfo, max_messages: int):
+    def __init__(self, http: HttpClient, api_info: ApiInfo, max_messages: int, dispatch: Callable[..., None]):
         self.http = http
         self.api_info = api_info
         self.max_messages = max_messages
+        self.dispatch = dispatch
 
         self.users: dict[str, User] = {}
         self.channels: dict[str, Channel] = {}

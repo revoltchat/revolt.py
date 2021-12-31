@@ -87,7 +87,7 @@ class Client:
 
         self.api_info = api_info
         self.http = HttpClient(self.session, self.token, self.api_url, self.api_info)
-        self.state = State(self.http, api_info, self.max_messages)
+        self.state = State(self.http, api_info, self.max_messages, self.dispatch)
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
         await self.websocket.start()
 
