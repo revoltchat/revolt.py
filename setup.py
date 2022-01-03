@@ -15,10 +15,10 @@ with open('requirements.txt') as f:
 setup(
     name="revolt.py",
     version="0.1.1",
-    description="Python wrapper around revolt.chat",
+    description="Python wrapper for the revolt.chat API",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/Zomatree/revolt.py",
+    url="https://github.com/revoltchat/revolt.py",
     author="Zomatree",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -40,7 +40,7 @@ setup(
     },
     install_requires=requirements,
     project_urls={
-        "Bug Reports": "https://github.com/Zomatree/revolt.py/issues",
-        "Source": "https://github.com/Zomatree/revolt.py/",
+        "Bug Reports": "https://github.com/revoltchat/revolt.py/issues",
+        "Source": "https://github.com/revoltchat/revolt.py/",
     },
 )
