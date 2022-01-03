@@ -53,7 +53,7 @@ class HttpClient:
         kwargs = {}
         
         headers = {
-            "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.p)y",
+            "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.py)",
             "x-bot-token": self.token
         }
 
