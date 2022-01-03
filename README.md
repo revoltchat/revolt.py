@@ -1,16 +1,12 @@
 # Revolt.py
 
-An async library to interact with the https://revolt.chat api.
+An async library to interact with the https://revolt.chat API. This library will **only support bots** and I will **not** implement anything exclusively for user accounts.
 
-This library will be focused on making bots and i will not implement anything only for user accounts.
-
-Support server: https://app.revolt.chat/invite/FDXER6hr
-
-Documentation is [here](https://revoltpy.readthedocs.io/en/latest/)
+You can join the support server [here](https://rvlt.gg/FDXER6hr) and find the library's documentation [here](https://revoltpy.readthedocs.io/en/latest/).
 
 ## Example
 
-More examples in the [examples folder](https://github.com/zomatree/revolt.py/blob/master/examples)
+More examples can be found in the [examples folder](https://github.com/revoltchat/revolt.py/blob/master/examples).
 
 ```py
 import revolt
