@@ -220,3 +220,12 @@ All enums subclass `aenum.Enum`.
     .. attribute:: user
 
         That user is yourself
+
+Utils
+======
+
+.. currentmodule:: revolt.utils
+
+A collection a utility functions and classes to aid in making your bot
+
+.. autofunction:: get

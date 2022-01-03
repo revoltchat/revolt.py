@@ -16,5 +16,6 @@ from .permissions import ChannelPermissions, ServerPermissions
 from .role import Role
 from .server import Server, SystemMessages
 from .user import Relation, Status, User
+from . import utils
 
 __version__ = (0, 1, 1)

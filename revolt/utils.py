@@ -1,9 +1,10 @@
 import inspect
-from typing import Any, Callable, Coroutine, TypeVar, Union
+from typing import Any, Callable, Coroutine, TypeVar, Union, Iterable
+from operator import attrgetter
 
 from typing_extensions import ParamSpec
 
-__all__ = ("Missing", "copy_doc", "maybe_coroutine")
+__all__ = ("Missing", "copy_doc", "maybe_coroutine", "get")
 
 class _Missing:
     def __repr__(self):
@@ -34,3 +35,44 @@ async def maybe_coroutine(func: Callable[P, Union[R_T, Coroutine[Any, Any, R_T]]
         value = await value
 
     return value  # type: ignore
+
+
+def get(iterable: Iterable[T], **attrs: Any) -> T:
+    """A convenaince function to help get a value from an iterable with a specific attribute
+
+    Examples
+    ---------
+
+    .. code-block:: python
+        :emphasize-lines: 4
+
+        from revolt import utils
+
+        channel = utils.get(server.channels, name="General")
+        await channel.send("Hello general chat.")
+
+    Parameters
+    -----------
+    iterable: Iterable
+        The values to search though
+    **attrs: Any
+        The attributes to check
+
+    Returns
+    --------
+    Any
+        The value from the iterable with the met attributes
+
+    Raises
+    -------
+    LookupError
+        Raises when none of the values in the iterable matches the attributes
+
+    """
+    converted = [(attrgetter(attr.replace('__', '.')), value) for attr, value in attrs.items()]
+
+    for elem in iterable:
+        if all(pred(elem) == value for pred, value in converted):
+            return elem
+
+    raise LookupError
