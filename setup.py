@@ -14,7 +14,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="revolt.py",
-    version="0.1.1",
+    version="0.1.2",
     description="Python wrapper for the revolt.chat API",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -29,6 +29,7 @@ setup(
 
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3 :: Only",
     ],
 
