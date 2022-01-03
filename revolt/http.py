@@ -53,7 +53,7 @@ class HttpClient:
         kwargs = {}
         
         headers = {
-            "User-Agent": "Revolt.py https://github.com/Zomatree/revolt.py",
+            "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.p)y",
             "x-bot-token": self.token
         }
 
@@ -88,7 +88,7 @@ class HttpClient:
         url = f"{self.api_info['features']['autumn']['url']}/{tag}"
 
         headers = {
-            "User-Agent": "Revolt.py https://github.com/Zomatree/revolt.py"
+            "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.py)"
         }
 
         form = aiohttp.FormData()
