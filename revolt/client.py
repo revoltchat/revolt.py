@@ -91,7 +91,7 @@ class Client:
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
         await self.websocket.start()
 
-    def get_user(self, id: str) -> Optional[User]:
+    def get_user(self, id: str) -> User:
         """Gets a user from the cache
         
         Parameters
@@ -101,12 +101,12 @@ class Client:
         
         Returns
         --------
-        Optional[:class:`User`]
-            The user if found
+        :class:`User`
+            The user
         """
         return self.state.get_user(id)
 
-    def get_channel(self, id: str) -> Optional[Channel]:
+    def get_channel(self, id: str) -> Channel:
         """Gets a channel from the cache
         
         Parameters
@@ -116,12 +116,12 @@ class Client:
         
         Returns
         --------
-        Optional[:class:`Channel`]
-            The channel if found
+        :class:`Channel`
+            The channel
         """
         return self.state.get_channel(id)
 
-    def get_server(self, id: str) -> Optional[Server]:
+    def get_server(self, id: str) -> Server:
         """Gets a server from the cache
         
         Parameters
@@ -131,8 +131,8 @@ class Client:
         
         Returns
         --------
-        Optional[:class:`Server`]
-            The server if found
+        :class:`Server`
+            The server
         """
         return self.state.get_server(id)
 
