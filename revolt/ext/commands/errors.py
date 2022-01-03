@@ -10,7 +10,11 @@ __all__ = (
     "ServerOnly",
     "ConverterError",
     "InvalidLiteralArgument",
-    "BadBoolArgument"
+    "BadBoolArgument",
+    "CategoryConverterError",
+    "ChannelConverterError",
+    "UserConverterError",
+    "MemberConverterError",
 )
 
 class CommandError(RevoltError):
@@ -52,3 +56,23 @@ class InvalidLiteralArgument(ConverterError):
 
 class BadBoolArgument(ConverterError):
     """Raised when the bool converter fails"""
+
+class CategoryConverterError(ConverterError):
+    """Raised when the Category conveter fails"""
+    def __init__(self, argument: str):
+        self.argument = argument
+
+class ChannelConverterError(ConverterError):
+    """Raised when the Channel conveter fails"""
+    def __init__(self, argument: str):
+        self.argument = argument
+
+class UserConverterError(ConverterError):
+    """Raised when the Category conveter fails"""
+    def __init__(self, argument: str):
+        self.argument = argument
+
+class MemberConverterError(ConverterError):
+    """Raised when the Category conveter fails"""
+    def __init__(self, argument: str):
+        self.argument = argument

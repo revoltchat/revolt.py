@@ -88,3 +88,23 @@ BadBoolArgument
 ~~~~~~~~~~~~~~~~
 .. autoexception:: revolt.ext.commands.BadBoolArgument
     :members:
+
+CategoryConverterError
+~~~~~~~~~~~~~~~~
+.. autoexception:: revolt.ext.commands.CategoryConverterError
+    :members:
+
+ChannelConverterError
+~~~~~~~~~~~~~~~~
+.. autoexception:: revolt.ext.commands.ChannelConverterError
+    :members:
+
+UserConverterError
+~~~~~~~~~~~~~~~~
+.. autoexception:: revolt.ext.commands.UserConverterError
+    :members:
+
+MemberConverterError
+~~~~~~~~~~~~~~~~
+.. autoexception:: revolt.ext.commands.MemberConverterError
+    :members:
