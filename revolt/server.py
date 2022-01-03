@@ -82,14 +82,12 @@ class Server:
         Whether the server is nsfw or not
     system_messages: :class:`SystemMessages`
         The system message config for the server
-    categories: list[:class:`Category`]
-        The categories in the server
     icon: Optional[:class:`Asset`]
         The servers icon
     banner: Optional[:class:`Asset`]
         The servers banner
     """
-    __slots__ = ("state", "id", "name", "owner_id", "default_server_permissions", "default_channel_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "categories", "_categories")
+    __slots__ = ("state", "id", "name", "owner_id", "default_server_permissions", "default_channel_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "_categories")
 
     def __init__(self, data: ServerPayload, state: State):
         self.state = state
