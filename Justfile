@@ -9,7 +9,7 @@ venv:
     python -m pip install -r requirements.txt
     python -m pip install -r docs_requirements.txt
 
-test:
+test: venv
     python test.py
 
 build: venv
