@@ -89,7 +89,7 @@ class Server:
     banner: Optional[:class:`Asset`]
         The servers banner
     """
-    __slots__ = ("state", "id", "name", "owner_id", "default_server_permissions", "default_channel_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "categories")
+    __slots__ = ("state", "id", "name", "owner_id", "default_server_permissions", "default_channel_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "categories", "_categories")
 
     def __init__(self, data: ServerPayload, state: State):
         self.state = state
@@ -101,7 +101,7 @@ class Server:
         self.description = data.get("description") or None
         self.nsfw = data.get("nsfw", False)
         self.system_messages = SystemMessages(data.get("system_messages", {}), state)
-        self.categories = [Category(data, state) for data in data.get("categories", [])]
+        self._categories = {data["id"]: Category(data, state) for data in data.get("categories", [])}
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
@@ -116,8 +116,7 @@ class Server:
         self._members: dict[str, Member] = {}
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, state, self) for role_id, role in data.get("roles", {}).items()}
 
-        channels = [state.get_channel(channel_id) for channel_id in data["channels"]]
-        self._channels: dict[str, Channel] = {channel.id: channel for channel in channels}
+        self._channels: dict[str, Channel] = {channel.id: channel for channel in self.channels}
 
     def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[PermissionPayload] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None):
         if owner:
@@ -138,13 +137,13 @@ class Server:
         if system_messages is not None:
             self.system_messages = SystemMessages(system_messages, self.state)
         if categories is not None:
-            self.categories = [Category(data, self.state) for data in categories]
+            self._categories = {data["id"]: Category(data, self.state) for data in categories}
 
     @property
     def roles(self) -> list[Role]:
         """list[:class:`Role`] Gets all roles in the server in decending order"""
         return list(self._roles.values())
-    
+
     @property
     def members(self) -> list[Member]:
         """list[:class:`Member`] Gets all members in the server"""
@@ -154,6 +153,11 @@ class Server:
     def channels(self) -> list[Channel]:
         """list[:class:`Member`] Gets all channels in the server"""
         return list(self._channels.values())
+
+    @property
+    def categories(self) -> list[Category]:
+        """list[:class:`Category`] Gets all categories in the server"""
+        return list(self._categories.values())
 
     def get_role(self, role_id: str) -> Role:
         """Gets a role from the cache
@@ -199,6 +203,21 @@ class Server:
             The channel
         """
         return self._channels[channel_id]
+
+    def get_category(self, category_id: str) -> Category:
+        """Gets a category from the cache
+
+        Parameters
+        -----------
+        id: :class:`str`
+            The id of the category
+
+        Returns
+        --------
+        :class:`Category`
+            The category
+        """
+        return self._categories[category_id]
 
     @property
     def owner(self) -> Member:
