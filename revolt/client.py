@@ -172,3 +172,7 @@ class Client:
 
         assert user
         return user
+
+    @property
+    def users(self) -> list[User]:
+        return list(self.state.users.values())
