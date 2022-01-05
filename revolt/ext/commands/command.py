@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 import traceback
 from contextlib import suppress
-from types import NoneType
 from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
                     Literal, Optional, Union, get_args, get_origin, cast)
 
@@ -20,6 +19,9 @@ __all__ = (
     "Command",
     "command"
 )
+
+NoneType = type(None)
+
 
 class Command:
     """Class for holding info about a command.
