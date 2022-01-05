@@ -14,7 +14,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="revolt.py",
-    version="0.1.2",
+    version="0.1.3",
     description="Python wrapper for the revolt.chat API",
     long_description=long_description,
     long_description_content_type="text/markdown",
