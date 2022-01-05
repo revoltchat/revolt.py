@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 from .asset import Asset
 from .category import Category
-from .channel import Channel
+from .channel import Channel, channel_factory
 from .permissions import ChannelPermissions, ServerPermissions
 from .role import Role
 
@@ -114,7 +114,7 @@ class Server:
         self._members: dict[str, Member] = {}
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, state, self) for role_id, role in data.get("roles", {}).items()}
 
-        self._channels: dict[str, Channel] = {channel.id: channel for channel in self.channels}
+        self._channels: dict[str, Channel] = {channel_id: state.get_channel(channel_id) for channel_id in data.get("channels", [])}
 
     def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[PermissionPayload] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None):
         if owner:
