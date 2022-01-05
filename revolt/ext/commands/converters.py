@@ -1,11 +1,12 @@
 from typing import Annotated
 import re
 
-
 from .errors import BadBoolArgument, ServerOnly, CategoryConverterError, ChannelConverterError, UserConverterError, MemberConverterError
 from .context import Context
 
 from revolt import Category, Channel, utils, User, Member
+
+__all__ = ("bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter")
 
 channel_regex = re.compile("<#([A-z0-9]{26})>")
 user_regex = re.compile("<@([A-z0-9]{26})>")
@@ -47,7 +48,7 @@ def channel_converter(arg: str, context: Context) -> Channel:
             raise ChannelConverterError(arg)
 
 def user_converter(arg: str, context: Context) -> User:
-    if (match := user_converter.match(arg)):
+    if (match := user_regex.match(arg)):
         arg = match.group(1)
 
     try:
@@ -62,7 +63,7 @@ def member_converter(arg: str, context: Context) -> Member:
     if not (server := context.server):
         raise ServerOnly
 
-    if (match := user_converter.match(arg)):
+    if (match := user_regex.match(arg)):
         arg = match.group(1)
 
     try:
@@ -78,3 +79,4 @@ BoolConverter = Annotated[bool, bool_converter]
 CategoryConverter = Annotated[Category, category_converter]
 UserConverter = Annotated[User, user_converter]
 MemberConverter = Annotated[Member, member_converter]
+ChannelConverter = Annotated[Channel, channel_converter]

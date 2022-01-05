@@ -34,9 +34,6 @@ class CommandsMeta(type):
 
         self._commands = commands
 
-        for command in commands:
-            command._client = self  # type: ignore
-
         return self
 
 class CommandsClient(revolt.Client, metaclass=CommandsMeta):

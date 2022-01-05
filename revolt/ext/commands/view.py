@@ -14,6 +14,9 @@ class StringView:
         return next(self.value)
 
     def get_rest(self) -> str:
+        if self.should_undo:
+            return f"{self.temp} {''.join(self.value)}"
+
         return "".join(self.value)
 
     def get_next_word(self) -> str:
@@ -38,7 +41,7 @@ class StringView:
         else:
             temp.append(char)
             try:
-                while (char := self.next_char()) != " ":
+                while (char := self.next_char()) not in " \n":
                     temp.append(char)
             except StopIteration:
                 pass

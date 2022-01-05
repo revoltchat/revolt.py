@@ -76,3 +76,8 @@ class MemberConverterError(ConverterError):
     """Raised when the Category conveter fails"""
     def __init__(self, argument: str):
         self.argument = argument
+
+class UnionConverterError(ConverterError):
+    """Raised when all converters in a union fails"""
+    def __init__(self, argument: str):
+        self.argument = argument

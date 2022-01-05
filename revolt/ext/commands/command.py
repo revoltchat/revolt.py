@@ -3,13 +3,14 @@ from __future__ import annotations
 import inspect
 import traceback
 from contextlib import suppress
+from types import NoneType
 from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
-                    Literal, Optional, Union, get_args, get_origin)
+                    Literal, Optional, Union, get_args, get_origin, cast)
 
 import revolt
 from revolt.utils import copy_doc, maybe_coroutine
 
-from .errors import InvalidLiteralArgument
+from .errors import InvalidLiteralArgument, UnionConverterError
 
 if TYPE_CHECKING:
     from .checks import Check
@@ -32,9 +33,7 @@ class Command:
     aliases: list[:class:`str`]
         The aliases of the command
     """
-    __slots__ = ("callback", "name", "aliases", "_client", "signature", "checks")
-
-    _client: revolt.Client
+    __slots__ = ("callback", "name", "aliases", "signature", "checks")
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str]):
         self.callback = callback
@@ -54,7 +53,7 @@ class Command:
             The arguments for the command
         """
         try:
-            return await self.callback(self._client, context, *args, **kwargs)
+            return await self.callback(context.client, context, *args, **kwargs)
         except Exception as err:
             return await self._error_handler(context, err)
 
@@ -95,49 +94,49 @@ class Command:
         return t
 
     @classmethod
-    async def convert_argument(cls, arg: str, parameter: inspect.Parameter, context: Context):
-        if annot := parameter.annotation:
-            if annot is str:  # no converting is needed - its already a string
+    async def convert_argument(cls, arg: str, annotation: Any, context: Context):
+        if annotation:
+            if annotation is str:  # no converting is needed - its already a string
                 return arg
 
-            if origin := get_origin(annot):
+            if origin := get_origin(annotation):
                 if origin is Union:
-                    for converter in get_args(annot):
-
+                    for converter in get_args(annotation):
                         try:
-                            return await maybe_coroutine(converter, arg, context)
+                            return await cls.convert_argument(arg, converter, context)
                         except:
-                            if converter is None:
+                            if converter is NoneType:
                                 context.view.undo()
                                 return None
 
+                    raise UnionConverterError(arg)
+
                 elif origin is Annotated:
-                    converter: Callable[[str, Context], Any] = get_args(annot)[1]  # the typehint affects the other if statement somehow
+                    converter: Callable[[str, Context], Any] = get_args(annotation)[1]  # the typehint affects the other if statement somehow
                     return await maybe_coroutine(converter, arg, context)
 
                 elif origin is Literal:
-                    if arg in get_args(annot):
+                    if arg in get_args(annotation):
                         return arg
                     else:
                         raise InvalidLiteralArgument(arg)
             else:
-                annot: Callable[..., Any]
-                return await maybe_coroutine(annot, arg, context)
+                return await maybe_coroutine(cast(Callable, annotation), arg, context)
         else:
             return arg
 
     async def parse_arguments(self, context: Context):
         for name, parameter in list(self.signature.parameters.items())[2:]:
             if parameter.kind == parameter.KEYWORD_ONLY:
-                context.kwargs[name] = await self.convert_argument(context.view.get_rest(), parameter, context)
+                context.kwargs[name] = await self.convert_argument(context.view.get_rest(), parameter.annotation, context)
 
             elif parameter.kind == parameter.VAR_POSITIONAL:
                 with suppress(StopIteration):
                     while True:
-                        context.args.append(await self.convert_argument(context.view.get_next_word(), parameter, context))
+                        context.args.append(await self.convert_argument(context.view.get_next_word(), parameter.annotation, context))
 
             elif parameter.kind == parameter.POSITIONAL_OR_KEYWORD:
-                context.args.append(await self.convert_argument(context.view.get_next_word(), parameter, context))
+                context.args.append(await self.convert_argument(context.view.get_next_word(), parameter.annotation, context))
 
     def __repr__(self) -> str:
         return f"<Command name=\"{self.name}\">"
