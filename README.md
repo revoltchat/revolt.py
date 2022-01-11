@@ -13,7 +13,7 @@ On Windows
 py -m pip install -U revolt.py # -U to update
 ```
 
-On macOS and some Linux distros (where Pythob 3.X is called with `python3`)
+On macOS and Linux
 ```
 python3 -m pip install -U revolt.py
 ```
