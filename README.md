@@ -10,7 +10,7 @@ You can use `pip` to install revolt.py. It differs slightly depending on what OS
 
 On Windows
 ```
-python3 -m pip install -U revolt.py # -U to update
+py -m pip install -U revolt.py # -U to update
 ```
 
 On macOS and some Linux distros (where Pythob 3.X is called with `python3`)
