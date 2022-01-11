@@ -1,7 +1,5 @@
 # Revolt.py
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/revoltchat/revolt.py)](https://github.com/revoltchat/revolt.py/stargazers) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/revolt.py) ![PyPI - Status](https://img.shields.io/pypi/status/revolt.py) ![GitHub issues](https://img.shields.io/github/issues/revoltchat/revolt.py) ![GitHub pull requests](https://img.shields.io/github/issues-pr/revoltchat/revolt.py)
-
 An async library to interact with the https://revolt.chat API. This library will **only support bots** and I will **not** implement anything exclusively for user accounts.
 
 You can join the support server [here](https://rvlt.gg/FDXER6hr) and find the library's documentation [here](https://revoltpy.readthedocs.io/en/latest/). 
