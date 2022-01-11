@@ -15,7 +15,7 @@ python3 -m pip install -U revolt.py # -U to update
 
 On macOS and some Linux distros (where Pythob 3.X is called with `python3`)
 ```
-python3 -m pip3 install -U revolt.py
+python3 -m pip install -U revolt.py
 ```
 
 ## Example
