@@ -4,7 +4,7 @@ import inspect
 import traceback
 from contextlib import suppress
 from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
-                    Literal, Optional, Union, get_args, get_origin, cast)
+                    Literal, Optional, Union, cast, get_args, get_origin)
 
 import revolt
 from revolt.utils import copy_doc, maybe_coroutine

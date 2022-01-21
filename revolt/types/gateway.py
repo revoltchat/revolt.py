@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, TypedDict, Union
 
-from .channel import (Channel, DMChannel, Group, SavedMessages, TextChannel,
-                      VoiceChannel)
+from .channel import (Channel, DMChannel, GroupDMChannel, SavedMessages,
+                      TextChannel, VoiceChannel)
 from .message import Message
 
 if TYPE_CHECKING:
@@ -69,7 +69,7 @@ class MessageDeleteEventPayload(BasePayload):
 class ChannelCreateEventPayload_SavedMessages(BasePayload, SavedMessages):
     pass
 
-class ChannelCreateEventPayload_Group(BasePayload, Group):
+class ChannelCreateEventPayload_Group(BasePayload, GroupDMChannel):
     pass
 
 class ChannelCreateEventPayload_TextChannel(BasePayload, TextChannel):

@@ -9,13 +9,13 @@ venv:
     python -m pip install -r requirements.txt
     python -m pip install -r docs_requirements.txt
 
-test: venv
+test:
     python test.py
 
-build: venv
-    python -m build
+build:
+    python setup.py sdist bdist_wheel
 
-upload: venv
+upload:
     python -m twine upload  dist/* -u $PYPI_USERNAME -p $PYPI_PASSWORD
 
 lint:

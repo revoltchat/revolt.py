@@ -1,10 +1,12 @@
-from typing import Annotated
 import re
+from typing import Annotated
 
-from .errors import BadBoolArgument, ServerOnly, CategoryConverterError, ChannelConverterError, UserConverterError, MemberConverterError
+from revolt import Category, Channel, Member, User, utils
+
 from .context import Context
-
-from revolt import Category, Channel, utils, User, Member
+from .errors import (BadBoolArgument, CategoryConverterError,
+                     ChannelConverterError, MemberConverterError, ServerOnly,
+                     UserConverterError)
 
 __all__ = ("bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter")
 

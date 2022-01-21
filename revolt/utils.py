@@ -1,6 +1,6 @@
 import inspect
-from typing import Any, Callable, Coroutine, TypeVar, Union, Iterable
 from operator import attrgetter
+from typing import Any, Callable, Coroutine, Iterable, TypeVar, Union
 
 from typing_extensions import ParamSpec
 
@@ -18,7 +18,7 @@ def copy_doc(from_t: T) -> Callable[[T], T]:
     def inner(to_t: T) -> T:
         to_t.__doc__ = from_t.__doc__
         return to_t
-    
+
     return inner
 
 R_T = TypeVar("R_T")
@@ -38,7 +38,7 @@ async def maybe_coroutine(func: Callable[P, Union[R_T, Coroutine[Any, Any, R_T]]
 
 
 def get(iterable: Iterable[T], **attrs: Any) -> T:
-    """A convenaince function to help get a value from an iterable with a specific attribute
+    """A convenience function to help get a value from an iterable with a specific attribute
 
     Examples
     ---------

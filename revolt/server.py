@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, Optional
 
 from .asset import Asset
 from .category import Category
-from .channel import Channel, channel_factory
+from .channel import Channel, VoiceChannel
+from .invite import Invite
 from .permissions import ChannelPermissions, ServerPermissions
 from .role import Role
 
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
     from .types import File as FilePayload
     from .types import Permission as PermissionPayload
     from .types import Server as ServerPayload
-    from .types import SystemMessagesConfig
+    from .types import SystemMessagesConfig, Ban
 
 
 __all__ = ("Server", "SystemMessages")
@@ -112,7 +113,7 @@ class Server:
             self.banner  = None
 
         self._members: dict[str, Member] = {}
-        self._roles: dict[str, Role] = {role_id: Role(role, role_id, state, self) for role_id, role in data.get("roles", {}).items()}
+        self._roles: dict[str, Role] = {role_id: Role(role, role_id, self, state) for role_id, role in data.get("roles", {}).items()}
 
         self._channels: dict[str, Channel] = {channel_id: state.get_channel(channel_id) for channel_id in data.get("channels", [])}
 
@@ -235,3 +236,123 @@ class Server:
         channel_value = (channel_permissions or self.default_channel_permissions).value
 
         await self.state.http.set_default_permissions(self.id, server_value, channel_value)
+
+    async def leave_server(self):
+        """Leaves or deletes the server"""
+        await self.state.http.delete_leave_server(self.id)
+
+    async def delete_server(self):
+        """Leaves or deletes a server, alias to :meth`Server.leave_server`"""
+        await self.leave_server()
+
+    async def create_text_channel(self, *, name: str, description: Optional[str] = None) -> TextChannel:
+        """Creates a text channel in the server
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the channel
+        description: Optional[:class:`str`]
+            The channel's description
+
+        Returns
+        --------
+        :class:`TextChannel`
+            The text channel that was just created
+        """
+        payload = await self.state.http.create_channel(self.id, "Text", name, description)
+
+        channel = TextChannel(payload, self.state)
+        self._channels[channel.id] = channel
+
+        return channel
+
+    async def create_voice_channel(self, *, name: str, description: Optional[str] = None) -> VoiceChannel:
+        """Creates a voice channel in the server
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the channel
+        description: Optional[:class:`str`]
+            The channel's description
+
+        Returns
+        --------
+        :class:`VoiceChannel`
+            The voice channel that was just created
+        """
+        payload = await self.state.http.create_channel(self.id, "Voice", name, description)
+
+        channel = VoiceChannel(payload, self.state)
+        self._channels[channel.id] = channel
+
+        return channel
+
+    async def fetch_invites(self) -> list[Invite]:
+        """Fetches all invites in the server
+
+        Returns
+        --------
+        list[:class:`Invite`]
+        """
+        invite_payloads = await self.state.http.fetch_server_invites(self.id)
+
+        return [Invite._from_partial(payload["_id"], payload["server"], payload["creator"], payload["channel"], self.state) for payload in invite_payloads]
+
+    async def fetch_member(self, member_id: str) -> Member:
+        """Fetches a member from this server
+
+        Parameters
+        -----------
+        member_id: :class:`str`
+            The id of the member you are fetching
+
+        Returns
+        --------
+        :class:`Member`
+            The member with the matching id
+        """
+        payload = await self.state.http.fetch_member(self.id, member_id)
+
+        return Member(payload, self, self.state)
+
+    async def fetch_bans(self) -> list[ServerBan]:
+        """Fetches all invites in the server
+
+        Returns
+        --------
+        list[:class:`Invite`]
+        """
+        payload = await self.state.http.fetch_bans(self.id)
+
+        return [ServerBan(ban, self.state) for ban in payload["bans"]]
+
+    async def create_role(self, name: str) -> Role:
+        """Creates a role in the server
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the role
+
+
+        Returns
+        --------
+        :class:`Role`
+            The role that was just created
+        """
+        payload = await self.state.http.create_role(self.id, name)
+
+        return Role(payload, name, self, self.state)
+
+class ServerBan:
+    def __init__(self, ban: Ban, state: State):
+        self.reason = ban.get("reason")
+        self.server = state.get_server(ban["_id"]["server"])
+        self.user = state.get_user(ban["_id"]["user"])
+        self.state = state
+
+    async def unban(self):
+        """Unbans the user"""
+        await self.state.http.unban_member(self.server.id, self.user.id)

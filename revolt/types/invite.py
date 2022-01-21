@@ -1,22 +1,30 @@
-from typing import Literal, TypedDict, Union
+from __future__ import annotations
 
-__all__ = (
-    "GroupInvite",
-    "ServerInvite",
-    "Invite",
-)
+from typing import TYPE_CHECKING, Literal, TypedDict
 
-class GroupInvite(TypedDict):
-    type: Literal["Group"]
-    _id: str
-    creator: str
-    channel: str
+from typing_extensions import NotRequired
 
-class ServerInvite(TypedDict):
+if TYPE_CHECKING:
+    from .file import File
+
+__all__ = ("Invite", "PartialInvite")
+
+
+class Invite(TypedDict):
     type: Literal["Server"]
+    server_id: str
+    server_name: str
+    server_icon: NotRequired[str]
+    server_banner: NotRequired[str]
+    channel_id: str
+    channel_name: str
+    channel_description: NotRequired[str]
+    user_name: str
+    user_avatar: NotRequired[File]
+    member_count: int
+
+class PartialInvite(TypedDict):
     _id: str
     server: str
-    creator: str
     channel: str
-
-Invite = Union[ServerInvite, GroupInvite]
+    creator: str

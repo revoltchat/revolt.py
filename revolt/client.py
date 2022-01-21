@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 import aiohttp
 
+from .channel import (DMChannel, GroupDMChannel, SavedMessageChannel,
+                      TextChannel, VoiceChannel, channel_factory)
 from .http import HttpClient
+from .invite import Invite
+from .message import Message
 from .state import State
 from .websocket import WebsocketHandler
 
@@ -168,6 +172,7 @@ class Client:
 
     @property
     def user(self) -> User:
+        """:class:`User` the user corrasponding to the client"""
         user = self.websocket.user
 
         assert user
@@ -175,4 +180,107 @@ class Client:
 
     @property
     def users(self) -> list[User]:
+        """list[:class:`User`] All users the client can see"""
         return list(self.state.users.values())
+
+    async def fetch_user(self, user_id: str) -> User:
+        """Fetchs a user
+
+        Parameters
+        -----------
+        user_id: :class:`str`
+            The id of the user you are fetching
+
+        Returns
+        --------
+        :class:`User`
+            The user with the matching id
+        """
+        payload = await self.http.fetch_user(user_id)
+        return User(payload, self.state)
+
+    async def fetch_dm_channels(self) -> list[Union[DMChannel, GroupDMChannel]]:
+        """Fetchs all dm channels the client has made
+
+        Returns
+        --------
+        list[Union[:class:`DMChanel`, :class:`GroupDMChannel`]]
+            A list of :class:`DMChannel` or :class`GroupDMChannel`
+        """
+        channel_payloads = await self.http.fetch_dm_channels()
+        return cast(list[Union[DMChannel, GroupDMChannel]], [channel_factory(payload, self.state) for payload in channel_payloads])
+
+    async def fetch_channel(self, channel_id: str) -> Union[DMChannel, GroupDMChannel, SavedMessageChannel, TextChannel, VoiceChannel]:
+        """Fetches a channel
+
+        Parameters
+        -----------
+        channel_id: :class:`str`
+            The id of the channel
+
+        Returns
+        --------
+        Union[:class:`DMChannel`, :class:`GroupDMChannel`, :class:`SavedMessageChannel`, :class:`TextChannel`, :class:`VoiceChannel`]
+            The channel with the matching id
+        """
+        payload = await self.http.fetch_channel(channel_id)
+
+        return channel_factory(payload, self.state)
+
+    async def fetch_server(self, server_id: str) -> Server:
+        """Fetchs a server
+
+        Parameters
+        -----------
+        server_id: :class:`str`
+            The id of the server you are fetching
+
+        Returns
+        --------
+        :class:`Server`
+            The server with the matching id
+        """
+        payload = await self.http.fetch_server(server_id)
+
+        return Server(payload, self.state)
+
+    async def fetch_invite(self, code: str) -> Invite:
+        """Fetchs an invite
+
+        Parameters
+        -----------
+        code: :class:`str`
+            The code of the invite you are fetching
+
+        Returns
+        --------
+        :class:`Invite`
+            The invite with the matching code
+        """
+        payload = await self.http.fetch_invite(code)
+
+        return Invite(payload, code, self.state)
+
+    def get_message(self, message_id: str) -> Message:
+        """Gets a message from the cache
+
+        Parameters
+        -----------
+        message_id: :class:`str`
+            The id of the message you are getting
+
+        Returns
+        --------
+        :class:`Message`
+            The message with the matching id
+
+        Raises
+        -------
+        LookupError
+            This raises if the message is not found in the cache
+        """
+        for message in self.state.messages:
+            if message.id == message_id:
+                return message
+
+        raise LookupError

@@ -65,3 +65,21 @@ class Member(User):
         if roles:
             member_roles = [self.server.get_role(role_id) for role_id in roles]
             self.roles = sorted(member_roles, key=lambda role: role.rank, reverse=True)
+
+    async def kick(self):
+        """Kicks the member from the server"""
+        await self.state.http.kick_member(self.server.id, self.id)
+
+    async def ban(self, *, reason: Optional[str] = None):
+        """Bans the member from the server
+
+        Parameters
+        -----------
+        reason: Optional[:class:`str`]
+            The reason for the ban
+        """
+        await self.state.http.ban_member(self.server.id, self.id, reason)
+
+    async def unban(self):
+        """Unbans the member from the server"""
+        await self.state.http.unban_member(self.server.id, self.id)

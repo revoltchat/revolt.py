@@ -41,7 +41,7 @@ class Context(revolt.Messageable):
     """
     __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs", "state", "client")
 
-    def _get_channel_id(self) -> str:
+    async def _get_channel_id(self) -> str:
         return self.channel.id
 
     def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message, client: CommandsClient):

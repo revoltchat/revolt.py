@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from revolt.types import server
-
+from .utils import Missing
 from .permissions import ChannelPermissions, ServerPermissions
 
 if TYPE_CHECKING:
@@ -23,7 +22,7 @@ class Role:
         The id of the role
     name: :class:`str`
         The name of the role
-    colour: :class:`str`
+    colour: Optional[:class:`str`]
         The colour of the role
     hoist: :class:`bool`
         Whether members with the role will display seperate from everyone else
@@ -38,13 +37,13 @@ class Role:
     """
     __slots__ = ("id", "name", "colour", "hoist", "rank", "state", "server", "server_permissions", "channel_permissions")
 
-    def __init__(self, data: RolePayload, role_id: str, state: State, server: Server):
+    def __init__(self, data: RolePayload, role_id: str, server: Server, state: State):
         self.state = state
         self.id = role_id
         self.name = data["name"]
-        self.colour = data.get("colour")
-        self.hoist = data.get("hoist", False)
-        self.rank = data.get("rank", 0)
+        self.colour = None
+        self.hoist = False
+        self.rank = 0
         self.server = server
         self.server_permissions = ServerPermissions._from_value(data["permissions"][0])
         self.channel_permissions = ChannelPermissions._from_value(data["permissions"][1])
@@ -83,3 +82,20 @@ class Role:
 
         if rank:
             self.rank = rank
+
+    async def delete(self):
+        """Deletes the role"""
+        await self.state.http.delete_role(self.server.id, self.id)
+
+    async def edit(self, **kwargs):
+        """Edits the role
+
+        Parameters
+        -----------
+        """
+        if kwargs.get("colour", Missing) == None:
+            remove = "Colour"
+        else:
+            remove = None
+
+        await self.state.http.edit_role(self.server.id, self.id, remove, kwargs)

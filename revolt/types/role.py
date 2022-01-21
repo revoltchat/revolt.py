@@ -9,11 +9,6 @@ __all__ = (
 
 Permission = tuple[int, int]
 
-class _RoleOptional(TypedDict, total=False):
-    colour: str
-    hoist: bool
-    rank: int
-
-class Role(_RoleOptional):
+class Role(TypedDict):
     name: str
     permissions: Permission

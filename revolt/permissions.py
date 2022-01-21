@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from .flags import Flags, flag_value
 
-
 __all__ = (
     "ChannelPermissions",
     "ServerPermissions"

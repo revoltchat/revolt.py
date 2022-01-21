@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 
 from .asset import Asset, PartialAsset
+from .channel import DMChannel
 from .enums import PresenceType, RelationshipType
 from .flags import UserBadges
+from .messageable import Messageable
 
 if TYPE_CHECKING:
     from .state import State
@@ -30,7 +32,7 @@ class UserProfile(NamedTuple):
     content: Optional[str]
     background: Optional[Asset]
 
-class User:
+class User(Messageable):
     """Represents a user
     
     Attributes
@@ -53,14 +55,17 @@ class User:
         The relationship between the user and the bot
     status: Optional[:class:`Status`]
         The users status
+    dm_channel: Optional[:class:`DMChannel`]
+        The dm channel between the client and the user, this will only be set if the client has dm'ed the user or :meth:`User.open_dm` was run
     """
-    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile")
+    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile", "dm_channel")
     __slots__ = (*__flattern_attributes__, "state")
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
         self.id = data["_id"]
         self.original_name = data["username"]
+        self.dm_channel = None
 
         bot = data.get("bot")
         if bot:
@@ -100,6 +105,13 @@ class User:
         self.masquerade_avatar: Optional[PartialAsset] = None
         self.masquerade_name: Optional[str] = None
 
+    async def _get_channel_id(self):
+        if not self.dm_channel:
+            payload = await self.state.http.open_dm(self.id)
+            self.dm_channel = DMChannel(payload, self.state)
+
+        return self.id
+
     @property
     def owner(self) -> Optional[User]:
         owner_id = self.owner_id
@@ -135,3 +147,30 @@ class User:
 
         if online:
             self.online = online
+
+    async def default_avatar(self) -> bytes:
+        """Returns the default avatar for this user
+
+        Returns
+        --------
+        :class:`bytes`
+            The bytes of the image
+        """
+        return await self.state.http.fetch_default_avatar(self.id)
+
+    async def fetch_profile(self) -> UserProfile:
+        """Fetches the user's profile
+
+        Returns
+        --------
+        :class:`UserProfile`
+            The user's profile
+        """
+        payload = await self.state.http.fetch_profile(self.id)
+
+        if file := payload.get("background"):
+            background = Asset(file, self.state)
+        else:
+            background = None
+
+        return UserProfile(payload.get("content"), background)

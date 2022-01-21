@@ -1,3 +1,4 @@
+from . import utils
 from .asset import Asset
 from .category import Category
 from .channel import (Channel, DMChannel, GroupDMChannel, SavedMessageChannel,
@@ -16,6 +17,5 @@ from .permissions import ChannelPermissions, ServerPermissions
 from .role import Role
 from .server import Server, SystemMessages
 from .user import Relation, Status, User
-from . import utils
 
 __version__ = (0, 1, 4)

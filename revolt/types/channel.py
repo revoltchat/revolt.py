@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 __all__ = (
     "SavedMessages",
     "DMChannel",
-    "Group",
+    "GroupDMChannel",
     "TextChannel",
     "VoiceChannel",
     "Channel",
@@ -37,7 +37,7 @@ class _GroupOptional(TypedDict):
     permissions: int
     description: str
 
-class Group(_NonceChannel, _GroupOptional, BaseChannel):
+class GroupDMChannel(_NonceChannel, _GroupOptional, BaseChannel):
     recipients: list[str]
     name: str
     owner: str
@@ -47,12 +47,12 @@ class _TextChannelOptional(TypedDict, total=False):
     icon: File
     default_permissions: int
     role_permissions: dict[str, int]
+    last_message: str
 
 class TextChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
     server: str
     name: str
     description: str
-    last_message: str
     channel_type: Literal["TextChannel"]
 
 class _VoiceChannelOptional(TypedDict, total=False):
@@ -66,4 +66,4 @@ class VoiceChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
     description: str
     channel_type: Literal["VoiceChannel"]
 
-Channel = Union[SavedMessages, DMChannel, Group, TextChannel, VoiceChannel]
+Channel = Union[SavedMessages, DMChannel, GroupDMChannel, TextChannel, VoiceChannel]

@@ -1,3 +1,4 @@
 aiohttp==3.7.4.post0
 ulid-py==1.1.0
 aenum==3.1.0
+typing_extensions==4.0.1

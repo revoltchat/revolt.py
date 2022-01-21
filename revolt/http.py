@@ -23,14 +23,13 @@ if TYPE_CHECKING:
     from .types import Autumn as AutumnPayload
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
-    from .types import GetServerMembers
+    from .types import GetServerMembers, Invite
     from .types import Masquerade as MasqueradePayload
-    from .types import Member
     from .types import Message as MessagePayload
-    from .types import (MessageReplyPayload, MessageWithUserData, Role, Server,
-                        ServerBans, ServerInvite, TextChannel)
+    from .types import (MessageReplyPayload, MessageWithUserData,
+                        PartialInvite, Role, Server, ServerBans, TextChannel)
     from .types import User as UserPayload
-    from .types import UserProfile, VoiceChannel
+    from .types import UserProfile, VoiceChannel, GroupDMChannel, Member
 
 
 __all__ = ("HttpClient",)
@@ -267,7 +266,7 @@ class HttpClient:
     def fetch_default_avatar(self, user_id: str) -> Request[bytes]:
         return self.request_file(f"{self.api_url}/users/{user_id}/default_avatar")
     
-    def fetch_dm_channels(self) -> Request[list[Channel]]:
+    def fetch_dm_channels(self) -> Request[list[Union[DMChannel, GroupDMChannel]]]:
         return self.request("GET", "/users/dms")
 
     def open_dm(self, user_id: str) -> Request[DMChannel]:
@@ -293,6 +292,14 @@ class HttpClient:
     def delete_leave_server(self, server_id: str) -> Request[None]:
         return self.request("DELETE", f"/servers/{server_id}")
 
+    @overload
+    def create_channel(self, server_id: str, channel_type: Literal["Text"], name: str, description: Optional[str]) -> Request[TextChannel]:
+        ...
+
+    @overload
+    def create_channel(self, server_id: str, channel_type: Literal["Voice"], name: str, description: Optional[str]) -> Request[VoiceChannel]:
+        ...
+
     def create_channel(self, server_id: str, channel_type: Literal["Text", "Voice"], name: str, description: Optional[str]) -> Request[Union[TextChannel, VoiceChannel]]:
         payload = {
             "type": channel_type,
@@ -304,7 +311,7 @@ class HttpClient:
 
         return self.request("POST", f"/servers/{server_id}/channels", json=payload)
 
-    def fetch_server_invites(self, server_id: str) -> Request[list[ServerInvite]]:
+    def fetch_server_invites(self, server_id: str) -> Request[list[PartialInvite]]:
         return self.request("GET", f"/servers/{server_id}/invites")
 
     def fetch_member(self, server_id: str, member_id: str) -> Request[Member]:
@@ -352,3 +359,21 @@ class HttpClient:
 
     def delete_role(self, server_id: str, role_id: str) -> Request[None]:
         return self.request("DELETE", f"/servers/{server_id}/roles/{role_id}")
+
+    def fetch_invite(self, code: str) -> Request[Invite]:
+        return self.request("GET", f"/invites/{code}")
+
+    def delete_invite(self, code: str) -> Request[None]:
+        return self.request("DELETE", f"/invites/{code}")
+
+    def edit_channel(self, channel_id: str, remove: Optional[str], values: dict[str, Any]):
+        if remove:
+            values["remove"] = remove
+
+        return self.request("PATCH", f"/channels/{channel_id}", json=values)
+
+    def edit_role(self, server_id: str, role_id: str, remove: Optional[str], values: dict[str, Any]):
+        if remove:
+            values["remove"] = remove
+
+        return self.request("PATCH", f"/servers/{server_id}/roles/{role_id}", json=values)
