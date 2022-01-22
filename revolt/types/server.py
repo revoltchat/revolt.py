@@ -27,7 +27,7 @@ class _ServerOptional(TypedDict, total=False):
     description: str
     categories: list[Category]
     system_messages: SystemMessagesConfig
-    roles: list[Role]
+    roles: dict[str, Role]
     icon: File
     banner: File
     nsfw: bool

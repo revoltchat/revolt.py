@@ -29,7 +29,7 @@ def check(check: Check):
         else:
             checks = getattr(func, "_checks", [])
             checks.append(check)
-            func._checks = checks
+            func._checks = checks  # type: ignore
 
         return func
 

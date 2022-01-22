@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from .asset import Asset
 from .category import Category
@@ -99,7 +99,7 @@ class Server:
         self.default_channel_permissions = ChannelPermissions._from_value(data["default_permissions"][1])
         self.description = data.get("description") or None
         self.nsfw = data.get("nsfw", False)
-        self.system_messages = SystemMessages(data.get("system_messages", {}), state)
+        self.system_messages = SystemMessages(data.get("system_messages", cast(SystemMessagesConfig, {})), state)
         self._categories = {data["id"]: Category(data, state) for data in data.get("categories", [])}
 
         if icon := data.get("icon"):
