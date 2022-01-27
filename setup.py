@@ -5,11 +5,7 @@ from setuptools import find_packages, setup
 here = pathlib.Path(__file__).parent.resolve()
 
 long_description = (here / "README.md").read_text(encoding="utf-8")
-
-requirements = []
-
-with open('requirements.txt') as f:
-  requirements = f.read().splitlines()
+requirements = (here / "requirements.txt").read_text(encoding="utf-8").splitlines()
 
 
 setup(
@@ -37,7 +33,11 @@ setup(
     packages=find_packages(),
     python_requires=">=3.9",
     extras_require={
-        "speedups": ["ujson", "aiohttp[speedups]==3.7.4.post0", "msgpack==1.0.2"],
+        "speedups": [
+            "ujson",
+            "aiohttp[speedups]==3.7.4.post0",
+            "msgpack==1.0.2"
+        ],
     },
     install_requires=requirements,
     project_urls={

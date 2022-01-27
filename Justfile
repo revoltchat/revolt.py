@@ -13,7 +13,7 @@ test:
     python test.py
 
 build:
-    python setup.py sdist bdist_wheel
+    python -m build
 
 upload:
     python -m twine upload  dist/* -u $PYPI_USERNAME -p $PYPI_PASSWORD
