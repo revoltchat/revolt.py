@@ -5,3 +5,4 @@ from .context import *
 from .converters import (BoolConverter, CategoryConverter, ChannelConverter,
                          IntConverter, MemberConverter, UserConverter)
 from .errors import *
+from .group import *

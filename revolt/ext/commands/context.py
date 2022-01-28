@@ -6,6 +6,7 @@ import revolt
 from revolt.utils import maybe_coroutine
 
 from .command import Command
+from .group import Group
 
 if TYPE_CHECKING:
     from .client import CommandsClient
@@ -58,7 +59,7 @@ class Context(revolt.Messageable):
         self.state = message.state
 
     async def invoke(self) -> Any:
-        """Invokes the command, this is equal to `await command.invoke(context, context.args)`.
+        """Invokes the command.
 
         .. note:: If the command is `None`, this function will do nothing.
 
@@ -69,11 +70,25 @@ class Context(revolt.Messageable):
         """
 
         if command := self.command:
-            await command.parse_arguments(self)
+            if isinstance(command, Group):
+                try:
+                    subcommand_name = self.view.get_next_word()
+                except StopIteration:
+                    pass
+                else:
+                    if subcommand := command.subcommands.get(subcommand_name):
+                        self.command = command = subcommand
+                        return await self.invoke()
+
+                    self.view.undo()
+
+            try:
+                await command.parse_arguments(self)
+            except Exception as err:
+                return await command._error_handler(self, err)
 
             return await command.invoke(self, *self.args, **self.kwargs)
 
     async def can_run(self) -> bool:
         """Runs all of the commands checks, and returns true if all of them pass"""
         return all([await maybe_coroutine(check, self) for check in (self.command.checks if self.command else [])])
-

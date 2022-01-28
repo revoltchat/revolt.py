@@ -14,6 +14,7 @@ from .errors import InvalidLiteralArgument, UnionConverterError
 if TYPE_CHECKING:
     from .checks import Check
     from .context import Context
+    from .group import Group
 
 __all__ = (
     "Command",
@@ -34,8 +35,10 @@ class Command:
         The name of the command
     aliases: list[:class:`str`]
         The aliases of the command
+    parent: Optional[:class:`Group`]
+        The parent of the command if this command is a subcommand
     """
-    __slots__ = ("callback", "name", "aliases", "signature", "checks")
+    __slots__ = ("callback", "name", "aliases", "signature", "checks", "parent")
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str]):
         self.callback = callback
@@ -43,6 +46,7 @@ class Command:
         self.aliases = aliases
         self.signature = inspect.signature(self.callback)
         self.checks: list[Check] = getattr(callback, "_checks", [])
+        self.parent: Optional[Group] = None
 
     async def invoke(self, context: Context, *args, **kwargs) -> Any:
         """Runs the command and calls the error handler if the command errors.
