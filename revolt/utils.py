@@ -44,7 +44,7 @@ def get(iterable: Iterable[T], **attrs: Any) -> T:
     ---------
 
     .. code-block:: python
-        :emphasize-lines: 4
+        :emphasize-lines: 3
 
         from revolt import utils
 
