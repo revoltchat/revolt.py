@@ -101,7 +101,7 @@ class Command:
 
     @classmethod
     async def convert_argument(cls, arg: str, annotation: Any, context: Context):
-        if annotation:
+        if annotation is not inspect._empty:
             if annotation is str:  # no converting is needed - its already a string
                 return arg
 
