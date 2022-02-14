@@ -15,6 +15,7 @@ __all__ = (
     "ChannelConverterError",
     "UserConverterError",
     "MemberConverterError",
+    "MissingSetup",
 )
 
 class CommandError(RevoltError):
@@ -81,3 +82,6 @@ class UnionConverterError(ConverterError):
     """Raised when all converters in a union fails"""
     def __init__(self, argument: str):
         self.argument = argument
+
+class MissingSetup(CommandError):
+    """Raised when an extension is missing the `setup` function"""

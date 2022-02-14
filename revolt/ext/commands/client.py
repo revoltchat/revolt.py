@@ -1,24 +1,28 @@
 from __future__ import annotations
 
-import re
 import traceback
-from typing import Any, Callable, Union
+import sys
+from typing import Any, Union, Protocol, runtime_checkable
+from importlib import import_module
 
 import revolt
 
 from .command import Command
 from .context import Context
-from .errors import CheckError, CommandNotFound
+from .errors import CheckError, CommandNotFound, MissingSetup
 from .view import StringView
+from .cog import Cog
 
 __all__ = (
     "CommandsMeta",
     "CommandsClient"
 )
 
-quote_regex = re.compile(r"[\"']")
-chunk_regex = re.compile(r"\S+")
-
+@runtime_checkable
+class ExtensionProtocol(Protocol):
+    @staticmethod
+    def setup(client: CommandsClient):
+        raise NotImplementedError
 
 class CommandsMeta(type):
     _commands: list[Command]
@@ -26,7 +30,6 @@ class CommandsMeta(type):
     def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
         commands: list[Command] = []
         self = super().__new__(cls, name, bases, attrs)
-
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
                 if isinstance(value, Command):
@@ -43,6 +46,8 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
     def __init__(self, *args, **kwargs):
         self.all_commands: dict[str, Command] = {}
+        self.cogs: dict[str, Cog] = {}
+        self.extensions: dict[str, ExtensionProtocol] = {}
 
         for command in self._commands:
             self.all_commands[command.name] = command
@@ -97,6 +102,9 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             The command to be added
         """
         self.all_commands[name] = command
+
+        for alias in command.aliases:
+            self.all_commands[alias] = command
 
     def get_view(self, message: revolt.Message) -> type[StringView]:
         return StringView
@@ -168,6 +176,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
             return output
         except Exception as e:
+            await command._error_handler(command.cog or self, context, e)
             self.dispatch("command_error", context, e)
 
     @staticmethod
@@ -190,3 +199,33 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         """
 
         return True
+
+    def add_cog(self, cog: Cog):
+        cog._inject(self)
+
+    def remove_cog(self, cog_name: str) -> Cog:
+        cog = self.cogs.pop(cog_name)
+        cog._uninject(self)
+
+        return cog
+
+    def load_extension(self, name: str):
+        extension = import_module(name)
+
+        if not isinstance(extension, ExtensionProtocol):
+            raise MissingSetup(f"'{extension}' is missing a setup function")
+
+        self.extensions[name] = extension
+        extension.setup(self)
+
+    def unload_extension(self, name: str):
+        extension = self.extensions.pop(name)
+
+        del sys.modules[name]
+
+        if teardown := getattr(extension, "teardown", None):
+            teardown(self)
+
+    def reload_extension(self, name: str):
+        self.unload_extension(name)
+        self.load_extension(name)

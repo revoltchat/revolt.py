@@ -38,7 +38,7 @@ class Command:
     parent: Optional[:class:`Group`]
         The parent of the command if this command is a subcommand
     """
-    __slots__ = ("callback", "name", "aliases", "signature", "checks", "parent")
+    __slots__ = ("callback", "name", "aliases", "signature", "checks", "parent", "_error_handler", "cog")
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str]):
         self.callback = callback
@@ -47,6 +47,8 @@ class Command:
         self.signature = inspect.signature(self.callback)
         self.checks: list[Check] = getattr(callback, "_checks", [])
         self.parent: Optional[Group] = None
+        self.cog = None
+        self._error_handler: Callable[[Any, Context, Exception], Coroutine[Any, Any, Any]] = type(self)._default_error_handler
 
     async def invoke(self, context: Context, *args, **kwargs) -> Any:
         """Runs the command and calls the error handler if the command errors.
@@ -59,9 +61,9 @@ class Command:
             The arguments for the command
         """
         try:
-            return await self.callback(context.client, context, *args, **kwargs)
+            return await self.callback(self.cog or context.client, context, *args, **kwargs)
         except Exception as err:
-            return await self._error_handler(context, err)
+            return await self._error_handler(self.cog or context.client, context, err)
 
     @copy_doc(invoke)
     def __call__(self, context: Context, *args, **kwargs) -> Any:
@@ -84,11 +86,10 @@ class Command:
                 await ctx.send(str(error))
 
         """
-        self._error_handler = func  # type: ignore
+        self._error_handler = func
         return func
 
-    @staticmethod
-    async def _error_handler(ctx: Context, error: Exception):
+    async def _default_error_handler(self, ctx: Context, error: Exception):
         traceback.print_exception(type(error), error, error.__traceback__)
 
     @staticmethod
