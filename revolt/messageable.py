@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from .enums import SortType
 
 if TYPE_CHECKING:
-    from .embed import Embed
+    from .embed import Embed, SendableEmbed
     from .file import File
     from .message import Masquerade, Message, MessageReply
     from .state import State
@@ -28,7 +28,7 @@ class Messageable:
     async def _get_channel_id(self) -> str:
         raise NotImplementedError
 
-    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[Embed]] = None, embed: Optional[Embed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None, masquerade: Optional[Masquerade] = None) -> Message:
+    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[SendableEmbed]] = None, embed: Optional[SendableEmbed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None, masquerade: Optional[Masquerade] = None) -> Message:
         """Sends a message in a channel, you must send at least one of either `content`, `embeds` or `attachments`
 
         Parameters
@@ -37,8 +37,10 @@ class Messageable:
             The content of the message, this will not include system message's content
         attachments: Optional[list[:class:`File`]]
             The attachments of the message
-        embeds: Optional[list[:class:`Embed`]]
-            The embeds of the message
+        embed: Optional[:class:`SendableEmbed`]
+            The embed to send with the message
+        embeds: Optional[list[:class:`SendableEmbed`]]
+            The embeds to send with the message
         replies: Optional[list[:class:`MessageReply`]]
             The list of messages to reply to.
 

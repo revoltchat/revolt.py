@@ -30,7 +30,7 @@ if TYPE_CHECKING:
                         PartialInvite, Role, Server, ServerBans, TextChannel)
     from .types import User as UserPayload
     from .types import UserProfile, VoiceChannel, GroupDMChannel, Member
-
+    from .types import SendableEmbed as SendableEmbedPayload
 
 __all__ = ("HttpClient",)
 
@@ -105,7 +105,7 @@ class HttpClient:
         else:
             return response
 
-    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[EmbedPayload]], attachments: Optional[list[File]], replies: Optional[list[MessageReplyPayload]], masquerade: Optional[MasqueradePayload]) -> MessagePayload:
+    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[SendableEmbedPayload]], attachments: Optional[list[File]], replies: Optional[list[MessageReplyPayload]], masquerade: Optional[MasqueradePayload]) -> MessagePayload:
         json: dict[str, Any] = {}
 
         if content:

@@ -14,6 +14,7 @@ __all__ = (
     "RelationshipType",
     "AssetType",
     "SortType",
+    "EmbedType"
 )
 
 class ChannelType(enum.Enum):
@@ -49,3 +50,9 @@ class SortType(enum.Enum):
     latest = "Latest"
     oldest = "Oldest"
     relevance = "Relevance"
+
+class EmbedType(enum.Enum):
+    website = "Website"
+    image = "Image"
+    text = "Text"
+    none = "None"

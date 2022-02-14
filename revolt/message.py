@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, NamedTuple, Optional
 
 from .asset import Asset, PartialAsset
 from .channel import Messageable
-from .embed import Embed
+from .embed import to_embed
 
 if TYPE_CHECKING:
     from .state import State
@@ -31,7 +31,7 @@ class Message:
         The content of the message, this will not include system message's content
     attachments: list[:class:`Asset`]
         The attachments of the message
-    embeds: list[:class:`Embed`]
+    embeds: list[Union[:class:`WebsiteEmbed`, :class:`ImageEmbed`, :class:`TextEmbed`, :class:`NoneEmbed`]]
         The embeds of the message
     channel: :class:`Messageable`
         The channel the message was sent in
@@ -56,7 +56,7 @@ class Message:
         self.id = data["_id"]
         self.content = data["content"]
         self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]
-        self.embeds = [Embed.from_dict(embed) for embed in data.get("embeds", [])]
+        self.embeds = [to_embed(embed, state) for embed in data.get("embeds", [])]
 
         channel = state.get_channel(data["channel"])
         assert isinstance(channel, Messageable)
