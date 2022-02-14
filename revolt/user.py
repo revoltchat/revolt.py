@@ -166,6 +166,9 @@ class User(Messageable):
         :class:`UserProfile`
             The user's profile
         """
+        if profile := self.profile:
+            return profile
+
         payload = await self.state.http.fetch_profile(self.id)
 
         if file := payload.get("background"):
@@ -173,4 +176,5 @@ class User(Messageable):
         else:
             background = None
 
-        return UserProfile(payload.get("content"), background)
+        self.profile = UserProfile(payload.get("content"), background)
+        return self.profile

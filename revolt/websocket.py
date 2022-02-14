@@ -6,9 +6,6 @@ from copy import copy
 from typing import TYPE_CHECKING, Callable, cast
 
 from .enums import RelationshipType
-from .types import (ChannelCreateEventPayload, ChannelDeleteEventPayload,
-                    ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
 from .types import Message as MessagePayload
 from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerDeleteEventPayload, ServerMemberJoinEventPayload,
@@ -16,8 +13,11 @@ from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerMemberUpdateEventPayload,
                     ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
-                    UserUpdateEventPayload)
-from .user import Status
+                    UserUpdateEventPayload, ChannelCreateEventPayload, ChannelDeleteEventPayload,
+                    ChannelDeleteTypingEventPayload,
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
+from .user import Status, UserProfile
+from .channel import TextChannel, GroupDMChannel, VoiceChannel
 
 try:
     import ujson as json
@@ -163,10 +163,12 @@ class WebsocketHandler:
 
         if clear := payload.get("clear"):
             if clear == "Icon":
-                pass  # TODO
+                if isinstance(channel, (TextChannel, VoiceChannel, GroupDMChannel)):
+                    channel.icon = None
 
             elif clear == "Description":
-                channel.description = None  # type: ignore
+                if isinstance(channel, (TextChannel, VoiceChannel, GroupDMChannel)):
+                    channel.description = None
 
         self.dispatch("channel_update", old_channel, channel)
 
@@ -263,9 +265,13 @@ class WebsocketHandler:
 
         if clear := payload.get("clear"):
             if clear == "ProfileContent":
-                ...
+                if profile := user.profile:
+                    user.profile = UserProfile(None, profile.background)
+
             elif clear == "ProfileBackground":
-                ...
+                if profile := user.profile:
+                    user.profile = UserProfile(profile.content, None)
+
             elif clear == "StatusText":
                 # user.status will never be none because they are trying to remove the text
                 if user.status.presence is None:  # type: ignore

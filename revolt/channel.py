@@ -99,15 +99,18 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         The icon of the group dm channel
     permissions: :class:`ChannelPermissions`
         The permissions of the users inside the group dm channel
+    description: Optional[:class:`str`]
+        The description of the channel, if any
     """
 
-    __slots__ = ("recipients", "name", "owner", "permissions", "icon")
+    __slots__ = ("recipients", "name", "owner", "permissions", "icon", "description")
 
     def __init__(self, data: GroupDMChannelPayload, state: State):
         super().__init__(data, state)
         self.recipients = [state.get_user(user_id) for user_id in data["recipients"]]
         self.name = data["name"]
         self.owner = state.get_user(data["owner"])
+        self.description = data.get("description")
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
@@ -119,12 +122,15 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         else:
             self.permissions = ChannelPermissions._from_value(0)
 
-    def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None):
+    def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None, description: Optional[str] = None):
         if name:
             self.name = name
 
         if recipients:
             self.recipients = [self.state.get_user(user_id) for user_id in recipients]
+
+        if description:
+            self.description = description
 
     async def set_default_permissions(self, permissions: ChannelPermissions) -> None:
         """Sets the default permissions for a group.
@@ -154,6 +160,8 @@ class TextChannel(Channel, Messageable, EditableChannel):
         A dictionary of role id's to the permissions of that role in the text channel
     icon: Optional[:class:`Asset`]
         The icon of the text channel, if any
+    description: Optional[:class:`str`]
+        The description of the channel, if any
     """
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
@@ -232,6 +240,8 @@ class VoiceChannel(Channel, EditableChannel):
         A dictionary of role id's to the permissions of that role in the voice channel
     icon: Optional[:class:`Asset`]
         The icon of the voice channel, if any
+    description: Optional[:class:`str`]
+        The description of the channel, if any
     """
     def __init__(self, data: VoiceChannelPayload, state: State):
         super().__init__(data, state)

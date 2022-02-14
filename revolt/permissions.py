@@ -42,7 +42,7 @@ class ChannelPermissions(Flags):
 
     @classmethod
     def all(cls) -> ChannelPermissions:
-        return cls._from_value(0b11111011)
+        return cls._from_value(0b11111111)
 
     @classmethod
     def view(cls) -> ChannelPermissions:
