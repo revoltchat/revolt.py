@@ -126,6 +126,7 @@ class WebsocketHandler:
         message = self.state.get_message(payload["id"])
 
         data = payload["data"]
+        data["content"] = data.get("content", None)
         kwargs = {}
 
         if data["content"]:
