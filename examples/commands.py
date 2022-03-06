@@ -1,12 +1,11 @@
 import asyncio
-
 import aiohttp
 
 import revolt
 from revolt.ext import commands
 
 
-class Client(commands.CommandsClient):
+class Bot(commands.CommandsClient):
     async def get_prefix(self, message: revolt.Message):
         return "!"
 
@@ -16,7 +15,7 @@ class Client(commands.CommandsClient):
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        client = Client(session, "BOT TOKEN HERE")
-        await client.start()
+        bot = Bot(session, "BOT TOKEN HERE")
+        await bot.start()
 
 asyncio.run(main())
