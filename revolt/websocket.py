@@ -323,4 +323,4 @@ class WebsocketHandler:
 
 def task_done(task: asyncio.Task[None]):
     if exception := task.exception():
-        print_exception(exception)
+        print_exception(type(exception), exception, exception.__traceback__)
