@@ -366,13 +366,13 @@ class HttpClient:
     def delete_invite(self, code: str) -> Request[None]:
         return self.request("DELETE", f"/invites/{code}")
 
-    def edit_channel(self, channel_id: str, remove: Optional[str], values: dict[str, Any]):
+    def edit_channel(self, channel_id: str, remove: list[str], values: dict[str, Any]):
         if remove:
             values["remove"] = remove
 
         return self.request("PATCH", f"/channels/{channel_id}", json=values)
 
-    def edit_role(self, server_id: str, role_id: str, remove: Optional[str], values: dict[str, Any]):
+    def edit_role(self, server_id: str, role_id: str, remove: list[str], values: dict[str, Any]):
         if remove:
             values["remove"] = remove
 
