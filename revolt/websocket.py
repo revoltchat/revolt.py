@@ -4,6 +4,7 @@ import asyncio
 import logging
 from copy import copy
 from typing import TYPE_CHECKING, Callable, cast
+from traceback import print_exception;
 
 from .enums import RelationshipType
 from .types import Message as MessagePayload
@@ -131,7 +132,7 @@ class WebsocketHandler:
         if content := data.get("content"):
             kwargs["content"] = content
 
-            kwargs["edited_at"] = data["edited"]["$date"]
+        kwargs["edited_at"] = data["edited"]["$date"]
 
         if embeds := data.get("embeds"):
             kwargs["embeds"] = embeds
@@ -317,4 +318,9 @@ class WebsocketHandler:
             else:
                 payload = json.loads(msg.data)
 
-            self.loop.create_task(self.handle_event(payload))
+            task = self.loop.create_task(self.handle_event(payload))
+            # task.add_done_callback(task_done)
+
+def task_done(task: asyncio.Task[None]):
+    if exception := task.exception():
+        print_exception(exception)
