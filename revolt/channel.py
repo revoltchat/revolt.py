@@ -32,12 +32,11 @@ class EditableChannel:
     id: str
 
     async def edit(self, **kwargs):
+        remove = []
         if kwargs.get("icon", Missing) == None:
-            remove = "Icon"
+            remove.append("Icon")
         elif kwargs.get("description", Missing) == None:
-            remove = "Description"
-        else:
-            remove = None
+            remove.append("Description")
 
         await self.state.http.edit_channel(self.id, remove, kwargs)
 

@@ -93,9 +93,10 @@ class Role:
         Parameters
         -----------
         """
-        if kwargs.get("colour", Missing) == None:
-            remove = "Colour"
-        else:
-            remove = None
+        remove = []
+
+        if kwargs.get("colour", Missing) is None:
+            kwargs.pop("colour")
+            remove.append("Colour")
 
         await self.state.http.edit_role(self.server.id, self.id, remove, kwargs)
