@@ -50,7 +50,7 @@ class HttpClient:
         url = f"{self.api_url}{route}"
 
         kwargs = {}
-        
+
         headers = {
             "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.py)",
             "x-bot-token": self.token
@@ -72,7 +72,10 @@ class HttpClient:
         async with self.session.request(method, url, **kwargs) as resp:
             text = await resp.text()
             if text:
-                response = _json.loads(await resp.text())
+                try:
+                    response = _json.loads(await resp.text())
+                except ValueError:
+                    raise HTTPError(f"Invalid json response:\n{text}") from None
             else:
                 response = text
 
