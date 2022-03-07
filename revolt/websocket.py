@@ -128,11 +128,13 @@ class WebsocketHandler:
         data = payload["data"]
         kwargs = {}
 
-        if data["content"]:
-            kwargs["content"] = data["content"]
+        if content := data.get("content"):
+            kwargs["content"] = content
 
-        if data["edited"]["$date"]:
             kwargs["edited_at"] = data["edited"]["$date"]
+
+        if embeds := data.get("embeds"):
+            kwargs["embeds"] = embeds
 
         message._update(**kwargs)
 

@@ -5,13 +5,14 @@ from typing import TYPE_CHECKING, NamedTuple, Optional
 
 from .asset import Asset, PartialAsset
 from .channel import Messageable
-from .embed import to_embed
+from .embed import to_embed, SendableEmbed
 
 if TYPE_CHECKING:
     from .state import State
     from .types import Masquerade as MasqueradePayload
     from .types import Message as MessagePayload
     from .types import MessageReplyPayload
+    from .types import Embed as EmbedPayload
 
 
 __all__ = (
@@ -98,28 +99,35 @@ class Message:
 
             self.reply_ids.append(reply)
 
-    def _update(self, *, content: Optional[str] = None, edited_at: Optional[str] = None) -> Message:
+    def _update(self, *, content: Optional[str] = None, edited_at: str, embeds: list[EmbedPayload]):
         if content:
             self.content = content
 
-        if edited_at:
-            self.edited_at = datetime.datetime.strptime(edited_at, "%Y-%m-%dT%H:%M:%S.%f%z")
-            # strptime is used here instead of fromisoformat because of its inability to parse `Z` (Zulu or UTC time) in the RFCC 3339 format provided by API
+        self.edited_at = datetime.datetime.strptime(edited_at, "%Y-%m-%dT%H:%M:%S.%f%z")
+        # strptime is used here instead of fromisoformat because of its inability to parse `Z` (Zulu or UTC time) in the RFCC 3339 format provided by API
 
-        return self
+        if embeds:
+            self.embeds = [to_embed(embed, self.state) for embed in embeds]
 
-    async def edit(self, *, content: str) -> None:
+    async def edit(self, *, content: Optional[str] = None, embeds: Optional[list[SendableEmbed]] = None) -> None:
         """Edits the message. The bot can only edit its own message
         Parameters
         -----------
         content: :class:`str`
             The new content of the message
         """
-        await self.state.http.edit_message(self.channel.id, self.id, content)
+
+        new_embeds = [embed.to_dict() for embed in embeds] if embeds else None
+
+        await self.state.http.edit_message(self.channel.id, self.id, content, new_embeds)
 
     async def delete(self) -> None:
         """Deletes the message. The bot can only delete its own messages and messages it has permission to delete """
         await self.state.http.delete_message(self.channel.id, self.id)
+
+    def reply(self, *args, mention: bool = False, **kwargs):
+        """Replies to this message, equivilant to `message.channel.send(..., replies=[MessageReply(message, mention)])"""
+        return self.channel.send(*args, **kwargs, replies=[MessageReply(self, mention)])
 
 class MessageReply(NamedTuple):
     """A namedtuple which represents a reply to a message.

@@ -131,8 +131,15 @@ class HttpClient:
 
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
 
-    def edit_message(self, channel: str, message: str, content: str) -> Request[None]:
-        json = {"content": content}
+    def edit_message(self, channel: str, message: str, content: Optional[str], embeds: Optional[list[SendableEmbedPayload]] = None) -> Request[None]:
+        json = {}
+
+        if content is not None:
+            json["content"] = content
+
+        if embeds is not None:
+            json["embeds"] = embeds
+
         return self.request("PATCH", f"/channels/{channel}/messages/{message}", json=json)
 
     def delete_message(self, channel: str, message: str) -> Request[None]:
