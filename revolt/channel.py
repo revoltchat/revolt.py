@@ -50,6 +50,8 @@ class Channel:
         The id of the channel
     channel_type: ChannelType
         The type of the channel
+    server_id: Optional[:class:`str`]
+        The server id of the chanel, if any
     """
     __slots__ = ("state", "id", "channel_type", "server_id")
 
@@ -57,7 +59,7 @@ class Channel:
         self.state = state
         self.id = data["_id"]
         self.channel_type = ChannelType(data["channel_type"])
-        self.server_id = ""
+        self.server_id: Optional[str] = None
 
     async def _get_channel_id(self) -> str:
         return self.id
@@ -72,6 +74,9 @@ class Channel:
     @property
     def server(self) -> Server:
         """:class:`Server` The server this voice channel belongs too"""
+        if not self.server_id:
+            raise IndexError
+
         return self.state.get_server(self.server_id)
 
 class SavedMessageChannel(Channel, Messageable):
@@ -117,10 +122,8 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         else:
             self.icon = None
 
-        if perms := data.get("permissions"):
-            self.permissions = ChannelPermissions._from_value(perms)
-        else:
-            self.permissions = ChannelPermissions._from_value(0)
+        perms = data.get("permissions", 0)
+        self.permissions = ChannelPermissions._from_value(perms)
 
     def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None, description: Optional[str] = None):
         if name:
