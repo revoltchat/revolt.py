@@ -24,9 +24,9 @@ def copy_doc(from_t: T) -> Callable[[T], T]:
 R_T = TypeVar("R_T")
 P = ParamSpec("P")
 
-# its impossible to type this function correctly for a couple reasons:
-# 1. isawaitable doesnt narrow while keeping typevars - there is an open pr for this (typeshed#5658) but it cant be merged because mypy doesnt support the feature fully
-# 2. typeguard doesnt narrow for the negative case which is dumb imo, so `value` would stay being a union even after the if statement (PEP 647 - "The type is not narrowed in the negative case")
+# it is impossible to type this function correctly for a couple reasons:
+# 1. isawaitable doesnt narrow while keeping typevars - there is an open PR for this (typeshed#5658) but it cannot be merged because mypy does not support the feature fully
+# 2. typeguard doesnt narrow for the negative case which is dumb in my opinion, so `value` would stay being a union even after the if statement (PEP 647 - "The type is not narrowed in the negative case")
 
 async def maybe_coroutine(func: Callable[P, Union[R_T, Coroutine[Any, Any, R_T]]], *args: P.args, **kwargs: P.kwargs) -> R_T:
     value = func(*args, **kwargs)
