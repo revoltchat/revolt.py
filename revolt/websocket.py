@@ -276,7 +276,7 @@ class WebsocketHandler:
                     user.profile = UserProfile(profile.content, None)
 
             elif clear == "StatusText":
-                # user.status will never be none because they are trying to remove the text
+                # user.status will never be None because they are trying to remove the text
                 if user.status.presence is None:  # type: ignore
                     user.status = None
                 else:
@@ -285,7 +285,7 @@ class WebsocketHandler:
             elif clear == "Avatar":
                 user.original_avatar = None
 
-        # the keys have . in them so i need to replace with _
+        # the keys have . in them so I need to replace with _
 
         data = payload["data"]
         data["profile_content"] = data.pop("profile.content", None)
