@@ -51,7 +51,7 @@ class Asset:
         
         metadata = data['metadata']
 
-        if metadata["type"] == "Image" or metadata["type"] == "Video":  # cant use `in` because type narrowing wont happen
+        if metadata["type"] == "Image" or metadata["type"] == "Video":  # cannot use `in` because type narrowing will not happen
             self.height = metadata["height"]
             self.width = metadata["width"]
         else:
