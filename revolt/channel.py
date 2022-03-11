@@ -184,7 +184,7 @@ class TextChannel(Channel, Messageable, EditableChannel):
         else:
             self.icon = None
 
-    def _get_channel_id(self) -> str:
+    async def _get_channel_id(self) -> str:
         return self.id
 
     @property

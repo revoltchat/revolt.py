@@ -45,7 +45,7 @@ class Client:
         The max amount of messages stored in the cache, by default this is 5k
     """
     
-    def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
+    def __init__(self, session: aiohttp.ClientSession, token: str, *, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
         self.session = session
         self.token = token
         self.api_url = api_url
