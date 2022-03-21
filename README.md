@@ -1,12 +1,12 @@
 # Revolt.py
 
-An async library to interact with the https://revolt.chat API. This library will **only support bots** and I will **not** implement anything exclusively for user accounts.
+An async library to interact with the [Revolt API](https://revolt.chat). This library will **only support bots** and I will **not** implement anything exclusively for user accounts.
 
 You can join the support server [here](https://rvlt.gg/FDXER6hr) and find the library's documentation [here](https://revoltpy.readthedocs.io/en/latest/). 
 
 ## Installing
 
-You can use `pip` to install revolt.py. It differs slightly depending on what OS/Distro you use.
+You can use `pip` to install `revolt.py`. It differs slightly depending on what OS/Distro you are using.
 
 On Windows
 ```
@@ -19,8 +19,6 @@ python3 -m pip install -U revolt.py
 ```
 
 ## Example
-
-More examples can be found in the [examples folder](https://github.com/revoltchat/revolt.py/blob/master/examples).
 
 ```py
 import revolt
@@ -39,3 +37,5 @@ async def main():
 
 asyncio.run(main())
 ```
+
+More examples can be found in the [examples folder](https://github.com/revoltchat/revolt.py/blob/master/examples).
