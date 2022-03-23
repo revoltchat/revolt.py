@@ -82,7 +82,7 @@ class User(Messageable):
         avatar = data.get("avatar")
         self.original_avatar = Asset(avatar, state) if avatar else None
 
-        relations = []
+        relations: list[Relation] = []
 
         for relation in data.get("relations", []):
             user = state.get_user(relation["_id"])

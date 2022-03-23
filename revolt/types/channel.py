@@ -60,7 +60,7 @@ class _VoiceChannelOptional(TypedDict, total=False):
     default_permissions: int
     role_permissions: int
 
-class VoiceChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
+class VoiceChannel(_NonceChannel, _VoiceChannelOptional, BaseChannel):
     server: str
     name: str
     description: str

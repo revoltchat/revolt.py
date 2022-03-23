@@ -25,7 +25,7 @@ class StringView:
             return self.temp
 
         char = self.next_char()
-        temp = []
+        temp: list[str] = []
 
         while char == " ":
             char = self.next_char()

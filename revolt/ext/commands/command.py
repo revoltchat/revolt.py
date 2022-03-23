@@ -93,7 +93,7 @@ class Command:
         traceback.print_exception(type(error), error, error.__traceback__)
 
     @staticmethod
-    def extract_type(t):
+    def extract_type(t: Any) -> Any:
         if origin := get_origin(t):
             if origin is Annotated:
                 return get_args(t)[1]
@@ -101,8 +101,8 @@ class Command:
         return t
 
     @classmethod
-    async def convert_argument(cls, arg: str, annotation: Any, context: Context):
-        if annotation is not inspect._empty:
+    async def convert_argument(cls, arg: str, annotation: Any, context: Context) -> Any:
+        if annotation is not inspect.Signature.empty:
             if annotation is str:  # no converting is needed - its already a string
                 return arg
 
@@ -128,7 +128,7 @@ class Command:
                     else:
                         raise InvalidLiteralArgument(arg)
             else:
-                return await maybe_coroutine(cast(Callable, annotation), arg, context)
+                return await maybe_coroutine(cast(Callable[[Any, Context], Any], annotation), arg, context)
         else:
             return arg
 

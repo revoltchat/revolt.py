@@ -10,6 +10,10 @@ if TYPE_CHECKING:
     from .member import Member, MemberID
     from .server import Server
     from .user import Status, User
+    from .role import Permission
+    from .file import File
+    from .category import Category
+    from .server import SystemMessagesConfig
 
 __all__ = (
     "BasePayload",
@@ -97,17 +101,33 @@ class ChannelStartTypingEventPayload(BasePayload):
 
 ChannelDeleteTypingEventPayload = ChannelStartTypingEventPayload
 
+class ServerUpdateEventPayloadData(TypedDict, total=False):
+    owner: str
+    name: str
+    description: str
+    icon: File
+    banner: File
+    default_permissions: Permission
+    nsfw: bool
+    system_messages: SystemMessagesConfig
+    categories: list[Category]
+
 class ServerUpdateEventPayload(BasePayload):
     id: str
-    data: dict
+    data: ServerUpdateEventPayloadData
     clear: Literal["Icon", "Banner", "Description"]
 
 class ServerDeleteEventPayload(BasePayload):
     id: str
 
+class ServerMemberUpdateEventPayloadData(TypedDict, total=False):
+    nickname: str
+    avatar: File
+    roles: list[str]
+
 class ServerMemberUpdateEventPayload(BasePayload):
     id: MemberID
-    data: dict
+    data: ServerMemberUpdateEventPayloadData
     clear: Literal["Nickname", "Avatar"]
 
 class ServerMemberJoinEventPayload(BasePayload):
@@ -116,19 +136,34 @@ class ServerMemberJoinEventPayload(BasePayload):
 
 ServerMemberLeaveEventPayload = ServerMemberJoinEventPayload
 
+class ServerRoleUpdateEventPayloadData(TypedDict, total=False):
+    name: str
+    colour: str
+    hoist: bool
+    rank: int
+
 class ServerRoleUpdateEventPayload(BasePayload):
     id: str
     role_id: str
-    data: dict
+    data: ServerRoleUpdateEventPayloadData
     clear: Literal["Color"]
 
 class ServerRoleDeleteEventPayload(BasePayload):
     id: str
     role_id: str
 
+UserUpdateEventPayloadData = TypedDict("UserUpdateEventPayloadData", {
+    "status": Status,
+    "profile.background": File,
+    "profile.content": str,
+    "avatar": File,
+    "online": bool
+
+}, total=False)
+
 class UserUpdateEventPayload(BasePayload):
     id: str
-    data: dict
+    data: UserUpdateEventPayloadData
     clear: Literal["ProfileContent", "ProfileBackground", "StatusText", "Avatar"]
 
 class UserRelationshipEventPayload(BasePayload):

@@ -21,7 +21,7 @@ __all__ = (
 @runtime_checkable
 class ExtensionProtocol(Protocol):
     @staticmethod
-    def setup(client: CommandsClient):
+    def setup(client: CommandsClient) -> None:
         raise NotImplementedError
 
 class CommandsMeta(type):
