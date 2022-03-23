@@ -24,7 +24,7 @@ class BaseChannel(TypedDict):
 
 class SavedMessages(_NonceChannel, BaseChannel):
     user: str
-    channel_type: Literal["SavedMessage"]
+    channel_type: Literal["SavedMessages"]
 
 class DMChannel(_NonceChannel, BaseChannel):
     active: bool

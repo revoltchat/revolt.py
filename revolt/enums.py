@@ -18,7 +18,7 @@ __all__ = (
 )
 
 class ChannelType(enum.Enum):
-    saved_message = "SavedMessage"
+    saved_messages = "SavedMessages"
     direct_message = "DirectMessage"
     group = "Group"
     text_channel = "TextChannel"

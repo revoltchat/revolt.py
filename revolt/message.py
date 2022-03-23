@@ -99,7 +99,7 @@ class Message:
 
             self.reply_ids.append(reply)
 
-    def _update(self, *, content: Optional[str] = None, edited_at: str, embeds: list[EmbedPayload]):
+    def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited_at: str):
         if content:
             self.content = content
 

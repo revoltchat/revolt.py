@@ -294,7 +294,7 @@ class VoiceChannel(Channel, EditableChannel):
         await self.state.http.set_channel_role_permissions(self.id, role.id, permissions.value)
 
 def channel_factory(data: ChannelPayload, state: State) -> Union[DMChannel, GroupDMChannel, SavedMessageChannel, TextChannel, VoiceChannel]:
-    if data["channel_type"] == "SavedMessage":
+    if data["channel_type"] == "SavedMessages":
         return SavedMessageChannel(data, state)
     elif data["channel_type"] == "DirectMessage":
         return DMChannel(data, state)
