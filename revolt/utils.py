@@ -1,10 +1,11 @@
 import inspect
 from operator import attrgetter
 from typing import Any, Callable, Coroutine, Iterable, TypeVar, Union
-
+from contextlib import asynccontextmanager
 from typing_extensions import ParamSpec
+from aiohttp import ClientSession
 
-__all__ = ("Missing", "copy_doc", "maybe_coroutine", "get")
+__all__ = ("Missing", "copy_doc", "maybe_coroutine", "get", "client_session")
 
 class _Missing:
     def __repr__(self):
@@ -76,3 +77,28 @@ def get(iterable: Iterable[T], **attrs: Any) -> T:
             return elem
 
     raise LookupError
+
+
+@asynccontextmanager
+async def client_session():
+    """A context manager that creates a new aiohttp.ClientSession() and closes it when exiting the context.
+
+    Examples
+    ---------
+
+    .. code-block:: python
+        :emphasize-lines: 3
+
+        async def main():
+            async with client_session() as session:
+                client = revolt.Client(session, "TOKEN")
+                await client.start()
+
+        asyncio.run(main())
+    """
+    session = ClientSession()
+
+    try:
+        yield session
+    finally:
+        await session.close()
