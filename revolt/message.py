@@ -126,7 +126,13 @@ class Message:
         await self.state.http.delete_message(self.channel.id, self.id)
 
     def reply(self, *args, mention: bool = False, **kwargs):
-        """Replies to this message, equivilant to `message.channel.send(..., replies=[MessageReply(message, mention)])`"""
+        """Replies to this message, equivilant to:
+
+        .. code-block:: python
+
+            await channel.send(..., replies=[MessageReply(message, mention)])
+
+        """
         return self.channel.send(*args, **kwargs, replies=[MessageReply(self, mention)])
 
 class MessageReply(NamedTuple):
