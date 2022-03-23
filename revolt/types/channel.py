@@ -58,7 +58,7 @@ class TextChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
 class _VoiceChannelOptional(TypedDict, total=False):
     icon: File
     default_permissions: int
-    role_permissions: int
+    role_permissions: dict[str, int]
 
 class VoiceChannel(_NonceChannel, _VoiceChannelOptional, BaseChannel):
     server: str

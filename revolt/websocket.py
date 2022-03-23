@@ -286,12 +286,13 @@ class WebsocketHandler:
                 user.original_avatar = None
 
         # the keys have . in them so I need to replace with _
+        # type: ignore is for it to stop complaining about the keys not existing in the typeddict
 
         data = payload["data"]
-        data["profile_content"] = data.pop("profile.content", None)
-        data["profile_background"] = data.pop("profile.background", None)
+        data["profile_content"] = data.pop("profile.content", None)  # type: ignore
+        data["profile_background"] = data.pop("profile.background", None)  # type: ignore
 
-        user._update(**data)
+        user._update(**data)  # type: ignore
 
         self.dispatch("user_update", old_user, user)
 

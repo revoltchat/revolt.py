@@ -258,10 +258,7 @@ class VoiceChannel(Channel, EditableChannel):
         else:
             self.default_permissions = ChannelPermissions._from_value(0)
 
-        if role_perms := data.get("role_permissions"):
-            self.role_permissions = {role_id: ChannelPermissions._from_value(perms) for role_id, perms in role_perms.items()}
-        else:
-            self.role_permissions = {}
+        self.role_permissions = {role_id: ChannelPermissions._from_value(perms) for role_id, perms in data.get("role_permissions", {}).items()}
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
