@@ -5,13 +5,14 @@ from typing import TYPE_CHECKING, Literal, TypedDict, Union
 from .channel import (Channel, DMChannel, GroupDMChannel, SavedMessages,
                       TextChannel, VoiceChannel)
 from .message import Message
+from .user import Status
+from .file import File
 
 if TYPE_CHECKING:
     from .member import Member, MemberID
     from .server import Server
-    from .user import Status, User
+    from .user import User
     from .role import Permission
-    from .file import File
     from .category import Category
     from .server import SystemMessagesConfig
 

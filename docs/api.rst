@@ -16,6 +16,13 @@ Asset
 .. autoclass:: Asset
     :members:
 
+PartialAsset
+~~~~~~~~~~~~~
+
+.. autoclass:: PartialAsset
+    :members:
+
+
 Channel
 ~~~~~~~~
 
@@ -47,7 +54,7 @@ TextChannel
     :members:
 
 VoiceChannel
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 .. autoclass:: VoiceChannel
     :members:
@@ -59,6 +66,35 @@ Embed
 .. autoclass:: Embed
     :members:
 
+WebsiteEmbed
+~~~~~~~~~~~~~
+
+.. autoclass:: WebsiteEmbed
+    :members:
+
+ImageEmbed
+~~~~~~~~~~~
+
+.. autoclass:: ImageEmbed
+    :members:
+
+TextEmbed
+~~~~~~~~~~
+
+.. autoclass:: TextEmbed
+    :members:
+
+NoneEmbed
+~~~~~~~~~~
+
+.. autoclass:: NoneEmbed
+    :members:
+
+SendableEmbed
+~~~~~~~~~~~~~~
+
+.. autoclass:: SendableEmbed
+    :members:
 
 File
 ~~~~~
@@ -73,12 +109,19 @@ Member
     :members:
 
 Message
-~~~~~~~
+~~~~~~~~
 
 .. autoclass:: Message
     :members:
 
+MessageReply
+~~~~~~~~~~~~~
 .. autoclass:: MessageReply
+    :members:
+
+Masquerade
+~~~~~~~~~~~~~
+.. autoclass:: Masquerade
     :members:
 
 Messageable
@@ -87,12 +130,14 @@ Messageable
 .. autoclass:: Messageable
     :members:
 
-Permissions
-~~~~~~~~~~~~
+ChannelPermissions
+~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: ChannelPermissions
     :members:
 
+ServerPermissions
+~~~~~~~~~~~~~~~~~~
 .. autoclass:: ServerPermissions
     :members:
 
@@ -106,6 +151,12 @@ Server
 ~~~~~~~
 
 .. autoclass:: Server
+    :members:
+
+ServerBan
+~~~~~~~~~~
+
+.. autoclass:: ServerBan
     :members:
 
 Category
@@ -145,11 +196,23 @@ UserBadges
 .. autoclass:: UserBadges
     :members:
 
+UserProfile
+~~~~~~~~~~~~
+
+.. autoclass:: UserProfile
+    :members:
+
+Invite
+~~~~~~~
+
+.. autoclass:: Invite
+    :members:
 
 Enums
 ======
 
-The api uses enums to say what variant of something is, these represent those enums
+The api uses enums to say what variant of something is,
+these represent those enums
 
 All enums subclass `aenum.Enum`.
 
@@ -161,10 +224,10 @@ All enums subclass `aenum.Enum`.
 
         A private channel only you can access.
     .. attribute:: direct_message
-        
+
         A private direct message channel between you and another user
     .. attribute:: group
-        
+
         A private group channel for messages between a group of users
     .. attribute:: text_channel
 
@@ -211,15 +274,69 @@ All enums subclass `aenum.Enum`.
 
         They are sending you a friend request
     .. attribute:: none
-        
+
         You have no relationship with them
     .. attribute:: outgoing_friend_request
 
         You are sending them a friend request
-    
+
     .. attribute:: user
 
         That user is yourself
+
+.. class:: AssetType
+
+    Specifies the type of asset
+
+    .. attribute:: image
+
+        The asset is an image
+    .. attribute:: video
+
+        The asset is a video
+    .. attribute:: text
+
+        The asset is a text file
+    .. attribute:: audio
+
+        The asset is an audio file
+    .. attribute:: file
+
+        The asset is a generic file
+
+.. class:: SortType
+
+    The sort type for a message search
+
+    .. attribute:: latest
+
+        Sort by the latest message
+    .. attribute:: oldest
+
+        Sort by the oldest message
+    .. attribute:: relevance
+
+        Sort by the relevance of the message
+
+.. class:: EmbedType
+
+    The type of embed
+
+    .. attribute:: website
+
+        The embed is a website
+    .. attribute:: image
+
+        The embed is an image
+    .. attribute:: text
+
+        The embed is text
+    .. attribute:: video
+
+        The embed is a video
+    .. attribute:: unknown
+
+        The embed is unknown
 
 Utils
 ======
@@ -229,3 +346,5 @@ Utils
 A collection a utility functions and classes to aid in making your bot
 
 .. autofunction:: get
+
+.. autodecorator:: client_session

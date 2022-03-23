@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from .types import User as UserPayload
 
 
-__all__ = ("User",)
+__all__ = ("User", "Status", "Relation", "UserProfile")
 
 class Relation(NamedTuple):
     """A namedtuple representing a relation between the bot and a user"""

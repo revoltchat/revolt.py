@@ -8,6 +8,7 @@ from .enums import *
 from .errors import *
 from .file import *
 from .flags import *
+from .invite import *
 from .member import *
 from .message import *
 from .messageable import *

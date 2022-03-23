@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .types import File as FilePayload
 
 
-__all__ = ("Asset",)
+__all__ = ("Asset", "PartialAsset")
 
 class Asset:
     """Represents a file on revolt

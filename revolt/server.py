@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from .types import SystemMessagesConfig, Ban
 
 
-__all__ = ("Server", "SystemMessages")
+__all__ = ("Server", "SystemMessages", "ServerBan")
 
 class SystemMessages:
     def __init__(self, data: SystemMessagesConfig, state: State):
