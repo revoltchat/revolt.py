@@ -1,8 +1,8 @@
 # Revolt.py
 
-An async library to interact with the https://revolt.chat API. This library will **only support bots** and I will **not** implement anything exclusively for user accounts.
+An async library to interact with the https://revolt.chat API.
 
-You can join the support server [here](https://rvlt.gg/FDXER6hr) and find the library's documentation [here](https://revoltpy.readthedocs.io/en/latest/). 
+You can join the support server [here](https://rvlt.gg/FDXER6hr) and find the library's documentation [here](https://revoltpy.readthedocs.io/en/latest/).
 
 ## Installing
 

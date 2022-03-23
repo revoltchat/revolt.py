@@ -38,13 +38,14 @@ T = TypeVar("T")
 Request = Coroutine[Any, Any, T]
 
 class HttpClient:
-    __slots__ = ("session", "token", "api_url", "api_info")
+    __slots__ = ("session", "token", "api_url", "api_info", "auth_header")
 
-    def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str, api_info: ApiInfo):
+    def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str, api_info: ApiInfo, bot: bool = True):
         self.session = session
         self.token = token
         self.api_url = api_url
         self.api_info = api_info
+        self.auth_header = "x-bot-token" if bot else "x-session-token"
 
     async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict[str, Any]] = None, nonce: bool = True, params: Optional[dict[str, Any]] = None) -> Any:
         url = f"{self.api_url}{route}"
@@ -53,7 +54,7 @@ class HttpClient:
 
         headers = {
             "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.py)",
-            "x-bot-token": self.token
+            self.auth_header: self.token
         }
 
         if json:

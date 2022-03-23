@@ -32,7 +32,7 @@ logger = logging.getLogger("revolt")
 
 class Client:
     """The client for interacting with revolt
-    
+
     Parameters
     -----------
     session: :class:`aiohttp.ClientSession`
@@ -44,13 +44,14 @@ class Client:
     max_messages: :class:`int`
         The max amount of messages stored in the cache, by default this is 5k
     """
-    
-    def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str = "https://api.revolt.chat", max_messages: int = 5000):
+
+    def __init__(self, session: aiohttp.ClientSession, token: str, *, api_url: str = "https://api.revolt.chat", max_messages: int = 5000, bot: bool = True):
         self.session = session
         self.token = token
         self.api_url = api_url
         self.max_messages = max_messages
-        
+        self.bot = bot
+
         self.api_info: ApiInfo
         self.http: HttpClient
         self.state: State
@@ -62,7 +63,7 @@ class Client:
 
     def dispatch(self, event: str, *args: Any):
         """Dispatch an event, this is typically used for testing and internals.
-        
+
         Parameters
         ----------
         event: class:`str`
@@ -90,7 +91,7 @@ class Client:
         api_info = await self.get_api_info()
 
         self.api_info = api_info
-        self.http = HttpClient(self.session, self.token, self.api_url, self.api_info)
+        self.http = HttpClient(self.session, self.token, self.api_url, self.api_info, self.bot)
         self.state = State(self.http, api_info, self.max_messages)
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
         await self.websocket.start()
