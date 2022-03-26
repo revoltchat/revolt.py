@@ -89,6 +89,10 @@ class Group(Command):
     def __repr__(self) -> str:
         return f"<Group name=\"{self.name}\">"
 
+    @property
+    def commands(self) -> list[Command]:
+        return list(self.subcommands.values())
+
 def group(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Group] = Group):
     """A decorator that turns a function into a :class:`Group`
 
