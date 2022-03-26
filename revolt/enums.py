@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-# typing does not understand aenum so I am pretending its stdlib enum while type checking
+# typing does not understand aenum so I am pretending it is stdlib enum while type checking
 
 if TYPE_CHECKING:
     import enum
