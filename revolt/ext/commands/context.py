@@ -85,7 +85,6 @@ class Context(revolt.Messageable):
             await command.parse_arguments(self)
             return await command.invoke(self, *self.args, **self.kwargs)
 
-
     async def can_run(self, command: Optional[Command] = None) -> bool:
         """Runs all of the commands checks, and returns true if all of them pass"""
         command = command or self.command

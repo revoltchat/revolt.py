@@ -5,4 +5,5 @@ from .context import *
 from .converters import *
 from .errors import *
 from .group import *
+from .help import *
 from .cog import *

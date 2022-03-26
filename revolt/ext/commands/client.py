@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import traceback
 import sys
-from typing import Any, Union, Protocol, runtime_checkable
+from typing import Any, Union, Protocol, runtime_checkable, Optional, TYPE_CHECKING
 from importlib import import_module
 
 import revolt
+
+if TYPE_CHECKING:
+    from .help import HelpCommand
 
 from .command import Command
 from .context import Context
@@ -44,7 +47,9 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
     _commands: list[Command]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, help_command: Optional[HelpCommand] = None, **kwargs):
+        from .help import DefaultHelpCommand, help_command_impl
+
         self.all_commands: dict[str, Command] = {}
         self.cogs: dict[str, Cog] = {}
         self.extensions: dict[str, ExtensionProtocol] = {}
@@ -54,6 +59,12 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
             for alias in command.aliases:
                 self.all_commands[alias] = command
+
+        if help_command is None:
+            help_command = DefaultHelpCommand()
+
+        self.help_command = help_command
+        self.add_command(help_command_impl)
 
         super().__init__(*args, **kwargs)
 
