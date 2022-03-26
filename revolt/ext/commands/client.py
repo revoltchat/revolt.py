@@ -91,7 +91,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         """
         return self.all_commands[name]
 
-    def add_command(self, name: str, command: Command):
+    def add_command(self, command: Command):
         """Adds a command, this is typically only used for dynamic commands, you should use the `commands.command` decorator for most usecases.
 
         Parameters
@@ -101,10 +101,31 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         command: :class:`Command`
             The command to be added
         """
-        self.all_commands[name] = command
+        self.all_commands[command.name] = command
 
         for alias in command.aliases:
             self.all_commands[alias] = command
+
+    def remove_command(self, name: str) -> Optional[Command]:
+        """Removes a command.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name or alias of the command
+
+        Returns
+        --------
+        Optional[:class:`Command`]
+            The command that was removed
+        """
+        command = self.all_commands.pop(name, None)
+
+        if command is not None:
+            for alias in command.aliases:
+                self.all_commands.pop(alias, None)
+
+        return command
 
     def get_view(self, message: revolt.Message) -> type[StringView]:
         return StringView
