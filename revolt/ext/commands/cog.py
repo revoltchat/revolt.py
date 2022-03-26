@@ -1,7 +1,7 @@
 from __future__ import annotations
 from distutils import command
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from .command import Command
 
@@ -12,8 +12,9 @@ __all__ = ("Cog", "CogMeta")
 
 class CogMeta(type):
     _commands: list[Command]
+    qualified_name: str
 
-    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
+    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any], *, qualified_name: Optional[str] = None):
         commands: list[Command] = []
         self = super().__new__(cls, name, bases, attrs)
 
@@ -25,19 +26,24 @@ class CogMeta(type):
 
 
         self._commands = commands
-
+        self.qualified_name = qualified_name or name
         return self
 
 class Cog(metaclass=CogMeta):
     _commands: list[Command]
+    qualified_name: str
 
     def _inject(self, client: CommandsClient):
         client.cogs[type(self).__name__] = self
 
         for command in self._commands:
-            client.add_command(command.name, command)
+            client.add_command(command)
 
     def _uninject(self, client: CommandsClient):
         for name, command in client.all_commands.copy().items():
             if command in self._commands:
                 del client.all_commands[name]
+
+    @property
+    def commands(self) -> list[Command]:
+        return self._commands
