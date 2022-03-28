@@ -25,19 +25,17 @@ packages = [
 python = "^3.9"
 aiohttp = "3.7.4"
 ulid-py = "1.1.0"
-aenum = "^3.1.8"
-typing-extensions = "^4.1.1"
-
-[tool.poetry.dev-dependencies]
-ujson = "^5.1.0"
-msgpack = "^1.0.3"
-Sphinx= "4.3.2"
-sphinx-nameko-theme = "0.0.3"
-sphinx-toolbox = "2.15.2"
+aenum = "3.1.8"
+typing-extensions = "4.1.1"
+ujson = { version = "5.1.0", optional = true }
+msgpack = { version = "", optional = true }
+Sphinx = { version = "4.3.2", optional = true }
+sphinx-nameko-theme = { version = "0.0.3", optional = true }
+sphinx-toolbox = { version = "2.15.2", optional = true }
 
 [tool.poetry.extras]
 speedups = ["ujson", "aiohttp[speedups]", "msgpack"]
-docs = ["Sphinx==4.3.2", "sphinx-nameko-theme==0.0.3", "sphinx-toolbox=2.15.2"]
+docs = ["Sphinx", "sphinx-nameko-theme", "sphinx-toolbox"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
