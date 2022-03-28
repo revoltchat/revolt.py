@@ -1,0 +1,48 @@
+[tool.poetry]
+name = "revolt.py"
+version = "0.1.6"
+description = "Python wrapper for the revolt.chat API"
+authors = ["Zomatee <me@zomatree.live>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/revoltchat/revolt.py"
+documentation = "https://revoltpy.readthedocs.io/en/latest/"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+]
+keywords = ["wrapper", "async", "api", "websockets", "http"]
+packages = [
+    { include = "revolt" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+aiohttp = "3.7.4"
+ulid-py = "1.1.0"
+aenum = "^3.1.8"
+typing-extensions = "^4.1.1"
+
+[tool.poetry.dev-dependencies]
+ujson = "^5.1.0"
+msgpack = "^1.0.3"
+Sphinx= "4.3.2"
+sphinx-nameko-theme = "0.0.3"
+sphinx-toolbox = "2.15.2"
+
+[tool.poetry.extras]
+speedups = ["ujson", "aiohttp[speedups]", "msgpack"]
+docs = ["Sphinx==4.3.2", "sphinx-nameko-theme==0.0.3", "sphinx-toolbox=2.15.2"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/revoltchat/revolt.py/issues"
+Source = "https://github.com/revoltchat/revolt.py/"

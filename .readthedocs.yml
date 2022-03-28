@@ -1,12 +1,15 @@
 version: 2
 
 sphinx:
-   configuration: docs/conf.py
+  configuration: docs/conf.py
 
 python:
-   version: "3.9"
-   install:
-   - requirements: docs_requirements.txt
+  version: "3.9"
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
 
 build:
-  image: testing
+   image: testing
