@@ -3,6 +3,7 @@ from __future__ import annotations
 import traceback
 import sys
 from typing import Any, Union, Protocol, runtime_checkable, Optional, TYPE_CHECKING
+from typing_extensions import Self
 from importlib import import_module
 
 import revolt
@@ -159,7 +160,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
     def get_view(self, message: revolt.Message) -> type[StringView]:
         return StringView
 
-    def get_context(self, message: revolt.Message) -> type[Context]:
+    def get_context(self, message: revolt.Message) -> type[Context[Self]]:
         return Context
 
     async def process_commands(self, message: revolt.Message) -> Any:

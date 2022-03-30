@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Generic, Optional, TypeVar
 
 import revolt
 from revolt.utils import maybe_coroutine
@@ -12,11 +12,13 @@ if TYPE_CHECKING:
     from .client import CommandsClient
     from .view import StringView
 
+ClientT = TypeVar("ClientT", bound="CommandsClient")
+
 __all__ = (
     "Context",
 )
 
-class Context(revolt.Messageable):
+class Context(revolt.Messageable, Generic[ClientT]):
     """Stores metadata the commands execution.
 
     Attributes
@@ -45,7 +47,7 @@ class Context(revolt.Messageable):
     async def _get_channel_id(self) -> str:
         return self.channel.id
 
-    def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message, client: CommandsClient):
+    def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message, client: ClientT):
         self.command = command
         self.invoked_with = invoked_with
         self.view = view
