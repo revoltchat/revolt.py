@@ -42,15 +42,33 @@ class CommandsMeta(type):
 
         return self
 
+
+class CaseInsensitiveDict(dict):
+    def __setitem__(self, key: str, value: Any) -> None:
+        super().__setitem__(key.casefold(), value)
+
+    def __getitem__(self, key: str) -> Any:
+        return super().__getitem__(key.casefold())
+
+    def __contains__(self, key: str) -> bool:
+        return super().__contains__(key.casefold())
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return super().get(key.casefold(), default)
+
+    def __delitem__(self, key: str) -> None:
+        super().__delitem__(key.casefold())
+
+
 class CommandsClient(revolt.Client, metaclass=CommandsMeta):
     """Main class that adds commands, this class should be subclassed along with `revolt.Client`."""
 
     _commands: list[Command]
 
-    def __init__(self, *args, help_command: Optional[HelpCommand] = None, **kwargs):
+    def __init__(self, *args, help_command: Optional[HelpCommand] = None, case_insensitive: bool = False, **kwargs):
         from .help import DefaultHelpCommand, help_command_impl
 
-        self.all_commands: dict[str, Command] = {}
+        self.all_commands: dict[str, Command] = {} if not case_insensitive else CaseInsensitiveDict()
         self.cogs: dict[str, Cog] = {}
         self.extensions: dict[str, ExtensionProtocol] = {}
 
