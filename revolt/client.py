@@ -13,6 +13,7 @@ from .invite import Invite
 from .message import Message
 from .state import State
 from .websocket import WebsocketHandler
+from .utils import Missing
 
 try:
     import ujson as json
@@ -285,3 +286,61 @@ class Client:
                 return message
 
         raise LookupError
+
+    async def edit_self(self, **kwargs):
+        """Edits the client's own user
+
+        Parameters
+        -----------
+        avatar: Optional[:class:`File`]
+            The avatar to change to, passing in ``None`` will remove the avatar
+        """
+        if kwargs.get("avatar", Missing) == None:
+            del kwargs["avatar"]
+            remove = "Avatar"
+        else:
+            remove = None
+
+        await self.state.http.edit_self(remove, kwargs)
+
+    async def edit_status(self, **kwargs):
+        """Edits the client's own status
+
+        Parameters
+        -----------
+        presence: :class:`PresenceType`
+            The presence to change to
+        text: Optional[:class:`str`]
+            The text to change the status to, passing in ``None`` will remove the status
+        """
+        if kwargs.get("text", Missing) == None:
+            del kwargs["text"]
+            remove = "StatusText"
+        else:
+            remove = None
+
+        if presence := kwargs.get("presence"):
+            kwargs["presence"] = presence.value
+
+        await self.state.http.edit_self(remove, {"status": kwargs})
+
+    async def edit_profile(self, **kwargs):
+        """Edits the client's own profile
+
+        Parameters
+        -----------
+        content: Optional[:class:`str`]
+            The new content for the profile, passing in ``None`` will remove the profile content
+        background: Optional[:class:`File`]
+            The new background for the profile, passing in ``None`` will remove the profile background
+        """
+        if kwargs.get("content", Missing) == None:
+            del kwargs["content"]
+            remove = "ProfileContent"
+        elif kwargs.get("background", Missing) == None:
+            del kwargs["background"]
+            remove = "ProfileBackground"
+        else:
+            remove = None
+
+        await self.state.http.edit_self(remove, {"profile": kwargs})

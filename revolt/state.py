@@ -73,7 +73,7 @@ class State:
         message = Message(payload, self)
         if len(self.messages) >= self.max_messages:
             self.messages.pop()
-        
+
         self.messages.appendleft(message)
         return message
 
@@ -81,15 +81,15 @@ class State:
         for msg in self.messages:
             if msg.id == message_id:
                 return msg
-        
+
         raise KeyError
 
     async def fetch_all_server_members(self):
         for server_id in self.servers.keys():
             data = await self.http.fetch_members(server_id)
-            
+
             for user in data["users"]:
                 self.add_user(user)
-            
+
             for member in data["members"]:
                 self.add_member(server_id, member)

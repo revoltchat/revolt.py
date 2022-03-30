@@ -276,11 +276,7 @@ class WebsocketHandler:
                     user.profile = UserProfile(profile.content, None)
 
             elif clear == "StatusText":
-                # user.status will never be None because they are trying to remove the text
-                if user.status.presence is None:  # type: ignore
-                    user.status = None
-                else:
-                    user.status = Status(None, user.status.presence)  # type: ignore
+                user.status = Status(None, user.status.presence if user.status else None)
 
             elif clear == "Avatar":
                 user.original_avatar = None

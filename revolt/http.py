@@ -6,6 +6,8 @@ from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, TypeVar,
 import aiohttp
 import ulid
 
+from revolt.utils import Missing
+
 from .errors import HTTPError, ServerError
 from .file import File
 
@@ -388,3 +390,25 @@ class HttpClient:
             values["remove"] = remove
 
         return self.request("PATCH", f"/servers/{server_id}/roles/{role_id}", json=values)
+
+    async def edit_self(self, remove: Optional[str], values: dict[str, Any]):
+        if remove:
+            values["remove"] = remove
+
+        if avatar := values.get("avatar"):
+            asset = await self.upload_file(avatar, "avatars")
+            values["avatar"] = asset["id"]
+
+        if profile := values.get("profile"):
+            if background := profile.background():
+                asset = await self.upload_file(background, "backgrounds")
+                profile["background"] = asset["id"]
+
+        if not values.get("profile", Missing):
+            del values["profile"]
+
+        if not values.get("status", Missing):
+            del values["status"]
+
+        print(remove, values)
+        return await self.request("PATCH", "/users/@me", json=values)
