@@ -251,15 +251,41 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         return True
 
     def add_cog(self, cog: Cog):
+        """Adds a cog to the bot, this cog must subclass `Cog`.
+
+        Parameters
+        -----------
+        cog: :class:`Cog`
+            The cog to be added
+        """
         cog._inject(self)
 
     def remove_cog(self, cog_name: str) -> Cog:
+        """Removes a cog from the bot.
+
+        Parameters
+        -----------
+        cog_name: :class:`str`
+            The name of the cog to be removed
+
+        Returns
+        --------
+        :class:`Cog`
+            The cog that was removed
+        """
         cog = self.cogs.pop(cog_name)
         cog._uninject(self)
 
         return cog
 
     def load_extension(self, name: str):
+        """Loads an extension, this takes a module name and runs the setup function inside of it.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the extension to be loaded
+        """
         extension = import_module(name)
 
         if not isinstance(extension, ExtensionProtocol):
@@ -269,6 +295,13 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         extension.setup(self)
 
     def unload_extension(self, name: str):
+        """Unloads an extension, this takes a module name and runs the teardown function inside of it.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the extension to be unloaded
+        """
         extension = self.extensions.pop(name)
 
         del sys.modules[name]
@@ -277,5 +310,42 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             teardown(self)
 
     def reload_extension(self, name: str):
+        """Reloads an extension, this will unload and reload the extension.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the extension to be reloaded
+        """
         self.unload_extension(name)
         self.load_extension(name)
+
+    def get_cog(self, name: str) -> Cog:
+        """Gets a cog from the bot.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the cog to get
+
+        Returns
+        --------
+        :class:`Cog`
+            The cog that was requested
+        """
+        return self.cogs[name]
+
+    def get_extension(self, name: str) -> ExtensionProtocol:
+        """Gets an extension from the bot.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name of the extension to get
+
+        Returns
+        --------
+        :class:`ExtensionProtocol`
+            The extension that was requested
+        """
+        return self.extensions[name]
