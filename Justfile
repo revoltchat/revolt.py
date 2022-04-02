@@ -1,18 +1,10 @@
 set dotenv-load := true
 
-activate:
-    source .venv/bin/activate
-
-venv:
-    python -m venv .venv
-    just activate
-    python -m pip install -r requirements.txt
-    python -m pip install -r docs_requirements.txt
-
 test:
     python test.py
 
 build:
+    rm -rf dist/*
     python -m build
 
 upload:
