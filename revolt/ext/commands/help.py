@@ -58,7 +58,12 @@ class HelpCommand(ABC):
         return filtered
 
     async def group_commands(self, context: Context, commands: list[Command]) -> dict[Optional[Cog], list[Command]]:
-        return {cog_name: list(commands) for cog_name, commands in groupby(commands, lambda command: command.cog)}
+        cogs = {}
+
+        for command in commands:
+            cogs.setdefault(command.cog, []).append(command)
+
+        return cogs
 
     async def handle_message(self, context: Context, message: Message):
         pass
@@ -148,7 +153,13 @@ class DefaultHelpCommand(HelpCommand):
         await channel.send(f"Cog `{name}` not found.")
 
 
-@command(name="help")
+class HelpCommandImpl(Command):
+    def __init__(self, client: CommandsClient):
+        self.client = client
+        super().__init__(callback=lambda _, context, *args: help_command_impl(self.client, context, *args), name="help", aliases=[])
+        self.description = "Shows help for a command, cog or the entire bot"
+
+
 async def help_command_impl(self: CommandsClient, context: Context, *arguments: str):
     filtered_commands = await context.client.help_command.filter_commands(context, self.commands)
     commands = await self.help_command.group_commands(context, filtered_commands)
