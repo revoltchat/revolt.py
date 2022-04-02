@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypedDict
+from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .category import Category
@@ -22,39 +23,34 @@ class SystemMessagesConfig(TypedDict, total=False):
     user_kicked: str
     user_banned: str
 
-class _ServerOptional(TypedDict, total=False):
-    nonce: str
-    description: str
-    categories: list[Category]
-    system_messages: SystemMessagesConfig
-    roles: dict[str, Role]
-    icon: File
-    banner: File
-    nsfw: bool
 
-class Server(_ServerOptional):
+class Server(TypedDict):
     _id: str
     owner: str
     name: str
     channels: list[str]
     default_permissions: Permission
+    nonce: NotRequired[str]
+    description: NotRequired[str]
+    categories: NotRequired[list[Category]]
+    system_messages: NotRequired[SystemMessagesConfig]
+    roles: NotRequired[dict[str, Role]]
+    icon: NotRequired[File]
+    banner: NotRequired[File]
+    nsfw: NotRequired[bool]
 
-class _OptionalBannedUser(TypedDict, total=False):
-    avatar: File
-
-class BannedUser(_OptionalBannedUser):
+class BannedUser(TypedDict):
     _id: str
     username: str
+    avatar: NotRequired[File]
 
 class BanId(TypedDict):
     server: str
     user: str
 
-class _OptionalBan(TypedDict, total=False):
-    reason: str
-
-class Ban(_OptionalBan):
+class Ban(TypedDict):
     _id: BanId
+    reason: NotRequired[str]
 
 class ServerBans(TypedDict):
     users: list[BannedUser]

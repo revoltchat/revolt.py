@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, TypedDict, Union
+from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .file import File
@@ -16,54 +17,46 @@ __all__ = (
     "Channel",
 )
 
-class _NonceChannel(TypedDict, total=False):
-    nonce: str
-
 class BaseChannel(TypedDict):
     _id: str
+    nonce: str
 
-class SavedMessages(_NonceChannel, BaseChannel):
+class SavedMessages(BaseChannel):
     user: str
     channel_type: Literal["SavedMessages"]
 
-class DMChannel(_NonceChannel, BaseChannel):
+class DMChannel(BaseChannel):
     active: bool
     recipients: list[str]
     last_message: Message
     channel_type: Literal["DirectMessage"]
 
-class _GroupOptional(TypedDict):
-    icon: File
-    permissions: int
-    description: str
-
-class GroupDMChannel(_NonceChannel, _GroupOptional, BaseChannel):
+class GroupDMChannel(BaseChannel):
     recipients: list[str]
     name: str
     owner: str
     channel_type: Literal["Group"]
+    icon: NotRequired[File]
+    permissions: NotRequired[int]
+    description: NotRequired[str]
 
-class _TextChannelOptional(TypedDict, total=False):
-    icon: File
-    default_permissions: int
-    role_permissions: dict[str, int]
-    last_message: str
-
-class TextChannel(_NonceChannel, _TextChannelOptional, BaseChannel):
+class TextChannel(BaseChannel):
     server: str
     name: str
     description: str
     channel_type: Literal["TextChannel"]
+    icon: NotRequired[File]
+    default_permissions: NotRequired[int]
+    role_permissions: NotRequired[dict[str, int]]
+    last_message: NotRequired[str]
 
-class _VoiceChannelOptional(TypedDict, total=False):
-    icon: File
-    default_permissions: int
-    role_permissions: dict[str, int]
-
-class VoiceChannel(_NonceChannel, _VoiceChannelOptional, BaseChannel):
+class VoiceChannel(BaseChannel):
     server: str
     name: str
     description: str
     channel_type: Literal["VoiceChannel"]
+    icon: NotRequired[File]
+    default_permissions: NotRequired[int]
+    role_permissions: NotRequired[dict[str, int]]
 
 Channel = Union[SavedMessages, DMChannel, GroupDMChannel, TextChannel, VoiceChannel]

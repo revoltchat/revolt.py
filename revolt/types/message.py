@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypedDict, Union
+from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .embed import Embed
@@ -50,19 +51,17 @@ class Masquerade(TypedDict, total=False):
     name: str
     avatar: str
 
-class _OptionalMessage(TypedDict):
-    attachments: list[File]
-    embeds: list[Embed]
-    mentions: list[str]
-    replies: list[str]
-    edited: MessageEdited
-    masquerade: Masquerade
-
-class Message(_OptionalMessage):
+class Message(TypedDict):
     _id: str
     channel: str
     author: str
     content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBannedContent, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChangeContent]
+    attachments: NotRequired[list[File]]
+    embeds: NotRequired[list[Embed]]
+    mentions: NotRequired[list[str]]
+    replies: NotRequired[list[str]]
+    edited: NotRequired[MessageEdited]
+    masquerade: NotRequired[Masquerade]
 
 class MessageReplyPayload(TypedDict):
     id: str

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, TypedDict
+from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .file import File
@@ -27,19 +28,17 @@ class UserRelation(TypedDict):
     status: Relation
     _id: str
 
-class _OptionalUser(TypedDict, total=False):
-    avatar: File
-    relations: list[UserRelation]
-    badges: int
-    status: Status
-    relationship: Relation
-    online: bool
-    flags: int
-    bot: UserBot
-
-class User(_OptionalUser):
+class User(TypedDict):
     _id: str
     username: str
+    avatar: NotRequired[File]
+    relations: NotRequired[list[UserRelation]]
+    badges: NotRequired[int]
+    status: NotRequired[Status]
+    relationship: NotRequired[Relation]
+    online: NotRequired[bool]
+    flags: NotRequired[int]
+    bot: NotRequired[UserBot]
 
 class UserProfile(TypedDict, total=False):
     content: str

@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from .message import Message
     from .user import User
 
-    
+
 __all__ = (
     "VosoFeature",
     "ApiInfo",
