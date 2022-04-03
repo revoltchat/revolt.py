@@ -19,6 +19,11 @@ Command
 .. autoclass:: revolt.ext.commands.Command
     :members:
 
+Cog
+~~~~
+.. autoclass:: revolt.ext.commands.Cog
+    :members:
+
 command
 ~~~~~~~~
 .. autodecorator:: revolt.ext.commands.command
