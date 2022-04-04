@@ -41,13 +41,13 @@ class Cog(metaclass=CogMeta):
         """A special method that is called when the cog gets removed."""
         pass
 
-    def _inject(self, client: CommandsClient):
-        self.cog_load()
-
+    def _inject(self, client: CommandsClient):  
         client.cogs[type(self).__name__] = self
 
         for command in self._commands:
             client.add_command(command)
+
+        self.cog_load()
 
     def _uninject(self, client: CommandsClient):
         for name, command in client.all_commands.copy().items():
