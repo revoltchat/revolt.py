@@ -21,7 +21,6 @@ class CogMeta(type):
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
                 if isinstance(value, Command):
-                    value.cog = self  # type: ignore
                     commands.append(value)
 
 
@@ -42,7 +41,7 @@ class Cog(metaclass=CogMeta):
         pass
 
     def _inject(self, client: CommandsClient):  
-        client.cogs[type(self).__name__] = self
+        client.cogs[self.qualified_name] = self
 
         for command in self._commands:
             client.add_command(command)
