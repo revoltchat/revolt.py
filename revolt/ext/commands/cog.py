@@ -44,6 +44,7 @@ class Cog(metaclass=CogMeta):
         client.cogs[self.qualified_name] = self
 
         for command in self._commands:
+            command.cog = self
             client.add_command(command)
 
         self.cog_load()
