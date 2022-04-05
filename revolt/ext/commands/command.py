@@ -101,13 +101,32 @@ class Command:
     async def _default_error_handler(self, ctx: Context, error: Exception):
         traceback.print_exception(type(error), error, error.__traceback__)
 
-    @staticmethod
-    def extract_type(t: Any) -> Any:
-        if origin := get_origin(t):
-            if origin is Annotated:
-                return get_args(t)[1]
+    @classmethod
+    async def handle_origin(cls, context: Context, origin: Any, annotation: Any, arg: str) -> Any:
+        if origin is Union:
+            for converter in get_args(annotation):
+                try:
+                    return await cls.convert_argument(arg, converter, context)
+                except:
+                    if converter is NoneType:
+                        context.view.undo()
+                        return None
 
-        return t
+            raise UnionConverterError(arg)
+
+        elif origin is Annotated:
+            annotated_args = get_args(annotation)
+
+            if origin := get_origin(annotated_args[0]):
+                return await cls.handle_origin(context, origin, annotated_args[1], arg)
+            else:
+                return await cls.convert_argument(arg, annotated_args[1], context)
+
+        elif origin is Literal:
+            if arg in get_args(annotation):
+                return arg
+            else:
+                raise InvalidLiteralArgument(arg)
 
     @classmethod
     async def convert_argument(cls, arg: str, annotation: Any, context: Context) -> Any:
@@ -116,35 +135,26 @@ class Command:
                 return arg
 
             if origin := get_origin(annotation):
-                if origin is Union:
-                    for converter in get_args(annotation):
-                        try:
-                            return await cls.convert_argument(arg, converter, context)
-                        except:
-                            if converter is NoneType:
-                                context.view.undo()
-                                return None
-
-                    raise UnionConverterError(arg)
-
-                elif origin is Annotated:
-                    converter: Callable[[str, Context], Any] = get_args(annotation)[1]  # the typehint affects the other if statement somehow
-                    return await maybe_coroutine(converter, arg, context)
-
-                elif origin is Literal:
-                    if arg in get_args(annotation):
-                        return arg
-                    else:
-                        raise InvalidLiteralArgument(arg)
+                return await cls.handle_origin(context, origin, annotation, arg)
             else:
                 return await maybe_coroutine(annotation, arg, context)
         else:
             return arg
 
     async def parse_arguments(self, context: Context):
+        # please pr if you can think of a better way to do this
+
         for parameter in self.parameters[2:]:
             if parameter.kind == parameter.KEYWORD_ONLY:
-                context.kwargs[parameter.name] = await self.convert_argument(context.view.get_rest(), parameter.annotation, context)
+                try:
+                    arg = await self.convert_argument(context.view.get_rest(), parameter.annotation, context)
+                except StopIteration:
+                    if parameter.default is not parameter.empty:
+                        arg = parameter.default
+                    else:
+                        raise
+
+                context.kwargs[parameter.name] = arg
 
             elif parameter.kind == parameter.VAR_POSITIONAL:
                 with suppress(StopIteration):
@@ -152,7 +162,16 @@ class Command:
                         context.args.append(await self.convert_argument(context.view.get_next_word(), parameter.annotation, context))
 
             elif parameter.kind == parameter.POSITIONAL_OR_KEYWORD:
-                context.args.append(await self.convert_argument(context.view.get_next_word(), parameter.annotation, context))
+                try:
+                    rest = context.view.get_next_word()
+                    arg = await self.convert_argument(rest, parameter.annotation, context)
+                except StopIteration:
+                    if parameter.default is not parameter.empty:
+                        arg = parameter.default
+                    else:
+                        raise
+
+                context.args.append(arg)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} name=\"{self.name}\">"

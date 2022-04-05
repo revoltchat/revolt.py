@@ -115,7 +115,7 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         self.recipients = [state.get_user(user_id) for user_id in data["recipients"]]
         self.name = data["name"]
         self.owner = state.get_user(data["owner"])
-        self.description = data.get("description")
+        self.description: Optional[str] = data.get("description")
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
@@ -171,7 +171,7 @@ class TextChannel(Channel, Messageable, EditableChannel):
 
         self.server_id = data["server"]
         self.name = data["name"]
-        self.description = data.get("description")
+        self.description: Optional[str] = data.get("description")
 
         last_message_id = data.get("last_message")
         self.last_message_id = last_message_id
@@ -251,7 +251,7 @@ class VoiceChannel(Channel, EditableChannel):
 
         self.server_id = data["server"]
         self.name = data["name"]
-        self.description = data.get("description")
+        self.description: Optional[str] = data.get("description")
 
         if perms := data.get("default_permissions"):
             self.default_permissions = ChannelPermissions._from_value(perms)
