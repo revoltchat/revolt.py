@@ -79,6 +79,12 @@ class Channel:
 
         return self.state.get_server(self.server_id)
 
+    @property
+    def mention(self) -> str:
+        """:class:`str`: Returns a string that allows you to mention the given channel."""
+        return f"<#{self.id}>"
+
+
 class SavedMessageChannel(Channel, Messageable):
     """The Saved Message Channel"""
     def __init__(self, data: SavedMessagesPayload, state: State):

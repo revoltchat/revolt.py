@@ -55,6 +55,11 @@ class Member(User):
         """Optional[:class:`Asset`] The avatar the member is displaying, this includes guild avatars and masqueraded avatar"""
         return self.masquerade_avatar or self.guild_avatar or self.original_avatar
 
+    @property
+    def mention(self) -> str:
+        """:class:`str`: Returns a string that allows you to mention the given member."""
+        return f"<@{self.id}>"
+
     def _update(self, *, nickname: Optional[str] = None, avatar: Optional[File] = None, roles: Optional[list[str]] = None):
         if nickname:
             self.nickname = nickname
