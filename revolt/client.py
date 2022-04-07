@@ -187,7 +187,7 @@ class Client:
 
     @property
     def servers(self) -> list[Server]:
-        """list[:flass:'Server'] All servers the client can see"""
+        """list[:class:'Server'] All servers the client can see"""
         return list(self.state.servers.values())
 
     async def fetch_user(self, user_id: str) -> User:
