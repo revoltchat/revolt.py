@@ -131,6 +131,11 @@ class User(Messageable):
         """Optional[:class:`Asset`] The avatar the member is displaying, this includes there orginal avatar and masqueraded avatar"""
         return self.masquerade_avatar or self.original_avatar
 
+    @property
+    def mention(self) -> str:
+        """:class:`str`: Returns a string that allows you to mention the given user."""
+        return f"<@{self.id}>"
+
     def _update(self, *, status: Optional[StatusPayload] = None, profile_content: Optional[str] = None, profile_background: Optional[File] = None, avatar: Optional[File] = None, online: Optional[bool] = None):
         if status:
             presence = status.get("presence")
