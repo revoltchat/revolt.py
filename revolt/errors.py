@@ -16,7 +16,7 @@ class ServerError(RevoltError):
     "Internal server error"
 
 class FeatureDisabled(RevoltError):
-    """Base class for any any feature disabled"""
+    """Base class for any feature disabled errors"""
 
 class AutumnDisabled(FeatureDisabled):
     """The autumn feature is disabled"""
