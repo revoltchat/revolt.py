@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "revolt.py"
-version = "0.1.6"
+version = "0.1.7"
 description = "Python wrapper for the revolt.chat API"
 authors = ["Zomatee <me@zomatree.live>"]
 license = "MIT"
