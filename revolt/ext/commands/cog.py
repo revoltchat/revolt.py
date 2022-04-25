@@ -32,17 +32,29 @@ class Cog(metaclass=CogMeta):
     _commands: list[Command]
     qualified_name: str
 
-    def _inject(self, client: CommandsClient):
+    def cog_load(self):
+        """A special method that is called when the cog gets loaded."""
+        pass
+
+    def cog_unload(self):
+        """A special method that is called when the cog gets removed."""
+        pass
+
+    def _inject(self, client: CommandsClient):  
         client.cogs[self.qualified_name] = self
 
         for command in self._commands:
             command.cog = self
             client.add_command(command)
 
+        self.cog_load()
+
     def _uninject(self, client: CommandsClient):
         for name, command in client.all_commands.copy().items():
             if command in self._commands:
                 del client.all_commands[name]
+
+        self.cog_unload()
 
     @property
     def commands(self) -> list[Command]:
