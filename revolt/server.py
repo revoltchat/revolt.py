@@ -13,11 +13,12 @@ if TYPE_CHECKING:
     from .channel import TextChannel
     from .member import Member
     from .state import State
+    from .types import Ban
     from .types import Category as CategoryPayload
     from .types import File as FilePayload
     from .types import Permission as PermissionPayload
     from .types import Server as ServerPayload
-    from .types import SystemMessagesConfig, Ban
+    from .types import SystemMessagesConfig
 
 
 __all__ = ("Server", "SystemMessages", "ServerBan")

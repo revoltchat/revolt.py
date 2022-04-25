@@ -1,6 +1,6 @@
 from __future__ import annotations
-from distutils import command
 
+from distutils import command
 from typing import TYPE_CHECKING, Any, Optional
 
 from .command import Command

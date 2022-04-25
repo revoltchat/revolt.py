@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from .utils import Missing
 from .permissions import ChannelPermissions, ServerPermissions
+from .utils import Missing
 
 if TYPE_CHECKING:
     from .server import Server

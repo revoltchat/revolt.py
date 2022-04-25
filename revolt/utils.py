@@ -1,9 +1,10 @@
 import inspect
+from contextlib import asynccontextmanager
 from operator import attrgetter
 from typing import Any, Callable, Coroutine, Iterable, TypeVar, Union
-from contextlib import asynccontextmanager
-from typing_extensions import ParamSpec
+
 from aiohttp import ClientSession
+from typing_extensions import ParamSpec
 
 __all__ = ("Missing", "copy_doc", "maybe_coroutine", "get", "client_session")
 

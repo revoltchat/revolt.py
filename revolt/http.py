@@ -25,14 +25,16 @@ if TYPE_CHECKING:
     from .types import Autumn as AutumnPayload
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
-    from .types import GetServerMembers, Invite
+    from .types import GetServerMembers, GroupDMChannel, Invite
     from .types import Masquerade as MasqueradePayload
+    from .types import Member
     from .types import Message as MessagePayload
     from .types import (MessageReplyPayload, MessageWithUserData,
-                        PartialInvite, Role, Server, ServerBans, TextChannel)
-    from .types import User as UserPayload
-    from .types import UserProfile, VoiceChannel, GroupDMChannel, Member
+                        PartialInvite, Role)
     from .types import SendableEmbed as SendableEmbedPayload
+    from .types import Server, ServerBans, TextChannel
+    from .types import User as UserPayload
+    from .types import UserProfile, VoiceChannel
 
 __all__ = ("HttpClient",)
 

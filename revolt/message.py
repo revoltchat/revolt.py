@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING, NamedTuple, Optional
 
 from .asset import Asset, PartialAsset
 from .channel import Messageable
-from .embed import to_embed, SendableEmbed
+from .embed import SendableEmbed, to_embed
 
 if TYPE_CHECKING:
     from .state import State
+    from .types import Embed as EmbedPayload
     from .types import Masquerade as MasqueradePayload
     from .types import Message as MessagePayload
     from .types import MessageReplyPayload
-    from .types import Embed as EmbedPayload
 
 
 __all__ = (

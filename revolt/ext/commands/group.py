@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Callable, Coroutine, Any
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional
 
 from .command import Command
 

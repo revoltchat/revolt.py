@@ -3,10 +3,14 @@ from __future__ import annotations
 import asyncio
 import logging
 from copy import copy
+from traceback import print_exception
 from typing import TYPE_CHECKING, Callable, cast
-from traceback import print_exception;
 
+from .channel import GroupDMChannel, TextChannel, VoiceChannel
 from .enums import RelationshipType
+from .types import (ChannelCreateEventPayload, ChannelDeleteEventPayload,
+                    ChannelDeleteTypingEventPayload,
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
 from .types import Message as MessagePayload
 from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerDeleteEventPayload, ServerMemberJoinEventPayload,
@@ -14,11 +18,8 @@ from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerMemberUpdateEventPayload,
                     ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
-                    UserUpdateEventPayload, ChannelCreateEventPayload, ChannelDeleteEventPayload,
-                    ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
+                    UserUpdateEventPayload)
 from .user import Status, UserProfile
-from .channel import TextChannel, GroupDMChannel, VoiceChannel
 
 try:
     import ujson as json

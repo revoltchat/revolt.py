@@ -1,21 +1,23 @@
 from __future__ import annotations
 
-import traceback
 import sys
-from typing import Any, Union, Protocol, runtime_checkable, Optional, TYPE_CHECKING
-from typing_extensions import Self
+import traceback
 from importlib import import_module
+from typing import (TYPE_CHECKING, Any, Optional, Protocol, Union,
+                    runtime_checkable)
+
+from typing_extensions import Self
 
 import revolt
 
 if TYPE_CHECKING:
     from .help import HelpCommand
 
+from .cog import Cog
 from .command import Command
 from .context import Context
 from .errors import CheckError, CommandNotFound, MissingSetup
 from .view import StringView
-from .cog import Cog
 
 __all__ = (
     "CommandsMeta",

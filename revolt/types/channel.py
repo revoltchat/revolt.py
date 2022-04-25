@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, TypedDict, Union
+
 from typing_extensions import NotRequired
 
 if TYPE_CHECKING:

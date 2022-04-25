@@ -1,5 +1,5 @@
 from inspect import Parameter
-from typing import Iterable, Any
+from typing import Any, Iterable
 
 __all__ = ("evaluate_parameters",)
 

@@ -1,19 +1,21 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
-
-from typing import TYPE_CHECKING, TypedDict, Union, Optional
-from typing_extensions import NotRequired
 from itertools import groupby
+from typing import TYPE_CHECKING, Optional, TypedDict, Union
 
-from .utils import evaluate_parameters
-from .command import Command, command
+from typing_extensions import NotRequired
+
 from .client import CommandsClient
+from .command import Command, command
 from .context import Context
 from .group import Group
+from .utils import evaluate_parameters
 
 if TYPE_CHECKING:
+    from revolt import File, Message, Messageable, MessageReply, SendableEmbed
+
     from .cog import Cog
-    from revolt import SendableEmbed, File, MessageReply, Message, Messageable
 
 __all__ = ("MessagePayload", "HelpCommand", "DefaultHelpCommand", "help_command_impl")
 

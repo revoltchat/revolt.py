@@ -12,8 +12,8 @@ from .http import HttpClient
 from .invite import Invite
 from .message import Message
 from .state import State
-from .websocket import WebsocketHandler
 from .utils import Missing
+from .websocket import WebsocketHandler
 
 try:
     import ujson as json

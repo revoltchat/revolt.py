@@ -13,10 +13,10 @@ from .errors import InvalidLiteralArgument, UnionConverterError
 from .utils import evaluate_parameters
 
 if TYPE_CHECKING:
-    from .context import Context
     from .checks import Check
-    from .group import Group
     from .cog import Cog
+    from .context import Context
+    from .group import Group
 
 __all__ = (
     "Command",
