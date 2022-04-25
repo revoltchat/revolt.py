@@ -185,6 +185,11 @@ class Client:
         """list[:class:`User`] All users the client can see"""
         return list(self.state.users.values())
 
+    @property
+    def servers(self) -> list[Server]:
+        """list[:class:'Server'] All servers the client can see"""
+        return list(self.state.servers.values())
+
     async def fetch_user(self, user_id: str) -> User:
         """Fetchs a user
 
