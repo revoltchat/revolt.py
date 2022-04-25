@@ -43,7 +43,7 @@ class EditableChannel:
 
 class Channel:
     """Base class for all channels
-    
+
     Attributes
     -----------
     id: :class:`str`

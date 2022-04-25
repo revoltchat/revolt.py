@@ -99,12 +99,12 @@ class Client:
 
     def get_user(self, id: str) -> User:
         """Gets a user from the cache
-        
+
         Parameters
         -----------
         id: :class:`str`
             The id of the user
-        
+
         Returns
         --------
         :class:`User`
@@ -114,12 +114,12 @@ class Client:
 
     def get_channel(self, id: str) -> Channel:
         """Gets a channel from the cache
-        
+
         Parameters
         -----------
         id: :class:`str`
             The id of the channel
-        
+
         Returns
         --------
         :class:`Channel`
@@ -129,12 +129,12 @@ class Client:
 
     def get_server(self, id: str) -> Server:
         """Gets a server from the cache
-        
+
         Parameters
         -----------
         id: :class:`str`
             The id of the server
-        
+
         Returns
         --------
         :class:`Server`
@@ -144,7 +144,7 @@ class Client:
 
     async def wait_for(self, event: str, *, check: Optional[Callable[..., bool]] = None, timeout: Optional[float] = None) -> Any:
         """Waits for an event
-        
+
         Parameters
         -----------
         event: :class:`str`

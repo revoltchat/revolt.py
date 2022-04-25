@@ -34,7 +34,7 @@ class UserProfile(NamedTuple):
 
 class User(Messageable):
     """Represents a user
-    
+
     Attributes
     -----------
     id: :class:`str`

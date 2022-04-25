@@ -17,7 +17,7 @@ __all__ = ("Asset", "PartialAsset")
 
 class Asset:
     """Represents a file on revolt
-    
+
     Attributes
     -----------
     id: :class:`str`
@@ -40,7 +40,7 @@ class Asset:
         The assets url
     """
     __slots__ = ("state", "id", "tag", "size", "filename", "content_type", "width", "height", "type", "url")
-    
+
     def __init__(self, data: FilePayload, state: State):
         self.state = state
 
@@ -48,7 +48,7 @@ class Asset:
         self.tag = data['tag']
         self.size = data['size']
         self.filename = data['filename']
-        
+
         metadata = data['metadata']
 
         if metadata["type"] == "Image" or metadata["type"] == "Video":  # cannot use `in` because type narrowing will not happen
@@ -70,7 +70,7 @@ class Asset:
 
     async def save(self, fp: IOBase):
         """Reads the files content and saves it to a file
-        
+
         Parameters
         -----------
         fp: IOBase

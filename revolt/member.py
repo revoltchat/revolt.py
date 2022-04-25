@@ -19,7 +19,7 @@ def flattern_user(member: Member, user: User):
 
 class Member(User):
     """Represents a member of a server, subclasses :class:`User`
-    
+
     Attributes
     -----------
     nickname: Optional[:class:`str`]
@@ -32,7 +32,7 @@ class Member(User):
         The member's guild avatar if any
     """
     __slots__ = ("_state", "nickname", "roles", "server", "guild_avatar")
-    
+
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
         flattern_user(self, user)

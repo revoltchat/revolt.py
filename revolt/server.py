@@ -161,12 +161,12 @@ class Server:
 
     def get_role(self, role_id: str) -> Role:
         """Gets a role from the cache
-        
+
         Parameters
         -----------
         id: :class:`str`
             The id of the role
-        
+
         Returns
         --------
         :class:`Role`
@@ -176,12 +176,12 @@ class Server:
 
     def get_member(self, member_id: str) -> Member:
         """Gets a member from the cache
-        
+
         Parameters
         -----------
         id: :class:`str`
             The id of the member
-        
+
         Returns
         --------
         :class:`Member`
@@ -191,12 +191,12 @@ class Server:
 
     def get_channel(self, channel_id: str) -> Channel:
         """Gets a channel from the cache
-        
+
         Parameters
         -----------
         id: :class:`str`
             The id of the channel
-        
+
         Returns
         --------
         :class:`Channel`
