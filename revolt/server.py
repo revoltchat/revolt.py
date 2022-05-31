@@ -6,7 +6,7 @@ from .asset import Asset
 from .category import Category
 from .channel import Channel, VoiceChannel
 from .invite import Invite
-from .permissions import ChannelPermissions, ServerPermissions
+from .permissions import Permissions
 from .role import Role
 
 if TYPE_CHECKING:
@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from .types import Ban
     from .types import Category as CategoryPayload
     from .types import File as FilePayload
-    from .types import Permission as PermissionPayload
     from .types import Server as ServerPayload
     from .types import SystemMessagesConfig
 
@@ -88,20 +87,21 @@ class Server:
         The servers icon
     banner: Optional[:class:`Asset`]
         The servers banner
+    default_permissions: :class:`Permissions`
+        The permissions for the default role
     """
-    __slots__ = ("state", "id", "name", "owner_id", "default_server_permissions", "default_channel_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "_categories")
+    __slots__ = ("state", "id", "name", "owner_id", "default_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "_categories")
 
     def __init__(self, data: ServerPayload, state: State):
         self.state = state
         self.id = data["_id"]
         self.name = data["name"]
         self.owner_id = data["owner"]
-        self.default_server_permissions = ServerPermissions._from_value(data["default_permissions"][0])
-        self.default_channel_permissions = ChannelPermissions._from_value(data["default_permissions"][1])
         self.description = data.get("description") or None
         self.nsfw = data.get("nsfw", False)
         self.system_messages = SystemMessages(data.get("system_messages", cast("SystemMessagesConfig", {})), state)
         self._categories = {data["id"]: Category(data, state) for data in data.get("categories", [])}
+        self.default_permissions = Permissions(data["default_permissions"])
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
@@ -118,7 +118,7 @@ class Server:
 
         self._channels: dict[str, Channel] = {channel_id: state.get_channel(channel_id) for channel_id in data.get("channels", [])}
 
-    def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[PermissionPayload] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None):
+    def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[int] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None):
         if owner:
             self.owner_id = owner
         if name:
@@ -129,9 +129,8 @@ class Server:
             self.icon = Asset(icon, self.state)
         if banner:
             self.banner = Asset(banner, self.state)
-        if default_permissions:
-            self.default_server_permissions = ServerPermissions._from_value(default_permissions[0])
-            self.default_channel_permissions = ChannelPermissions._from_value(default_permissions[1])
+        if default_permissions is not None:
+            self.default_permissions = Permissions(default_permissions)
         if nsfw is not None:
             self.nsfw = nsfw
         if system_messages is not None:
@@ -224,7 +223,7 @@ class Server:
         """:class:`Member` The owner of the server"""
         return self.get_member(self.owner_id)
 
-    async def set_default_permissions(self, *, server_permissions: Optional[ServerPermissions] = None, channel_permissions: Optional[ChannelPermissions] = None) -> None:
+    async def set_default_permissions(self, permissions: Permissions) -> None:
         """Sets the default server permissions.
         Parameters
         -----------
@@ -233,10 +232,8 @@ class Server:
         channel_permissions: Optional[:class:`ChannelPermissions`]
             the new default channel permissions
         """
-        server_value = (server_permissions or self.default_server_permissions).value
-        channel_value = (channel_permissions or self.default_channel_permissions).value
 
-        await self.state.http.set_default_permissions(self.id, server_value, channel_value)
+        await self.state.http.set_server_default_permissions(self.id, permissions.value)
 
     async def leave_server(self):
         """Leaves or deletes the server"""
@@ -348,12 +345,26 @@ class Server:
         return Role(payload, name, self, self.state)
 
 class ServerBan:
+    """Represents a server ban
+
+    Attributes
+    -----------
+    reason: Optional[:class:str`]
+        The reason the user was banned
+    server: :class:`Server`
+        The server the user was banned in
+    user_id: :class:`str`
+        The id of the user who was banned
+    """
+
+    __slots__ = ("reason", "server", "user_id", "state")
+
     def __init__(self, ban: Ban, state: State):
         self.reason = ban.get("reason")
         self.server = state.get_server(ban["_id"]["server"])
-        self.user = state.get_user(ban["_id"]["user"])
+        self.user_id = ban["_id"]["user"]
         self.state = state
 
     async def unban(self):
         """Unbans the user"""
-        await self.state.http.unban_member(self.server.id, self.user.id)
+        await self.state.http.unban_member(self.server.id, self.user_id)

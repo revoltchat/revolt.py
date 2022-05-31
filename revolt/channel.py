@@ -7,7 +7,7 @@ from revolt.utils import Missing
 from .asset import Asset
 from .enums import ChannelType
 from .messageable import Messageable
-from .permissions import ChannelPermissions
+from .permissions import Permissions, PermissionsOverwrite
 from .utils import Missing
 
 if TYPE_CHECKING:
@@ -21,7 +21,9 @@ if TYPE_CHECKING:
     from .types import SavedMessages as SavedMessagesPayload
     from .types import TextChannel as TextChannelPayload
     from .types import VoiceChannel as VoiceChannelPayload
-    from .user import User
+    from .types import GuildChannel as GuildChannelPayload
+    from .types import File as FilePayload
+    from .types import Overwrite as OverwritePayload
 
 __all__ = ("DMChannel", "GroupDMChannel", "SavedMessageChannel", "TextChannel", "VoiceChannel", "Channel")
 
@@ -128,8 +130,7 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         else:
             self.icon = None
 
-        perms = data.get("permissions", 0)
-        self.permissions = ChannelPermissions._from_value(perms)
+        self.permissions = Permissions(data.get("permissions", 0))
 
     def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None, description: Optional[str] = None):
         if name:
@@ -141,17 +142,88 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         if description:
             self.description = description
 
-    async def set_default_permissions(self, permissions: ChannelPermissions) -> None:
+    async def set_default_permissions(self, permissions: Permissions) -> None:
         """Sets the default permissions for a group.
         Parameters
         -----------
         permissions: :class:`ChannelPermissions`
             The new default group permissions
         """
-        await self.state.http.set_channel_default_permissions(self.id, permissions.value)
+        await self.state.http.set_group_channel_default_permissions(self.id, permissions.value)
 
-class TextChannel(Channel, Messageable, EditableChannel):
-    __slots__ = ("name", "description", "last_message_id", "server_id", "default_permissions", "role_permissions", "icon")
+class GuildChannel(Channel):
+    def __init__(self, data: GuildChannelPayload, state: State):
+        super().__init__(data, state)
+
+        self.server_id = data["server"]
+        self.name = data["name"]
+        self.description: Optional[str] = data.get("description")
+
+        self.default_permissions = PermissionsOverwrite._from_overwrite(data.get("default_permissions", {"a": 0, "d": 0}))
+
+        permissions: dict[str, PermissionsOverwrite] = {}
+
+        for role_name, overwrite_data in data.get("role_permissions", {}).items():
+            overwrite = PermissionsOverwrite._from_overwrite(overwrite_data)
+            permissions[role_name] = overwrite
+
+        self.permissions = permissions
+        if icon := data.get("icon"):
+            self.icon = Asset(icon, state)
+        else:
+            self.icon = None
+
+    async def set_default_permissions(self, permissions: PermissionsOverwrite) -> None:
+        """Sets the default permissions for the channel.
+        Parameters
+        -----------
+        permissions: :class:`ChannelPermissions`
+            The new default channel permissions
+        """
+        allow, deny = permissions.to_pair()
+        await self.state.http.set_guild_channel_default_permissions(self.id, allow.value, deny.value)
+
+    async def set_role_permissions(self, role: Role, permissions: PermissionsOverwrite) -> None:
+        """Sets the permissions for a role in the channel.
+        Parameters
+        -----------
+        permissions: :class:`ChannelPermissions`
+            The new channel permissions
+        """
+        allow, deny = permissions.to_pair()
+
+        await self.state.http.set_guild_channel_role_permissions(self.id, role.id, allow.value, deny.value)
+
+    def _update(self, *, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, nsfw: Optional[bool] = None, active: Optional[bool] = None, role_permissions: Optional[dict[str, OverwritePayload]] = None, default_permissions: Optional[OverwritePayload] = None):
+        if name is not None:
+            self.name = name
+
+        if description is not None:
+            self.description = description
+
+        if icon:
+            self.icon = Asset(icon, self.state)
+
+        if nsfw is not None:
+            self.nsfw = nsfw
+
+        if active is not None:
+            self.active = active
+
+        if role_permissions is not None:
+            permissions = {}
+
+            for role_name, overwrite_data in role_permissions.items():
+                overwrite = PermissionsOverwrite._from_overwrite(overwrite_data)
+                permissions[role_name] = overwrite
+
+            self.permissions = permissions
+
+        if default_permissions is not None:
+            self.default_permissions = default_permissions
+
+class TextChannel(GuildChannel, Messageable, EditableChannel):
+    __slots__ = ("name", "description", "last_message_id", "server_id", "default_permissions", "icon", "overwrites")
 
     """A text channel
 
@@ -175,26 +247,14 @@ class TextChannel(Channel, Messageable, EditableChannel):
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
 
-        self.server_id = data["server"]
-        self.name = data["name"]
-        self.description: Optional[str] = data.get("description")
-
         last_message_id = data.get("last_message")
         self.last_message_id = last_message_id
-
-        self.default_permissions = ChannelPermissions._from_value(data.get("default_permissions", 0))
-        self.role_permissions = {role_id: ChannelPermissions._from_value(perms) for role_id, perms in data.get("role_permissions", {}).items()}
-
-        if icon := data.get("icon"):
-            self.icon = Asset(icon, state)
-        else:
-            self.icon = None
 
     async def _get_channel_id(self) -> str:
         return self.id
 
     @property
-    def last_message(self) -> Optional[Message]:
+    def last_message(self) -> Message:
         """Gets the last message from the channel, shorthand for `client.get_message(channel.last_message_id)`
 
         Returns
@@ -203,36 +263,11 @@ class TextChannel(Channel, Messageable, EditableChannel):
         """
 
         if not self.last_message_id:
-            return
+            raise LookupError
 
         return self.state.get_message(self.last_message_id)
 
-    def _update(self, *, name: Optional[str] = None, description: Optional[str] = None):
-        if name:
-            self.name = name
-
-        if description:
-            self.description = description
-
-    async def set_default_permissions(self, permissions: ChannelPermissions) -> None:
-        """Sets the default permissions for a channel.
-        Parameters
-        -----------
-        permissions: :class:`ChannelPermissions`
-            The new default channel permissions
-        """
-        await self.state.http.set_channel_default_permissions(self.id, permissions.value)
-
-    async def set_role_permissions(self, role: Role, permissions: ChannelPermissions) -> None:
-        """Sets the permissions for a role in a channel.
-        Parameters
-        -----------
-        permissions: :class:`ChannelPermissions`
-            The new channel permissions
-        """
-        await self.state.http.set_channel_role_permissions(self.id, role.id, permissions.value)
-
-class VoiceChannel(Channel, EditableChannel):
+class VoiceChannel(GuildChannel, EditableChannel):
     """A voice channel
 
     Attributes
@@ -252,49 +287,6 @@ class VoiceChannel(Channel, EditableChannel):
     description: Optional[:class:`str`]
         The description of the channel, if any
     """
-    def __init__(self, data: VoiceChannelPayload, state: State):
-        super().__init__(data, state)
-
-        self.server_id = data["server"]
-        self.name = data["name"]
-        self.description: Optional[str] = data.get("description")
-
-        if perms := data.get("default_permissions"):
-            self.default_permissions = ChannelPermissions._from_value(perms)
-        else:
-            self.default_permissions = ChannelPermissions._from_value(0)
-
-        self.role_permissions = {role_id: ChannelPermissions._from_value(perms) for role_id, perms in data.get("role_permissions", {}).items()}
-
-        if icon := data.get("icon"):
-            self.icon = Asset(icon, state)
-        else:
-            self.icon = None
-
-    def _update(self, *, name: Optional[str] = None, description: Optional[str] = None):
-        if name:
-            self.name = name
-
-        if description:
-            self.description = description
-
-    async def set_default_permissions(self, permissions: ChannelPermissions) -> None:
-        """Sets the default permissions for a voice channel.
-        Parameters
-        -----------
-        permissions: :class:`ChannelPermissions`
-            The new default channel permissions
-        """
-        await self.state.http.set_channel_default_permissions(self.id, permissions.value)
-
-    async def set_role_permissions(self, role: Role, permissions: ChannelPermissions) -> None:
-        """Sets the permissions for a role in a voice channel
-        Parameters
-        -----------
-        permissions: :class:`ChannelPermissions`
-            The new channel permissions
-        """
-        await self.state.http.set_channel_role_permissions(self.id, role.id, permissions.value)
 
 def channel_factory(data: ChannelPayload, state: State) -> Union[DMChannel, GroupDMChannel, SavedMessageChannel, TextChannel, VoiceChannel]:
     if data["channel_type"] == "SavedMessages":

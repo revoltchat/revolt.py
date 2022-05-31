@@ -33,8 +33,14 @@ class flag_value:
         instance._set_flag(self.flag, value)
 
 class Flags:
-    def __init__(self, **kwargs: bool):
-        self.value = 0
+    FLAG_NAMES: list[str]
+
+    def __init_subclass__(cls) -> None:
+        flags = cls._flags()
+        cls.FLAG_NAMES = list(flags.keys())
+
+    def __init__(self, value: int = 0, **kwargs: bool):
+        self.value = value
 
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -91,6 +97,10 @@ class Flags:
 
     def __hash__(self) -> int:
         return hash(self.value)
+
+    @classmethod
+    def _flags(cls) -> dict[str, flag_value]:
+        return {name: value for name, value in cls.__dict__.items() if isinstance(value, flag_value)}
 
 class UserBadges(Flags):
     """Contains all user badges"""

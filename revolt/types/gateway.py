@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, TypedDict, Union
 
+from revolt.types.permissions import Overwrite
+
 from .channel import (Channel, DMChannel, GroupDMChannel, SavedMessages,
                       TextChannel, VoiceChannel)
 from .file import File
@@ -11,7 +13,6 @@ from .user import Status
 if TYPE_CHECKING:
     from .category import Category
     from .member import Member, MemberID
-    from .role import Permission
     from .server import Server, SystemMessagesConfig
     from .user import User
 
@@ -87,9 +88,18 @@ class ChannelCreateEventPayload_DMChannel(BasePayload, DMChannel):
 
 ChannelCreateEventPayload = Union[ChannelCreateEventPayload_Group, ChannelCreateEventPayload_Group, ChannelCreateEventPayload_TextChannel, ChannelCreateEventPayload_VoiceChannel, ChannelCreateEventPayload_DMChannel]
 
+class ChannelUpdateEventPayloadData(TypedDict, total=False):
+    name: str
+    description: str
+    icon: File
+    nsfw: bool
+    active: bool
+    role_permissions: dict[str, Overwrite]
+    default_permissions: Overwrite
+
 class ChannelUpdateEventPayload(BasePayload):
     id: str
-    data: ...
+    data: ChannelUpdateEventPayloadData
     clear: Literal["Icon", "Description"]
 
 class ChannelDeleteEventPayload(BasePayload):
@@ -107,7 +117,7 @@ class ServerUpdateEventPayloadData(TypedDict, total=False):
     description: str
     icon: File
     banner: File
-    default_permissions: Permission
+    default_permissions: int
     nsfw: bool
     system_messages: SystemMessagesConfig
     categories: list[Category]

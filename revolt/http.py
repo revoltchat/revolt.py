@@ -293,14 +293,6 @@ class HttpClient:
     def close_channel(self, channel_id: str) -> Request[None]:
         return self.request("DELETE", f"/channels/{channel_id}")
 
-    def set_channel_role_permissions(self, channel_id: str, role_id: str, channel_permissions: int) -> Request[None]:
-        payload = {"permissions": channel_permissions}
-        return self.request("PUT", f"/channels/{channel_id}/permissions/{role_id}", json=payload)
-
-    def set_channel_default_permissions(self, channel_id: str, channel_permissions: int) -> Request[None]:
-        payload = {"permissions": channel_permissions}
-        return self.request("PUT", f"/channels/{channel_id}/permissions/default", json=payload)
-
     def fetch_server(self, server_id: str) -> Request[Server]:
         return self.request("GET", f"/servers/{server_id}")
 
@@ -345,29 +337,9 @@ class HttpClient:
 
     def unban_member(self, server_id: str, member_id: str) -> Request[None]:
         return self.request("DELETE", f"/servers/{server_id}/bans/{member_id}")
-    
+
     def fetch_bans(self, server_id: str) -> Request[ServerBans]:
         return self.request("GET", f"/servers/{server_id}/bans")
-
-    def set_role_permissions(self, server_id: str, role_id: str, server_permissions: int, channel_permissions: int) -> Request[None]:
-        payload = {
-            "permissions": {
-                "server": server_permissions,
-                "channel": channel_permissions
-            }
-        }
-
-        return self.request("PUT", f"/servers/{server_id}/permissions/{role_id}", json=payload, nonce=False)
-    
-    def set_default_permissions(self, server_id: str, server_permissions: int, channel_permissions: int) -> Request[None]:
-        payload = {
-            "permissions": {
-                "server": server_permissions,
-                "channel": channel_permissions
-            }
-        }
-
-        return self.request("PUT", f"/servers/{server_id}/permissions/default", json=payload, nonce=False)
 
     def create_role(self, server_id: str, name: str) -> Request[Role]:
         return self.request("POST", f"/servers/{server_id}/roles", json={"name": name}, nonce=False)
@@ -412,5 +384,19 @@ class HttpClient:
         if not values.get("status", Missing):
             del values["status"]
 
-        print(remove, values)
         return await self.request("PATCH", "/users/@me", json=values)
+
+    def set_guild_channel_default_permissions(self, channel_id: str, allow: int, deny: int) -> Request:
+        return self.request("PUT", f"/channels/{channel_id}/permissions/default", json={"permissions": {"allow": allow, "deny": deny}})
+
+    def set_guild_channel_role_permissions(self, channel_id: str, role_id: str, allow: int, deny: int) -> Request:
+        return self.request("PUT", f"/channels/{channel_id}/permissions/{role_id}", json={"permissions": {"allow": allow, "deny": deny}})
+
+    def set_group_channel_default_permissions(self, channel_id: str, value: int):
+        return self.request("PUT", f"/channels/{channel_id}/permissions/default", json={"permissions": value})
+
+    def set_server_role_permissions(self, server_id: str, role_id: str, allow: int, deny: int):
+        return self.request("PUT", f"/server/{server_id}/permissions/{role_id}", json={"permissions": {"allow": allow, "deny": deny}})
+
+    def set_server_default_permissions(self, server_id: str, value: int):
+        return self.request("PUT", f"/server/{server_id}/permissions/default", json={"permissions": value})

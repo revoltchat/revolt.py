@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from .permissions import ChannelPermissions, ServerPermissions
+from .permissions import Permissions, PermissionsOverwrite
 from .utils import Missing
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ class Role:
     channel_permissions: :class:`ChannelPermissions`
         The channel permissions for the role
     """
-    __slots__ = ("id", "name", "colour", "hoist", "rank", "state", "server", "server_permissions", "channel_permissions")
+    __slots__ = ("id", "name", "colour", "hoist", "rank", "state", "server", "permissions")
 
     def __init__(self, data: RolePayload, role_id: str, server: Server, state: State):
         self.state = state
@@ -45,14 +45,13 @@ class Role:
         self.hoist = False
         self.rank = 0
         self.server = server
-        self.server_permissions = ServerPermissions._from_value(data["permissions"][0])
-        self.channel_permissions = ChannelPermissions._from_value(data["permissions"][1])
+        self.permissions = PermissionsOverwrite._from_overwrite(data.get("permissions", {"a": 0, "d": 0}))
 
     @property
     def color(self):
         return self.colour
 
-    async def set_permissions(self, *, server_permissions: Optional[ServerPermissions] = None, channel_permissions: Optional[ChannelPermissions] = None) -> None:
+    async def set_permissions_overwrite(self, *, permissions: PermissionsOverwrite) -> None:
         """Sets the permissions for a role in a server.
         Parameters
         -----------
@@ -61,14 +60,8 @@ class Role:
         channel_permissions: Optional[:class:`ChannelPermissions`]
             The new channel permissions for the role
         """
-
-        if not server_permissions and not channel_permissions:
-            return
-
-        server_value = (server_permissions or self.server_permissions).value
-        channel_value = (channel_permissions or self.channel_permissions).value
-
-        await self.state.http.set_role_permissions(self.server.id, self.id, server_value, channel_value)
+        allow, deny = permissions.to_pair()
+        await self.state.http.set_server_role_permissions(self.server.id, self.id, allow.value, deny.value)
 
     def _update(self, *, name: Optional[str] = None, colour: Optional[str] = None, hoist: Optional[bool] = None, rank: Optional[int] = None):
         if name:

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .category import Category
     from .channel import Channel
     from .file import File
-    from .role import Permission, Role
+    from .role import Role
 
 __all__ = (
     "Server",
@@ -30,7 +30,7 @@ class Server(TypedDict):
     owner: str
     name: str
     channels: list[str]
-    default_permissions: Permission
+    default_permissions: int
     nonce: NotRequired[str]
     description: NotRequired[str]
     categories: NotRequired[list[Category]]

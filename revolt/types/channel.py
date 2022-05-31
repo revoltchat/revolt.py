@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, TypedDict, Union
+from typing import TYPE_CHECKING, Literal, Text, TypedDict, Union
 
 from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .file import File
     from .message import Message
-
+    from .permissions import Overwrite
 
 __all__ = (
     "SavedMessages",
@@ -15,6 +15,7 @@ __all__ = (
     "GroupDMChannel",
     "TextChannel",
     "VoiceChannel",
+    "GuildChannel",
     "Channel",
 )
 
@@ -47,8 +48,8 @@ class TextChannel(BaseChannel):
     description: str
     channel_type: Literal["TextChannel"]
     icon: NotRequired[File]
-    default_permissions: NotRequired[int]
-    role_permissions: NotRequired[dict[str, int]]
+    default_permissions: NotRequired[Overwrite]
+    role_permissions: NotRequired[dict[str, Overwrite]]
     last_message: NotRequired[str]
 
 class VoiceChannel(BaseChannel):
@@ -57,7 +58,8 @@ class VoiceChannel(BaseChannel):
     description: str
     channel_type: Literal["VoiceChannel"]
     icon: NotRequired[File]
-    default_permissions: NotRequired[int]
-    role_permissions: NotRequired[dict[str, int]]
+    default_permissions: NotRequired[Overwrite]
+    role_permissions: NotRequired[dict[str, Overwrite]]
 
+GuildChannel = Union[TextChannel, VoiceChannel]
 Channel = Union[SavedMessages, DMChannel, GroupDMChannel, TextChannel, VoiceChannel]
