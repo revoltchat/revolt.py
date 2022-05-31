@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Callable, Optional, TypeAlias
+from typing import TYPE_CHECKING, Any, Optional
 from typing_extensions import Self
 
 from revolt.types.permissions import Overwrite
