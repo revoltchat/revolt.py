@@ -2,9 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional
 from typing_extensions import Self
 
-from revolt.types.permissions import Overwrite
-
+from .types.permissions import Overwrite
 from .flags import Flags, flag_value
+
+__all__ = ("Permissions", "PermissionsOverwrite")
 
 class Permissions(Flags):
     @flag_value

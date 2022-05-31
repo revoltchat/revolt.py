@@ -17,6 +17,7 @@ import sphinx_nameko_theme
 
 sys.path.insert(0, os.path.abspath('..'))
 
+import revolt
 
 # -- Project information -----------------------------------------------------
 

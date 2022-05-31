@@ -130,15 +130,15 @@ Messageable
 .. autoclass:: Messageable
     :members:
 
-ChannelPermissions
-~~~~~~~~~~~~~~~~~~~
+Permissions
+~~~~~~~~~~~~
 
-.. autoclass:: ChannelPermissions
+.. autoclass:: Permissions
     :members:
 
-ServerPermissions
-~~~~~~~~~~~~~~~~~~
-.. autoclass:: ServerPermissions
+PermissionsOverwrite
+~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: PermissionsOverwrite
     :members:
 
 Role
