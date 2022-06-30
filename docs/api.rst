@@ -347,4 +347,4 @@ A collection a utility functions and classes to aid in making your bot
 
 .. autofunction:: get
 
-.. autodecorator:: client_session
+.. autofunction:: client_session
