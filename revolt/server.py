@@ -118,7 +118,7 @@ class Server:
 
         self._channels: dict[str, Channel] = {channel_id: state.get_channel(channel_id) for channel_id in data.get("channels", [])}
 
-    def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[int] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None):
+    def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[int] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None, channels: Optional[list[str]] = None):
         if owner:
             self.owner_id = owner
         if name:
@@ -137,6 +137,8 @@ class Server:
             self.system_messages = SystemMessages(system_messages, self.state)
         if categories is not None:
             self._categories = {data["id"]: Category(data, self.state) for data in categories}
+        if channels is not None:
+            self._channels = {channel_id: self.state.get_channel(channel_id) for channel_id in channels}
 
     @property
     def roles(self) -> list[Role]:
