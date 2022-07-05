@@ -85,7 +85,7 @@ class State:
         raise KeyError
 
     async def fetch_all_server_members(self):
-        for server_id in self.servers.keys():
+        for server_id in self.servers:
             data = await self.http.fetch_members(server_id)
 
             for user in data["users"]:

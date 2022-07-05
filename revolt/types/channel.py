@@ -41,6 +41,7 @@ class GroupDMChannel(BaseChannel):
     icon: NotRequired[File]
     permissions: NotRequired[int]
     description: NotRequired[str]
+    nsfw: NotRequired[bool]
 
 class TextChannel(BaseChannel):
     server: str
@@ -51,6 +52,7 @@ class TextChannel(BaseChannel):
     default_permissions: NotRequired[Overwrite]
     role_permissions: NotRequired[dict[str, Overwrite]]
     last_message: NotRequired[str]
+    nsfw: NotRequired[bool]
 
 class VoiceChannel(BaseChannel):
     server: str
@@ -60,6 +62,7 @@ class VoiceChannel(BaseChannel):
     icon: NotRequired[File]
     default_permissions: NotRequired[Overwrite]
     role_permissions: NotRequired[dict[str, Overwrite]]
+    nsfw: NotRequired[bool]
 
 GuildChannel = Union[TextChannel, VoiceChannel]
 Channel = Union[SavedMessages, DMChannel, GroupDMChannel, TextChannel, VoiceChannel]

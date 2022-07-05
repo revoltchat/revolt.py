@@ -155,44 +155,44 @@ class HttpClient:
 
     def fetch_message(self, channel: str, message: str) -> Request[MessagePayload]:
         return self.request("GET", f"/channels/{channel}/messages/{message}")
-    
+
     @overload
     def fetch_messages(
-        self, 
-        channel: str, 
+        self,
+        channel: str,
         sort: SortType,
-        *, 
-        limit: Optional[int] = ..., 
-        before: Optional[str] = ..., 
-        after: Optional[str] = ..., 
-        nearby: Optional[str] = ..., 
+        *,
+        limit: Optional[int] = ...,
+        before: Optional[str] = ...,
+        after: Optional[str] = ...,
+        nearby: Optional[str] = ...,
         include_users: Literal[False] = ...
     ) -> Request[list[MessagePayload]]:
         ...
-    
+
     @overload
     def fetch_messages(
-        self, 
-        channel: str, 
+        self,
+        channel: str,
         sort: SortType,
-        *, 
-        limit: Optional[int] = ..., 
-        before: Optional[str] = ..., 
-        after: Optional[str] = ..., 
-        nearby: Optional[str] = ..., 
+        *,
+        limit: Optional[int] = ...,
+        before: Optional[str] = ...,
+        after: Optional[str] = ...,
+        nearby: Optional[str] = ...,
         include_users: Literal[True] = ...
     ) -> Request[MessageWithUserData]:
         ...
 
     def fetch_messages(
-        self, 
-        channel: str, 
+        self,
+        channel: str,
         sort: SortType,
-        *, 
-        limit: Optional[int] = None, 
-        before: Optional[str] = None, 
-        after: Optional[str] = None, 
-        nearby: Optional[str] = None, 
+        *,
+        limit: Optional[int] = None,
+        before: Optional[str] = None,
+        after: Optional[str] = None,
+        nearby: Optional[str] = None,
         include_users: bool = False
     ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
 
@@ -214,12 +214,12 @@ class HttpClient:
 
     @overload
     def search_messages(
-        self, 
-        channel: str, 
+        self,
+        channel: str,
         query: str,
-        *, 
-        limit: Optional[int] = ..., 
-        before: Optional[str] = ..., 
+        *,
+        limit: Optional[int] = ...,
+        before: Optional[str] = ...,
         after: Optional[str] = ...,
         sort: Optional[SortType] = ...,
         include_users: Literal[False] = ...
@@ -228,12 +228,12 @@ class HttpClient:
 
     @overload
     def search_messages(
-        self, 
-        channel: str, 
+        self,
+        channel: str,
         query: str,
-        *, 
-        limit: Optional[int] = ..., 
-        before: Optional[str] = ..., 
+        *,
+        limit: Optional[int] = ...,
+        before: Optional[str] = ...,
         after: Optional[str] = ...,
         sort: Optional[SortType] = ...,
         include_users: Literal[True] = ...
@@ -241,12 +241,12 @@ class HttpClient:
         ...
 
     def search_messages(
-        self, 
-        channel: str, 
+        self,
+        channel: str,
         query: str,
-        *, 
-        limit: Optional[int] = None, 
-        before: Optional[str] = None, 
+        *,
+        limit: Optional[int] = None,
+        before: Optional[str] = None,
         after: Optional[str] = None,
         sort: Optional[SortType] = None,
         include_users: bool = False
@@ -280,7 +280,7 @@ class HttpClient:
 
     def fetch_default_avatar(self, user_id: str) -> Request[bytes]:
         return self.request_file(f"{self.api_url}/users/{user_id}/default_avatar")
-    
+
     def fetch_dm_channels(self) -> Request[list[Union[DMChannel, GroupDMChannel]]]:
         return self.request("GET", "/users/dms")
 

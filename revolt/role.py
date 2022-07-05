@@ -86,7 +86,7 @@ class Role:
         Parameters
         -----------
         """
-        if kwargs.get("colour", Missing) == None:
+        if kwargs.get("colour", Missing) is None:
             remove = "Colour"
         else:
             remove = None

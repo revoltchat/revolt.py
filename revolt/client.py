@@ -300,7 +300,7 @@ class Client:
         avatar: Optional[:class:`File`]
             The avatar to change to, passing in ``None`` will remove the avatar
         """
-        if kwargs.get("avatar", Missing) == None:
+        if kwargs.get("avatar", Missing) is None:
             del kwargs["avatar"]
             remove = "Avatar"
         else:
@@ -318,7 +318,7 @@ class Client:
         text: Optional[:class:`str`]
             The text to change the status to, passing in ``None`` will remove the status
         """
-        if kwargs.get("text", Missing) == None:
+        if kwargs.get("text", Missing) is None:
             del kwargs["text"]
             remove = "StatusText"
         else:
@@ -339,10 +339,10 @@ class Client:
         background: Optional[:class:`File`]
             The new background for the profile, passing in ``None`` will remove the profile background
         """
-        if kwargs.get("content", Missing) == None:
+        if kwargs.get("content", Missing) is None:
             del kwargs["content"]
             remove = "ProfileContent"
-        elif kwargs.get("background", Missing) == None:
+        elif kwargs.get("background", Missing) is None:
             del kwargs["background"]
             remove = "ProfileBackground"
         else:

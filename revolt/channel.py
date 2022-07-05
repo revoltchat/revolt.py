@@ -158,7 +158,8 @@ class GuildChannel(Channel):
         self.server_id = data["server"]
         self.name = data["name"]
         self.description: Optional[str] = data.get("description")
-
+        self.nsfw = data.get("nsfw", False)
+        self.active = False
         self.default_permissions = PermissionsOverwrite._from_overwrite(data.get("default_permissions", {"a": 0, "d": 0}))
 
         permissions: dict[str, PermissionsOverwrite] = {}

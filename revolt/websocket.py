@@ -87,7 +87,7 @@ class WebsocketHandler:
                 await self.ready.wait()
 
             func = getattr(self, f"handle_{event_type}")
-        except:
+        except AttributeError:
             logger.debug("Unknown event '%s'", event_type)
             return
 
@@ -147,7 +147,7 @@ class WebsocketHandler:
 
         try:
             message = self.state.get_message(payload["id"])
-        except:
+        except KeyError:
             return
 
         self.state.messages.remove(message)
