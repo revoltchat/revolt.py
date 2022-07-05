@@ -35,17 +35,26 @@ class State:
         self.messages: deque[Message] = deque()
 
     def get_user(self, id: str) -> User:
-        return self.users[id]
+        try:
+            return self.users[id]
+        except KeyError as e:
+            raise LookupError from e
 
     def get_member(self, server_id: str, member_id: str) -> Member:
         server = self.servers[server_id]
         return server.get_member(member_id)
 
     def get_channel(self, id: str) -> Channel:
-        return self.channels[id]
+        try:
+            return self.channels[id]
+        except KeyError as e:
+            raise LookupError from e
 
     def get_server(self, id: str) -> Server:
-        return self.servers[id]
+        try:
+            return self.servers[id]
+        except KeyError as e:
+            raise LookupError from e
 
     def add_user(self, payload: UserPayload) -> User:
         user = User(payload, self)
@@ -82,7 +91,7 @@ class State:
             if msg.id == message_id:
                 return msg
 
-        raise KeyError
+        raise LookupError
 
     async def fetch_all_server_members(self):
         for server_id in self.servers:

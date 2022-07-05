@@ -188,7 +188,10 @@ class Server:
         :class:`Member`
             The member
         """
-        return self._members[member_id]
+        try:
+            return self._members[member_id]
+        except KeyError as e:
+            raise LookupError from e
 
     def get_channel(self, channel_id: str) -> Channel:
         """Gets a channel from the cache
@@ -203,7 +206,10 @@ class Server:
         :class:`Channel`
             The channel
         """
-        return self._channels[channel_id]
+        try:
+            return self._channels[channel_id]
+        except KeyError as e:
+            raise LookupError from e
 
     def get_category(self, category_id: str) -> Category:
         """Gets a category from the cache
@@ -218,7 +224,10 @@ class Server:
         :class:`Category`
             The category
         """
-        return self._categories[category_id]
+        try:
+            return self._categories[category_id]
+        except KeyError as e:
+            raise LookupError from e
 
     @property
     def owner(self) -> Member:
