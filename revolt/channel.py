@@ -223,8 +223,6 @@ class GuildChannel(Channel):
             self.default_permissions = default_permissions
 
 class TextChannel(GuildChannel, Messageable, EditableChannel):
-    __slots__ = ("name", "description", "last_message_id", "server_id", "default_permissions", "icon", "overwrites")
-
     """A text channel
 
     Attributes
@@ -244,6 +242,9 @@ class TextChannel(GuildChannel, Messageable, EditableChannel):
     description: Optional[:class:`str`]
         The description of the channel, if any
     """
+
+    __slots__ = ("name", "description", "last_message_id", "default_permissions", "icon", "overwrites")
+
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
 
