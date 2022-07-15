@@ -51,6 +51,7 @@ MessageEdited = TypedDict("MessageEdited", {"$date": str})
 class Masquerade(TypedDict, total=False):
     name: str
     avatar: str
+    colour: str
 
 class Message(TypedDict):
     _id: str

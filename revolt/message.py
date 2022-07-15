@@ -160,9 +160,12 @@ class Masquerade(NamedTuple):
         The name to display for the message
     avatar: Optional[:class:`str`]
         The avatar's url to display for the message
+    colour: Optional[:class:`str`]
+        The colour of the name, similar to role colours
     """
     name: Optional[str] = None
     avatar: Optional[str] = None
+    colour: Optional[str] = None
 
     def to_dict(self) -> MasqueradePayload:
         output: MasqueradePayload = {}
@@ -172,5 +175,8 @@ class Masquerade(NamedTuple):
 
         if avatar := self.avatar:
             output["avatar"] = avatar
+
+        if colour := self.colour:
+            output["colour"] = colour
 
         return output
