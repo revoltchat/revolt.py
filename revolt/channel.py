@@ -93,9 +93,33 @@ class SavedMessageChannel(Channel, Messageable):
         super().__init__(data, state)
 
 class DMChannel(Channel, Messageable):
-    """A DM channel"""
+    """A DM channel
+
+    Attributes
+    -----------
+    last_message_id: Optional[:class:`str`]
+        The id of the last message in this channel, if any
+    """
+
+    __slots__ = ("last_message_id",)
+
     def __init__(self, data: DMChannelPayload, state: State):
         super().__init__(data, state)
+        self.last_message_id = data.get("last_message_id")
+
+    @property
+    def last_message(self) -> Message:
+        """Gets the last message from the channel, shorthand for `client.get_message(channel.last_message_id)`
+
+        Returns
+        --------
+        :class:`Message` the last message in the channel
+        """
+
+        if not self.last_message_id:
+            raise LookupError
+
+        return self.state.get_message(self.last_message_id)
 
 class GroupDMChannel(Channel, Messageable, EditableChannel):
     """A group DM channel
@@ -114,9 +138,11 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         The permissions of the users inside the group dm channel
     description: Optional[:class:`str`]
         The description of the channel, if any
+    last_message_id: Optional[:class:`str`]
+        The id of the last message in this channel, if any
     """
 
-    __slots__ = ("recipients", "name", "owner", "permissions", "icon", "description")
+    __slots__ = ("recipients", "name", "owner", "permissions", "icon", "description", "last_message_id")
 
     def __init__(self, data: GroupDMChannelPayload, state: State):
         super().__init__(data, state)
@@ -124,6 +150,7 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         self.name = data["name"]
         self.owner = state.get_user(data["owner"])
         self.description: Optional[str] = data.get("description")
+        self.last_message_id = data.get("last_message_id")
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
@@ -150,6 +177,20 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
             The new default group permissions
         """
         await self.state.http.set_group_channel_default_permissions(self.id, permissions.value)
+
+    @property
+    def last_message(self) -> Message:
+        """Gets the last message from the channel, shorthand for `client.get_message(channel.last_message_id)`
+
+        Returns
+        --------
+        :class:`Message` the last message in the channel
+        """
+
+        if not self.last_message_id:
+            raise LookupError
+
+        return self.state.get_message(self.last_message_id)
 
 class GuildChannel(Channel):
     def __init__(self, data: GuildChannelPayload, state: State):
@@ -249,8 +290,7 @@ class TextChannel(GuildChannel, Messageable, EditableChannel):
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
 
-        last_message_id = data.get("last_message")
-        self.last_message_id = last_message_id
+        self.last_message_id = data.get("last_message_id")
 
     async def _get_channel_id(self) -> str:
         return self.id

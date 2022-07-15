@@ -30,7 +30,7 @@ class SavedMessages(BaseChannel):
 class DMChannel(BaseChannel):
     active: bool
     recipients: list[str]
-    last_message: Message
+    last_message_id: NotRequired[str]
     channel_type: Literal["DirectMessage"]
 
 class GroupDMChannel(BaseChannel):
@@ -42,6 +42,7 @@ class GroupDMChannel(BaseChannel):
     permissions: NotRequired[int]
     description: NotRequired[str]
     nsfw: NotRequired[bool]
+    last_message_id: NotRequired[str]
 
 class TextChannel(BaseChannel):
     server: str
@@ -51,8 +52,8 @@ class TextChannel(BaseChannel):
     icon: NotRequired[File]
     default_permissions: NotRequired[Overwrite]
     role_permissions: NotRequired[dict[str, Overwrite]]
-    last_message: NotRequired[str]
     nsfw: NotRequired[bool]
+    last_message_id: NotRequired[str]
 
 class VoiceChannel(BaseChannel):
     server: str
