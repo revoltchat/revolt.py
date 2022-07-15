@@ -34,12 +34,36 @@ class EditableChannel:
     id: str
 
     async def edit(self, **kwargs):
+        """Edits the channel
+
+        Passing ``None`` to the parameters that accept it will remove them.
+
+        Parameters
+        -----------
+        name: str
+            The new name for the channel
+        description: Optional[str]
+            The new description for the channel
+        owner: User
+            The new owner for the group dm channel
+        icon: Optional[File]
+            The new icon for the channel
+        nsfw: bool
+            Sets whether the channel is nsfw or not
+        """
         if kwargs.get("icon", Missing) == None:
             remove = "Icon"
         elif kwargs.get("description", Missing) == None:
             remove = "Description"
         else:
             remove = None
+
+        if icon := kwargs.get("icon"):
+            asset = await self.state.http.upload_file(icon, "icons")
+            kwargs["icon"] = asset["id"]
+
+        if owner := kwargs.get("owner"):
+            kwargs["owner"] = owner.id
 
         await self.state.http.edit_channel(self.id, remove, kwargs)
 
