@@ -38,7 +38,8 @@ __all__ = (
     "ServerRoleUpdateEventPayload",
     "ServerRoleDeleteEventPayload",
     "UserUpdateEventPayload",
-    "UserRelationshipEventPayload"
+    "UserRelationshipEventPayload",
+    "ServerCreateEventPayload"
 )
 
 class BasePayload(TypedDict):
@@ -129,6 +130,11 @@ class ServerUpdateEventPayload(BasePayload):
 
 class ServerDeleteEventPayload(BasePayload):
     id: str
+
+class ServerCreateEventPayload(BasePayload):
+    id: str
+    server: Server
+    channels: list[Channel]
 
 class ServerMemberUpdateEventPayloadData(TypedDict, total=False):
     nickname: str

@@ -15,6 +15,7 @@ from .types import Message as MessagePayload
 from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerDeleteEventPayload, ServerMemberJoinEventPayload,
                     ServerMemberLeaveEventPayload,
+                    ServerCreateEventPayload,
                     ServerMemberUpdateEventPayload,
                     ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
@@ -46,7 +47,7 @@ __all__ = ("WebsocketHandler",)
 logger = logging.getLogger("revolt")
 
 class WebsocketHandler:
-    __slots__ = ("session", "token", "ws_url", "dispatch", "state", "websocket", "loop", "user", "ready")
+    __slots__ = ("session", "token", "ws_url", "dispatch", "state", "websocket", "loop", "user", "ready", "server_events")
 
     def __init__(self, session: aiohttp.ClientSession, token: str, ws_url: str, dispatch: Callable[..., None], state: State):
         self.session = session
@@ -58,6 +59,11 @@ class WebsocketHandler:
         self.loop = asyncio.get_running_loop()
         self.user = None
         self.ready = asyncio.Event()
+        self.server_events: dict[str, asyncio.Event] = {}
+
+    async def _wait_for_server_ready(self, server_id: str):
+        if event := self.server_events.get(server_id):
+            await event.wait()
 
     async def send_payload(self, payload: BasePayload):
         if use_msgpack:
@@ -120,6 +126,10 @@ class WebsocketHandler:
 
     async def handle_message(self, payload: MessageEventPayload):
         message = self.state.add_message(cast(MessagePayload, payload))
+
+        if server := message.server:
+            await self._wait_for_server_ready(server.id)
+
         self.dispatch("message", message)
 
     async def handle_messageupdate(self, payload: MessageUpdateEventPayload):
@@ -140,6 +150,9 @@ class WebsocketHandler:
 
         message._update(**kwargs)
 
+        if server := message.server:
+            await self._wait_for_server_ready(server.id)
+
         self.dispatch("message_update", message)
 
     async def handle_messagedelete(self, payload: MessageDeleteEventPayload):
@@ -151,10 +164,17 @@ class WebsocketHandler:
             return
 
         self.state.messages.remove(message)
+
+        if server := message.server:
+            await self._wait_for_server_ready(server.id)
+
         self.dispatch("message_delete", message)
 
     async def handle_channelcreate(self, payload: ChannelCreateEventPayload):
         channel = self.state.add_channel(payload)
+
+        if server := channel.server:
+            await self._wait_for_server_ready(server.id)
 
         self.dispatch("channel_create", channel)
 
@@ -174,10 +194,16 @@ class WebsocketHandler:
                 if isinstance(channel, (TextChannel, VoiceChannel, GroupDMChannel)):
                     channel.description = None
 
+        if server := channel.server:
+            await self._wait_for_server_ready(server.id)
+
         self.dispatch("channel_update", old_channel, channel)
 
     async def handle_channeldelete(self, payload: ChannelDeleteEventPayload):
         channel = self.state.channels.pop(payload["id"])
+
+        if server := channel.server:
+            await self._wait_for_server_ready(server.id)
 
         self.dispatch("channel_delete", channel)
 
@@ -185,11 +211,17 @@ class WebsocketHandler:
         channel = self.state.get_channel(payload["id"])
         user = self.state.get_user(payload["user"])
 
+        if server := channel.server:
+            await self._wait_for_server_ready(server.id)
+
         self.dispatch("typing_start", channel, user)
 
     async def handle_channelstoptyping(self, payload: ChannelDeleteTypingEventPayload):
         channel = self.state.get_channel(payload["id"])
         user = self.state.get_user(payload["user"])
+
+        if server := channel.server:
+            await self._wait_for_server_ready(server.id)
 
         self.dispatch("typing_stop", channel, user)
 
@@ -210,6 +242,8 @@ class WebsocketHandler:
             elif clear == "Description":
                 server.description = None
 
+        await self._wait_for_server_ready(server.id)
+
         self.dispatch("server_update", old_server, server)
 
     async def handle_serverdelete(self, payload: ServerDeleteEventPayload):
@@ -218,9 +252,26 @@ class WebsocketHandler:
         for channel in server.channels:
             del self.state.channels[channel.id]
 
+        await self._wait_for_server_ready(server.id)
+
         self.dispatch("server_delete", server)
 
+    async def handle_servercreate(self, payload: ServerCreateEventPayload):
+        for channel in payload["channels"]:
+            self.state.add_channel(channel)
+
+        server = self.state.add_server(payload["server"])
+
+        # lock all server events until we fetch all the members, otherwise the cache will be incomplete
+        self.server_events[server.id] = asyncio.Event()
+        await self.state.fetch_server_members(server.id)
+        self.server_events.pop(server.id).set()
+
+        self.dispatch("server_create", server)
+
     async def handle_servermemberupdate(self, payload: ServerMemberUpdateEventPayload):
+        await self._wait_for_server_ready(payload["id"]["server"])
+
         member = self.state.get_member(payload["id"]["server"], payload["id"]["user"])
         old_member = copy(member)
 
@@ -239,8 +290,15 @@ class WebsocketHandler:
         self.dispatch("member_join", member)
 
     async def handle_memberleave(self, payload: ServerMemberLeaveEventPayload):
+        await self._wait_for_server_ready(payload["id"])
+
         server = self.state.get_server(payload["id"])
         member = server._members.pop(payload["user"])
+
+        # remove the member from the user
+
+        user = self.state.get_user(payload["user"])
+        user._members.remove(member)
 
         self.dispatch("member_leave", member)
 
@@ -255,11 +313,15 @@ class WebsocketHandler:
 
         role._update(**payload["data"])
 
+        await self._wait_for_server_ready(server.id)
+
         self.dispatch("role_update", old_role, role)
 
     async def handle_serverroledelete(self, payload: ServerRoleDeleteEventPayload):
         server = self.state.get_server(payload["id"])
         role = server._roles.pop(payload["role_id"])
+
+        await self._wait_for_server_ready(server.id)
 
         self.dispatch("role_delete", role)
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, Literal, NamedTuple, Optional, Union
 
 from .asset import Asset, PartialAsset
 from .channel import DMChannel
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .types import File
     from .types import Status as StatusPayload
     from .types import User as UserPayload
-
+    from .member import Member
 
 __all__ = ("User", "Status", "Relation", "UserProfile")
 
@@ -59,10 +59,11 @@ class User(Messageable):
         The dm channel between the client and the user, this will only be set if the client has dm'ed the user or :meth:`User.open_dm` was run
     """
     __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile", "dm_channel")
-    __slots__ = (*__flattern_attributes__, "state")
+    __slots__ = (*__flattern_attributes__, "state", "_members")
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
+        self._members: list[Member] = []  # we store all member versions of this user to avoid having to check every guild when needing to update.
         self.id = data["_id"]
         self.original_name = data["username"]
         self.dm_channel = None
@@ -152,6 +153,11 @@ class User(Messageable):
 
         if online:
             self.online = online
+
+        # update user infomation for all members
+
+        for member in self._members:
+            User._update(member, status=status, profile_content=profile_content, profile_background=profile_background, avatar=avatar, online=online)
 
     async def default_avatar(self) -> bytes:
         """Returns the default avatar for this user

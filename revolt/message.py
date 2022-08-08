@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .types import Masquerade as MasqueradePayload
     from .types import Message as MessagePayload
     from .types import MessageReplyPayload
-
+    from .server import Server
 
 __all__ = (
     "Message",
@@ -36,8 +36,6 @@ class Message:
         The embeds of the message
     channel: :class:`Messageable`
         The channel the message was sent in
-    server: :class:`Server`
-        The server the message was sent in
     author: Union[:class:`Member`, :class:`User`]
         The author of the message, will be :class:`User` in DMs
     edited_at: Optional[:class:`datetime.datetime`]
@@ -49,7 +47,7 @@ class Message:
     reply_ids: list[:class:`str`]
         The message's ids this message has replies to
     """
-    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "server", "author", "edited_at", "mentions", "replies", "reply_ids")
+    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "author", "edited_at", "mentions", "replies", "reply_ids")
 
     def __init__(self, data: MessagePayload, state: State):
         self.state = state
@@ -63,10 +61,8 @@ class Message:
         assert isinstance(channel, Messageable)
         self.channel = channel
 
-        self.server = self.channel and self.channel.server
-
-        if self.server:
-            author = state.get_member(self.server.id, data["author"])
+        if server_id := self.channel.server_id:
+            author = state.get_member(server_id, data["author"])
         else:
             author = state.get_user(data["author"])
 
@@ -134,6 +130,11 @@ class Message:
 
         """
         return self.channel.send(*args, **kwargs, replies=[MessageReply(self, mention)])
+
+    @property
+    def server(self) -> Server:
+        """:class:`Server` The server this voice channel belongs too"""
+        return self.channel.server
 
 class MessageReply(NamedTuple):
     """A namedtuple which represents a reply to a message.

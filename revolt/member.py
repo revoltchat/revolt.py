@@ -35,10 +35,13 @@ class Member(User):
 
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
+
+        # due to not having a user payload and only a user object we have to manually add all the attributes instead of calling User.__init__
+
         flattern_user(self, user)
+        user._members.append(self)
 
         self._state = state
-        self.nickname = data.get("nickname")
 
         if avatar := data.get("avatar"):
             self.guild_avatar = Asset(avatar, state)
@@ -49,6 +52,7 @@ class Member(User):
         self.roles = sorted(roles, key=lambda role: role.rank, reverse=True)
 
         self.server = server
+        self.nickname = data.get("nickname")
 
     @property
     def avatar(self) -> Optional[Asset]:
