@@ -10,7 +10,7 @@ class Client(revolt.Client):
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        client = Client(session, "BOT TOKEN HERE")
+        client = Client(session, "BOT TOKEN HERE", bot=True)
         await client.start()
 
 asyncio.run(main())
