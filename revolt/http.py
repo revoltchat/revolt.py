@@ -137,6 +137,9 @@ class HttpClient:
         if masquerade:
             json["masquerade"] = masquerade
 
+        if interactions:
+            json["interactions"] = interactions
+
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
 
     def edit_message(self, channel: str, message: str, content: Optional[str], embeds: Optional[list[SendableEmbedPayload]] = None) -> Request[None]:
