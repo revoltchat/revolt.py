@@ -32,13 +32,12 @@ class Member(User):
         The member's guild avatar if any
     """
     __slots__ = ("state", "nickname", "roles", "server", "guild_avatar")
-    _members = []
 
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
 
         # due to not having a user payload and only a user object we have to manually add all the attributes instead of calling User.__init__
-
+        self._members = []
         flattern_user(self, user)
         user._members.append(self)
 
