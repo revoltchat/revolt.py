@@ -380,10 +380,9 @@ class WebsocketHandler:
 
         user = self.state.get_user(payload["user_id"])
         message.reactions.setdefault(payload["emoji_id"], []).append(user)
-        channel = self.state.get_channel(payload["channel_id"])
         emoji_id = payload["emoji_id"]
 
-        self.dispatch("reaction_add", channel, message, user, emoji_id)
+        self.dispatch("reaction_add", message, user, emoji_id)
 
     async def handle_messageunreact(self, payload: MessageUnreactEventPayload):
         self.dispatch("raw_reaction_remove", payload["channel_id"], payload["id"], payload["user_id"], payload["emoji_id"])
@@ -395,9 +394,8 @@ class WebsocketHandler:
 
         user = self.state.get_user(payload["user_id"])
         message.reactions[payload["emoji_id"]].remove(user)
-        channel = self.state.get_channel(payload["channel_id"])
 
-        self.dispatch("reaction_remove", channel, message, user, payload["emoji_id"])
+        self.dispatch("reaction_remove", message, user, payload["emoji_id"])
 
     async def handle_messageremovereaction(self, payload: MessageRemoveReactionEventPayload):
         self.dispatch("raw_reaction_clear", payload["channel_id"], payload["id"], payload["emoji_id"])
@@ -408,9 +406,8 @@ class WebsocketHandler:
             return
 
         users = message.reactions.pop(payload["emoji_id"])
-        channel = self.state.get_channel(payload["channel_id"])
 
-        self.dispatch("reaction_clear", channel, message, users, payload["emoji_id"])
+        self.dispatch("reaction_clear", message, users, payload["emoji_id"])
 
     async def start(self):
         if use_msgpack:
