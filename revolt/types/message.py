@@ -19,7 +19,6 @@ __all__ = (
     "ChannelRenameContent",
     "ChannelDescriptionChangeContent",
     "ChannelIconChangeContent",
-    "MessageEdited",
     "Masquerade",
     "Interactions",
     "Message",
