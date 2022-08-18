@@ -271,7 +271,7 @@ class WebsocketHandler:
         await self.state.fetch_server_members(server.id)
         self.server_events.pop(server.id).set()
 
-        self.dispatch("server_create", server)
+        self.dispatch("server_join", server)
 
     async def handle_servermemberupdate(self, payload: ServerMemberUpdateEventPayload):
         await self._wait_for_server_ready(payload["id"]["server"])
