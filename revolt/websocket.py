@@ -19,8 +19,9 @@ from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerMemberUpdateEventPayload,
                     ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
-                    UserUpdateEventPayload)
+                    UserUpdateEventPayload, MessageReactEventPayload, MessageUnreactEventPayload, MessageRemoveReactionEventPayload)
 from .user import Status, UserProfile
+from . import utils
 
 try:
     import ujson as json
@@ -118,6 +119,9 @@ class WebsocketHandler:
 
         for member in payload["members"]:
             self.state.add_member(member["_id"]["server"], member)
+
+        for emoji in payload["emojis"]:
+            emoji = self.state.add_emoji(emoji)
 
         await self.state.fetch_all_server_members()
 
@@ -287,6 +291,10 @@ class WebsocketHandler:
 
     async def handle_servermemberjoin(self, payload: ServerMemberJoinEventPayload):
         member = self.state.add_member(payload["id"], {"_id": {"server": payload["id"], "user": payload["user"]}})
+
+        user = await self.state.http.fetch_user(member.id)
+        self.state.add_user(user)
+
         self.dispatch("member_join", member)
 
     async def handle_memberleave(self, payload: ServerMemberLeaveEventPayload):
@@ -361,6 +369,48 @@ class WebsocketHandler:
         user.relationship = RelationshipType(payload["status"])
 
         self.dispatch("user_relationship_update", user, old_relationship, user.relationship)
+
+    async def handle_messagereact(self, payload: MessageReactEventPayload):
+        self.dispatch("raw_reaction_add", payload["channel_id"], payload["id"], payload["user_id"], payload["emoji_id"])
+
+        try:
+            message = utils.get(self.state.messages, id=payload["id"])
+        except LookupError:
+            return
+
+        user = self.state.get_user(payload["user_id"])
+        message.reactions.setdefault(payload["emoji_id"], []).append(user)
+        channel = self.state.get_channel(payload["channel_id"])
+        emoji_id = payload["emoji_id"]
+
+        self.dispatch("reaction_add", channel, message, user, emoji_id)
+
+    async def handle_messageunreact(self, payload: MessageUnreactEventPayload):
+        self.dispatch("raw_reaction_remove", payload["channel_id"], payload["id"], payload["user_id"], payload["emoji_id"])
+
+        try:
+            message = utils.get(self.state.messages, id=payload["id"])
+        except LookupError:
+            return
+
+        user = self.state.get_user(payload["user_id"])
+        message.reactions[payload["emoji_id"]].remove(user)
+        channel = self.state.get_channel(payload["channel_id"])
+
+        self.dispatch("reaction_remove", channel, message, user, payload["emoji_id"])
+
+    async def handle_messageremovereaction(self, payload: MessageRemoveReactionEventPayload):
+        self.dispatch("raw_reaction_clear", payload["channel_id"], payload["id"], payload["emoji_id"])
+
+        try:
+            message = utils.get(self.state.messages, id=payload["id"])
+        except LookupError:
+            return
+
+        users = message.reactions.pop(payload["emoji_id"])
+        channel = self.state.get_channel(payload["channel_id"])
+
+        self.dispatch("reaction_clear", channel, message, users, payload["emoji_id"])
 
     async def start(self):
         if use_msgpack:

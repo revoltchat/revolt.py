@@ -25,7 +25,8 @@ if TYPE_CHECKING:
     from .server import Server
     from .types import ApiInfo
     from .user import User
-
+    from .emoji import Emoji
+    from .file import File
 
 __all__ = ("Client",)
 
@@ -190,6 +191,10 @@ class Client:
         """list[:class:'Server'] All servers the client can see"""
         return list(self.state.servers.values())
 
+    @property
+    def global_emojis(self) -> list[Emoji]:
+        return self.state.global_emojis
+
     async def fetch_user(self, user_id: str) -> User:
         """Fetchs a user
 
@@ -349,3 +354,35 @@ class Client:
             remove = None
 
         await self.state.http.edit_self(remove, {"profile": kwargs})
+
+    async def fetch_emoji(self, emoji_id: str) -> Emoji:
+        """Fetches an emoji
+
+        Parameters
+        -----------
+        emoji_id: str
+            The id of the emoji
+
+        Returns
+        --------
+        :class:`Emoji`
+            The emoji with the corrasponding id
+        """
+
+        return await self.state.http.fetch_emoji(emoji_id)
+
+    async def create_emoji(self, name: str, file: File, *, nsfw: bool = False):
+        """Creates an emoji
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name for the emoji
+        file: :class:`File`
+            The image for the emoji
+        nsfw: :class:`bool`
+            Whether or not the emoji is nsfw
+        """
+        payload = await self.http.create_emoji(name, file, nsfw, {"type": "Detached"})
+
+        return self.state.add_emoji(payload)

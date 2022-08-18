@@ -21,20 +21,20 @@ if TYPE_CHECKING:
 
     from .enums import SortType
     from .file import File
-    from .types import ApiInfo
+    from .types import (MessageReplyPayload, MessageWithUserData,
+                        PartialInvite, Role, EmojiParent, Member, ApiInfo)
     from .types import Autumn as AutumnPayload
     from .types import Channel, DMChannel
     from .types import Embed as EmbedPayload
     from .types import GetServerMembers, GroupDMChannel, Invite
     from .types import Masquerade as MasqueradePayload
-    from .types import Member
     from .types import Message as MessagePayload
-    from .types import (MessageReplyPayload, MessageWithUserData,
-                        PartialInvite, Role)
     from .types import SendableEmbed as SendableEmbedPayload
     from .types import Server, ServerBans, TextChannel
     from .types import User as UserPayload
     from .types import UserProfile, VoiceChannel
+    from .types import Interactions as InteractionsPayload
+    from .types import Emoji as EmojiPayload
 
 __all__ = ("HttpClient",)
 
@@ -91,7 +91,7 @@ class HttpClient:
         else:
             raise HTTPError(resp_code)
 
-    async def upload_file(self, file: File, tag: str) -> AutumnPayload:
+    async def upload_file(self, file: File, tag: Literal["attachments", "avatars", "backgrounds", "icons", "banners", "emojis"]) -> AutumnPayload:
         url = f"{self.api_info['features']['autumn']['url']}/{tag}"
 
         headers = {
@@ -113,7 +113,7 @@ class HttpClient:
         else:
             return response
 
-    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[SendableEmbedPayload]], attachments: Optional[list[File]], replies: Optional[list[MessageReplyPayload]], masquerade: Optional[MasqueradePayload]) -> MessagePayload:
+    async def send_message(self, channel: str, content: Optional[str], embeds: Optional[list[SendableEmbedPayload]], attachments: Optional[list[File]], replies: Optional[list[MessageReplyPayload]], masquerade: Optional[MasqueradePayload], interactions: Optional[InteractionsPayload]) -> MessagePayload:
         json: dict[str, Any] = {}
 
         if content:
@@ -400,3 +400,23 @@ class HttpClient:
 
     def set_server_default_permissions(self, server_id: str, value: int):
         return self.request("PUT", f"/server/{server_id}/permissions/default", json={"permissions": value})
+
+    def add_reaction(self, channel_id: str, message_id: str, emoji: str):
+        return self.request("PUT", f"/channel/{channel_id}/message/{message_id}/reactions/{emoji}")
+
+    def remove_reaction(self, channel_id: str, message_id: str, emoji: str, user_id: Optional[str], remove_all: bool):
+        return self.request("PUT", f"/channel/{channel_id}/message/{message_id}/reactions/{emoji}")
+
+    def remove_all_reactions(self, channel_id: str, message_id: str):
+        return self.request("DELETE", f"/channel/{channel_id}/message/{message_id}/reactions")
+
+    def delete_emoji(self, emoji_id: str):
+        return self.request("DELETE", f"/custom/emoji/{emoji_id}")
+
+    def fetch_emoji(self, emoji_id: str):
+        return self.request("GET", f"/custom/emoji/{emoji_id}")
+
+    async def create_emoji(self, name: str, file: File, nsfw: bool, parent: EmojiParent) -> EmojiPayload:
+        asset = await self.upload_file(file, "emojis")
+
+        return await self.request("PUT", f"/custom/emoji/{asset['id']}", json={"name": name, "parent": parent, "nsfw": nsfw})

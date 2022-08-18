@@ -8,6 +8,7 @@ from .member import Member
 from .message import Message
 from .server import Server
 from .user import User
+from .emoji import Emoji
 
 if TYPE_CHECKING:
     from .http import HttpClient
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
     from .types import Message as MessagePayload
     from .types import Server as ServerPayload
     from .types import User as UserPayload
-
+    from .types import Emoji as EmojiPayload
 
 __all__ = ("State",)
 
@@ -33,6 +34,7 @@ class State:
         self.channels: dict[str, Channel] = {}
         self.servers: dict[str, Server] = {}
         self.messages: deque[Message] = deque()
+        self.global_emojis: list[Emoji]
 
     def get_user(self, id: str) -> User:
         try:
@@ -85,6 +87,17 @@ class State:
 
         self.messages.appendleft(message)
         return message
+
+    def add_emoji(self, payload: EmojiPayload) -> Emoji:
+        emoji = Emoji(payload, self)
+
+        if server_id := emoji.server_id:
+            server = self.get_server(server_id)
+            server._emojis[emoji.id] = emoji
+        else:
+            self.global_emojis.append(emoji)
+
+        return emoji
 
     def get_message(self, message_id: str) -> Message:
         for msg in self.messages:

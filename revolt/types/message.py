@@ -10,9 +10,20 @@ if TYPE_CHECKING:
 
 
 __all__ = (
+    "UserAddContent",
+    "UserRemoveContent",
+    "UserJoinedContent",
+    "UserLeftContent",
+    "UserKickedContent",
+    "UserBannedContent",
+    "ChannelRenameContent",
+    "ChannelDescriptionChangeContent",
+    "ChannelIconChangeContent",
+    "MessageEdited",
+    "Masquerade",
+    "Interactions",
     "Message",
     "MessageReplyPayload",
-    "Masquerade"
     )
 
 class UserAddContent(TypedDict):
@@ -53,6 +64,10 @@ class Masquerade(TypedDict, total=False):
     avatar: str
     colour: str
 
+class Interactions(TypedDict):
+    reactions: NotRequired[list[str]]
+    restrict_reactions: NotRequired[bool]
+
 class Message(TypedDict):
     _id: str
     channel: str
@@ -64,6 +79,8 @@ class Message(TypedDict):
     replies: NotRequired[list[str]]
     edited: NotRequired[MessageEdited]
     masquerade: NotRequired[Masquerade]
+    interactions: NotRequired[Interactions]
+    reactions: dict[str, list[str]]
 
 class MessageReplyPayload(TypedDict):
     id: str

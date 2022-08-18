@@ -7,7 +7,7 @@ from .enums import SortType
 if TYPE_CHECKING:
     from .embed import Embed, SendableEmbed
     from .file import File
-    from .message import Masquerade, Message, MessageReply
+    from .message import Masquerade, Message, MessageReply, MessageInteractions
     from .state import State
 
 
@@ -28,7 +28,7 @@ class Messageable:
     async def _get_channel_id(self) -> str:
         raise NotImplementedError
 
-    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[SendableEmbed]] = None, embed: Optional[SendableEmbed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None, masquerade: Optional[Masquerade] = None) -> Message:
+    async def send(self, content: Optional[str] = None, *, embeds: Optional[list[SendableEmbed]] = None, embed: Optional[SendableEmbed] = None, attachments: Optional[list[File]] = None, replies: Optional[list[MessageReply]] = None, reply: Optional[MessageReply] = None, masquerade: Optional[Masquerade] = None, interactions: Optional[MessageInteractions] = None) -> Message:
         """Sends a message in a channel, you must send at least one of either `content`, `embeds` or `attachments`
 
         Parameters
@@ -43,6 +43,10 @@ class Messageable:
             The embeds to send with the message
         replies: Optional[list[:class:`MessageReply`]]
             The list of messages to reply to.
+        masquerade: Optional[:class:`Masquerade`]
+            The masquerade for the message, this can overwrite the username and avatar shown
+        interactions: Optional[:class:`MessageInteractions`]
+            The interactions for the message
 
         Returns
         --------
@@ -58,8 +62,9 @@ class Messageable:
         embed_payload = [embed.to_dict() for embed in embeds] if embeds else None
         reply_payload = [reply.to_dict() for reply in replies] if replies else None
         masquerade_payload = masquerade.to_dict() if masquerade else None
+        interactions_payload = interactions.to_dict() if interactions else None
 
-        message = await self.state.http.send_message(await self._get_channel_id(), content, embed_payload, attachments, reply_payload, masquerade_payload)
+        message = await self.state.http.send_message(await self._get_channel_id(), content, embed_payload, attachments, reply_payload, masquerade_payload, interactions_payload)
         return self.state.add_message(message)
 
 

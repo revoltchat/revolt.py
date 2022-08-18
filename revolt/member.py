@@ -31,7 +31,8 @@ class Member(User):
     guild_avatar: Optional[:class:`Asset`]
         The member's guild avatar if any
     """
-    __slots__ = ("_state", "nickname", "roles", "server", "guild_avatar")
+    __slots__ = ("state", "nickname", "roles", "server", "guild_avatar")
+    _members = []
 
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
@@ -41,7 +42,7 @@ class Member(User):
         flattern_user(self, user)
         user._members.append(self)
 
-        self._state = state
+        self.state = state
 
         if avatar := data.get("avatar"):
             self.guild_avatar = Asset(avatar, state)

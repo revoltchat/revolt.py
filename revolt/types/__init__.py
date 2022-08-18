@@ -11,3 +11,4 @@ from .permissions import Overwrite
 from .role import *
 from .server import *
 from .user import *
+from .emoji import *

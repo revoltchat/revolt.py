@@ -18,7 +18,8 @@ if TYPE_CHECKING:
     from .types import File as FilePayload
     from .types import Server as ServerPayload
     from .types import SystemMessagesConfig
-
+    from .emoji import Emoji
+    from .file import File
 
 __all__ = ("Server", "SystemMessages", "ServerBan")
 
@@ -90,7 +91,7 @@ class Server:
     default_permissions: :class:`Permissions`
         The permissions for the default role
     """
-    __slots__ = ("state", "id", "name", "owner_id", "default_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "_categories")
+    __slots__ = ("state", "id", "name", "owner_id", "default_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "_categories", "_emojis")
 
     def __init__(self, data: ServerPayload, state: State):
         self.state = state
@@ -117,6 +118,7 @@ class Server:
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, self, state) for role_id, role in data.get("roles", {}).items()}
 
         self._channels: dict[str, Channel] = {channel_id: state.get_channel(channel_id) for channel_id in data.get("channels", [])}
+        self._emojis: dict[str, Emoji] = {}
 
     def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[int] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None, channels: Optional[list[str]] = None):
         if owner:
@@ -159,6 +161,11 @@ class Server:
     def categories(self) -> list[Category]:
         """list[:class:`Category`] Gets all categories in the server"""
         return list(self._categories.values())
+
+    @property
+    def emojis(self) -> list[Emoji]:
+        """list[:class:`Emoji`] Gets all emojis in the server"""
+        return list(self._emojis.values())
 
     def get_role(self, role_id: str) -> Role:
         """Gets a role from the cache
@@ -226,6 +233,24 @@ class Server:
         """
         try:
             return self._categories[category_id]
+        except KeyError as e:
+            raise LookupError from e
+
+    def get_emoji(self, emoji_id: str) -> Emoji:
+        """Gets a emoji from the cache
+
+        Parameters
+        -----------
+        id: :class:`str`
+            The id of the emoji
+
+        Returns
+        --------
+        :class:`Emoji`
+            The emoji
+        """
+        try:
+            return self._emojis[emoji_id]
         except KeyError as e:
             raise LookupError from e
 
@@ -354,6 +379,23 @@ class Server:
         payload = await self.state.http.create_role(self.id, name)
 
         return Role(payload, name, self, self.state)
+
+    async def create_emoji(self, name: str, file: File, *, nsfw: bool = False):
+        """Creates an emoji
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name for the emoji
+        file: :class:`File`
+            The image for the emoji
+        nsfw: :class:`bool`
+            Whether or not the emoji is nsfw
+        """
+        payload = await self.state.http.create_emoji(name, file, nsfw, {"type": "Server", "id": self.id})
+
+        return self.state.add_emoji(payload)
+
 
 class ServerBan:
     """Represents a server ban

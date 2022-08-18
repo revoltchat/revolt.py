@@ -208,6 +208,16 @@ Invite
 .. autoclass:: Invite
     :members:
 
+Emoji
+~~~~~~
+.. autoclass:: Emoji
+    :members:
+
+MessageInteractions
+~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: MessageInteractions
+    :members:
+
 Enums
 ======
 

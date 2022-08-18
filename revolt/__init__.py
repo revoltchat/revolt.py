@@ -4,6 +4,7 @@ from .category import *
 from .channel import *
 from .client import *
 from .embed import *
+from .emoji import *
 from .enums import *
 from .errors import *
 from .file import *

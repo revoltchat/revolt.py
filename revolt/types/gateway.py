@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from .member import Member, MemberID
     from .server import Server, SystemMessagesConfig
     from .user import User
+    from .emoji import Emoji
 
 __all__ = (
     "BasePayload",
@@ -39,7 +40,10 @@ __all__ = (
     "ServerRoleDeleteEventPayload",
     "UserUpdateEventPayload",
     "UserRelationshipEventPayload",
-    "ServerCreateEventPayload"
+    "ServerCreateEventPayload",
+    "MessageReactEventPayload",
+    "MessageUnreactEventPayload",
+    "MessageRemoveReactionEventPayload"
 )
 
 class BasePayload(TypedDict):
@@ -53,6 +57,7 @@ class ReadyEventPayload(BasePayload):
     servers: list[Server]
     channels: list[Channel]
     members: list[Member]
+    emojis: list[Emoji]
 
 class MessageEventPayload(BasePayload, Message):
     pass
@@ -186,3 +191,16 @@ class UserRelationshipEventPayload(BasePayload):
     id: str
     user: str
     status: Status
+
+class MessageReactEventPayload(BasePayload):
+    id: str
+    channel_id: str
+    user_id: str
+    emoji_id: str
+
+MessageUnreactEventPayload = MessageReactEventPayload
+
+class MessageRemoveReactionEventPayload(BasePayload):
+    id: str
+    channel_id: str
+    emoji_id: str
