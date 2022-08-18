@@ -164,7 +164,7 @@ class WebsocketHandler:
 
         try:
             message = self.state.get_message(payload["id"])
-        except KeyError:
+        except LookupError:
             return
 
         self.state.messages.remove(message)

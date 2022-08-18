@@ -81,6 +81,8 @@ class Messageable:
         :class:`Message`
             The message with the matching id
         """
+        from .message import Message
+
         payload = await self.state.http.fetch_message(await self._get_channel_id(), message_id)
         return Message(payload, self.state)
 
@@ -105,6 +107,8 @@ class Messageable:
         list[:class:`Message`]
             The messages found in order of the sort parameter
         """
+        from .message import Message
+
         payloads = await self.state.http.fetch_messages(await self._get_channel_id(), sort=sort, limit=limit, before=before, after=after, nearby=nearby)
         return [Message(payload, self.state) for payload in payloads]
 
@@ -129,5 +133,7 @@ class Messageable:
         list[:class:`Message`]
             The messages found in order of the sort parameter
         """
+        from .message import Message
+
         payloads = await self.state.http.search_messages(await self._get_channel_id(), query, sort=sort, limit=limit, before=before, after=after)
         return [Message(payload, self.state) for payload in payloads]

@@ -83,7 +83,7 @@ class Message:
                 self.author.masquerade_avatar = PartialAsset(avatar, state)
 
         if edited_at := data.get("edited"):
-            self.edited_at: Optional[datetime.datetime] = datetime.datetime.strptime(edited_at["$date"], "%Y-%m-%dT%H:%M:%S.%f%z")
+            self.edited_at: Optional[datetime.datetime] = datetime.datetime.strptime(edited_at, "%Y-%m-%dT%H:%M:%S.%f%z")
 
         if self.server:
             self.mentions = [self.server.get_member(member_id) for member_id in data.get("mentions", [])]
@@ -106,7 +106,7 @@ class Message:
 
         self.reactions: dict[str, list[User]] = {}
 
-        for emoji, users in reactions:
+        for emoji, users in reactions.items():
             self.reactions[emoji] = [self.state.get_user(user_id) for user_id in users]
 
         if interactions := data.get("interactions"):

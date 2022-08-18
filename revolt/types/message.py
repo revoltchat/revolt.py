@@ -57,8 +57,6 @@ class ChannelDescriptionChangeContent(TypedDict):
 class ChannelIconChangeContent(TypedDict):
     by: str
 
-MessageEdited = TypedDict("MessageEdited", {"$date": str})
-
 class Masquerade(TypedDict, total=False):
     name: str
     avatar: str
@@ -77,7 +75,7 @@ class Message(TypedDict):
     embeds: NotRequired[list[Embed]]
     mentions: NotRequired[list[str]]
     replies: NotRequired[list[str]]
-    edited: NotRequired[MessageEdited]
+    edited: NotRequired[str]
     masquerade: NotRequired[Masquerade]
     interactions: NotRequired[Interactions]
     reactions: dict[str, list[str]]
