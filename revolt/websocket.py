@@ -129,17 +129,24 @@ class WebsocketHandler:
         self.dispatch("ready")
 
     async def handle_message(self, payload: MessageEventPayload):
+        if server := self.state.get_channel(payload["channel"]).server_id:
+            await self._wait_for_server_ready(server)
+
         message = self.state.add_message(cast(MessagePayload, payload))
 
-        if server := message.server:
-            await self._wait_for_server_ready(server.id)
 
         self.dispatch("message", message)
 
     async def handle_messageupdate(self, payload: MessageUpdateEventPayload):
         self.dispatch("raw_message_update", payload)
 
-        message = self.state.get_message(payload["id"])
+        try:
+            message = self.state.get_message(payload["id"])
+        except LookupError:
+            return
+
+        if server := message.server:
+            await self._wait_for_server_ready(server.id)
 
         data = payload["data"]
         kwargs = {}
@@ -154,9 +161,6 @@ class WebsocketHandler:
 
         message._update(**kwargs)
 
-        if server := message.server:
-            await self._wait_for_server_ready(server.id)
-
         self.dispatch("message_update", message)
 
     async def handle_messagedelete(self, payload: MessageDeleteEventPayload):
@@ -167,10 +171,11 @@ class WebsocketHandler:
         except LookupError:
             return
 
-        self.state.messages.remove(message)
-
         if server := message.server:
             await self._wait_for_server_ready(server.id)
+
+        self.state.messages.remove(message)
+
 
         self.dispatch("message_delete", message)
 
@@ -185,6 +190,9 @@ class WebsocketHandler:
     async def handle_channelupdate(self, payload: ChannelUpdateEventPayload):
         channel = self.state.get_channel(payload["id"])
 
+        if server := channel.server:
+            await self._wait_for_server_ready(server.id)
+
         old_channel = copy(channel)
 
         channel._update(**payload["data"])
@@ -198,8 +206,6 @@ class WebsocketHandler:
                 if isinstance(channel, (TextChannel, VoiceChannel, GroupDMChannel)):
                     channel.description = None
 
-        if server := channel.server:
-            await self._wait_for_server_ready(server.id)
 
         self.dispatch("channel_update", old_channel, channel)
 
@@ -213,23 +219,27 @@ class WebsocketHandler:
 
     async def handle_channelstarttyping(self, payload: ChannelStartTypingEventPayload):
         channel = self.state.get_channel(payload["id"])
-        user = self.state.get_user(payload["user"])
 
         if server := channel.server:
             await self._wait_for_server_ready(server.id)
+
+        user = self.state.get_user(payload["user"])
 
         self.dispatch("typing_start", channel, user)
 
     async def handle_channelstoptyping(self, payload: ChannelDeleteTypingEventPayload):
         channel = self.state.get_channel(payload["id"])
-        user = self.state.get_user(payload["user"])
 
         if server := channel.server:
             await self._wait_for_server_ready(server.id)
 
+        user = self.state.get_user(payload["user"])
+
         self.dispatch("typing_stop", channel, user)
 
     async def handle_serverupdate(self, payload: ServerUpdateEventPayload):
+        await self._wait_for_server_ready(payload["id"])
+
         server = self.state.get_server(payload["id"])
 
         old_server = copy(server)
@@ -246,7 +256,6 @@ class WebsocketHandler:
             elif clear == "Description":
                 server.description = None
 
-        await self._wait_for_server_ready(server.id)
 
         self.dispatch("server_update", old_server, server)
 
@@ -371,6 +380,9 @@ class WebsocketHandler:
         self.dispatch("user_relationship_update", user, old_relationship, user.relationship)
 
     async def handle_messagereact(self, payload: MessageReactEventPayload):
+        if server := self.state.get_channel(payload["channel_id"]).server_id:
+            await self._wait_for_server_ready(server)
+
         self.dispatch("raw_reaction_add", payload["channel_id"], payload["id"], payload["user_id"], payload["emoji_id"])
 
         try:
@@ -385,6 +397,9 @@ class WebsocketHandler:
         self.dispatch("reaction_add", message, user, emoji_id)
 
     async def handle_messageunreact(self, payload: MessageUnreactEventPayload):
+        if server := self.state.get_channel(payload["channel_id"]).server_id:
+            await self._wait_for_server_ready(server)
+
         self.dispatch("raw_reaction_remove", payload["channel_id"], payload["id"], payload["user_id"], payload["emoji_id"])
 
         try:
@@ -398,6 +413,9 @@ class WebsocketHandler:
         self.dispatch("reaction_remove", message, user, payload["emoji_id"])
 
     async def handle_messageremovereaction(self, payload: MessageRemoveReactionEventPayload):
+        if server := self.state.get_channel(payload["channel_id"]).server_id:
+            await self._wait_for_server_ready(server)
+
         self.dispatch("raw_reaction_clear", payload["channel_id"], payload["id"], payload["emoji_id"])
 
         try:
