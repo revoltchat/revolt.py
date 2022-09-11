@@ -41,7 +41,7 @@ class Role:
         self.state = state
         self.id = role_id
         self.name = data["name"]
-        self.colour = None
+        self.colour = data.get("colour", None)
         self.hoist = False
         self.rank = 0
         self.server = server
