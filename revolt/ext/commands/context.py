@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Optional
 
 import revolt
 from revolt.utils import maybe_coroutine
 
 from .command import Command
 from .group import Group
+from .utils import ClientT
 
 if TYPE_CHECKING:
-    from .client import CommandsClient
     from .view import StringView
-
-ClientT = TypeVar("ClientT", bound="CommandsClient")
 
 __all__ = (
     "Context",
@@ -47,14 +45,14 @@ class Context(revolt.Messageable, Generic[ClientT]):
     async def _get_channel_id(self) -> str:
         return self.channel.id
 
-    def __init__(self, command: Optional[Command], invoked_with: str, view: StringView, message: revolt.Message, client: ClientT):
+    def __init__(self, command: Optional[Command[ClientT]], invoked_with: str, view: StringView, message: revolt.Message, client: ClientT):
         self.command = command
         self.invoked_with = invoked_with
         self.view = view
         self.message = message
         self.client = client
-        self.args = []
-        self.kwargs = {}
+        self.args: list[Any] = []
+        self.kwargs: dict[str, Any] = {}
         self.server = message.server
         self.channel = message.channel
         self.author = message.author
@@ -87,7 +85,7 @@ class Context(revolt.Messageable, Generic[ClientT]):
             await command.parse_arguments(self)
             return await command.invoke(self, *self.args, **self.kwargs)
 
-    async def can_run(self, command: Optional[Command] = None) -> bool:
+    async def can_run(self, command: Optional[Command[ClientT]] = None) -> bool:
         """Runs all of the commands checks, and returns true if all of them pass"""
         command = command or self.command
 

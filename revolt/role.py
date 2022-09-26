@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from .permissions import Permissions, PermissionsOverwrite
+from .permissions import PermissionsOverwrite
 from .utils import Missing
 
 if TYPE_CHECKING:
@@ -80,11 +80,19 @@ class Role:
         """Deletes the role"""
         await self.state.http.delete_role(self.server.id, self.id)
 
-    async def edit(self, **kwargs):
+    async def edit(self, **kwargs: Any):
         """Edits the role
 
         Parameters
         -----------
+        name: str
+            The name of the role
+        colour: str
+            The colour of the role
+        hoist: bool
+            Whether the role should make the member display seperately in the member list
+        rank: int
+            The position of the role
         """
         if kwargs.get("colour", Missing) is None:
             remove = "Colour"

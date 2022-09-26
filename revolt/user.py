@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, NamedTuple, Optional, Union
+from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 
 from .asset import Asset, PartialAsset
 from .channel import DMChannel

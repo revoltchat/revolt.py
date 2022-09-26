@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from .asset import Asset
 from .enums import EmbedType
@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from .state import State
     from .types import Embed as EmbedPayload
     from .types import ImageEmbed as ImageEmbedPayload
-    from .types import NoneEmbed as NoneEmbedPayload
     from .types import SendableEmbed as SendableEmbedPayload
     from .types import TextEmbed as TextEmbedPayload
     from .types import WebsiteEmbed as WebsiteEmbedPayload
@@ -71,7 +70,7 @@ def to_embed(payload: EmbedPayload, state: State) -> Embed:
         return NoneEmbed()
 
 class SendableEmbed:
-    def __init__(self, **attrs):
+    def __init__(self, **attrs: dict[str, Any]):
         self.title: Optional[str] = None
         self.description: Optional[str] = None
         self.media: Optional[str] = None

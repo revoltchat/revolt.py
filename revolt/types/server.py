@@ -6,7 +6,6 @@ from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .category import Category
-    from .channel import Channel
     from .file import File
     from .role import Role
 

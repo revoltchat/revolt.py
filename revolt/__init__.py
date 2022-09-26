@@ -1,4 +1,4 @@
-from . import utils
+from . import utils as utils
 from .asset import *
 from .category import *
 from .channel import *

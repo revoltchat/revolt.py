@@ -98,6 +98,9 @@ class Client:
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
         await self.websocket.start()
 
+    async def stop(self):
+        await self.websocket.websocket.close()
+
     def get_user(self, id: str) -> User:
         """Gets a user from the cache
 
@@ -297,7 +300,7 @@ class Client:
 
         raise LookupError
 
-    async def edit_self(self, **kwargs):
+    async def edit_self(self, **kwargs: Any):
         """Edits the client's own user
 
         Parameters
@@ -313,7 +316,7 @@ class Client:
 
         await self.state.http.edit_self(remove, kwargs)
 
-    async def edit_status(self, **kwargs):
+    async def edit_status(self, **kwargs: Any):
         """Edits the client's own status
 
         Parameters
@@ -334,7 +337,7 @@ class Client:
 
         await self.state.http.edit_self(remove, {"status": kwargs})
 
-    async def edit_profile(self, **kwargs):
+    async def edit_profile(self, **kwargs: Any):
         """Edits the client's own profile
 
         Parameters

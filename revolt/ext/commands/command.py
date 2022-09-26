@@ -3,14 +3,13 @@ from __future__ import annotations
 import inspect
 import traceback
 from contextlib import suppress
-from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
-                    Literal, Optional, Union, cast, get_args, get_origin)
+from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Generic,
+                    Literal, Optional, Union, get_args, get_origin)
 
-import revolt
 from revolt.utils import copy_doc, maybe_coroutine
 
 from .errors import InvalidLiteralArgument, UnionConverterError
-from .utils import evaluate_parameters
+from .utils import evaluate_parameters, ClientT
 
 if TYPE_CHECKING:
     from .checks import Check
@@ -26,7 +25,7 @@ __all__ = (
 NoneType = type(None)
 
 
-class Command:
+class Command(Generic[ClientT]):
     """Class for holding info about a command.
 
     Parameters
@@ -53,13 +52,13 @@ class Command:
         self.usage = usage
         self.signature = inspect.signature(self.callback)
         self.parameters = evaluate_parameters(self.signature.parameters.values(), getattr(callback, "__globals__", {}))
-        self.checks: list[Check] = getattr(callback, "_checks", [])
-        self.parent: Optional[Group] = None
-        self.cog: Optional[Cog] = None
-        self._error_handler: Callable[[Any, Context, Exception], Coroutine[Any, Any, Any]] = type(self)._default_error_handler
+        self.checks: list[Check[ClientT]] = getattr(callback, "_checks", [])
+        self.parent: Optional[Group[ClientT]] = None
+        self.cog: Optional[Cog[ClientT]] = None
+        self._error_handler: Callable[[Any, Context[ClientT], Exception], Coroutine[Any, Any, Any]] = type(self)._default_error_handler
         self.description = callback.__doc__
 
-    async def invoke(self, context: Context, *args, **kwargs) -> Any:
+    async def invoke(self, context: Context[ClientT], *args: Any, **kwargs: Any) -> Any:
         """Runs the command and calls the error handler if the command errors.
 
         Parameters
@@ -75,7 +74,7 @@ class Command:
             return await self._error_handler(self.cog or context.client, context, err)
 
     @copy_doc(invoke)
-    def __call__(self, context: Context, *args, **kwargs) -> Any:
+    def __call__(self, context: Context[ClientT], *args: Any, **kwargs: Any) -> Any:
         return self.invoke(context, *args, **kwargs)
 
     def error(self, func: Callable[..., Coroutine[Any, Any, Any]]):
@@ -98,11 +97,11 @@ class Command:
         self._error_handler = func
         return func
 
-    async def _default_error_handler(self, ctx: Context, error: Exception):
+    async def _default_error_handler(self, ctx: Context[ClientT], error: Exception):
         traceback.print_exception(type(error), error, error.__traceback__)
 
     @classmethod
-    async def handle_origin(cls, context: Context, origin: Any, annotation: Any, arg: str) -> Any:
+    async def handle_origin(cls, context: Context[ClientT], origin: Any, annotation: Any, arg: str) -> Any:
         if origin is Union:
             for converter in get_args(annotation):
                 try:
@@ -129,7 +128,7 @@ class Command:
                 raise InvalidLiteralArgument(arg)
 
     @classmethod
-    async def convert_argument(cls, arg: str, annotation: Any, context: Context) -> Any:
+    async def convert_argument(cls, arg: str, annotation: Any, context: Context[ClientT]) -> Any:
         if annotation is not inspect.Signature.empty:
             if annotation is str:  # no converting is needed - its already a string
                 return arg
@@ -141,7 +140,7 @@ class Command:
         else:
             return arg
 
-    async def parse_arguments(self, context: Context):
+    async def parse_arguments(self, context: Context[ClientT]):
         # please pr if you can think of a better way to do this
 
         for parameter in self.parameters[2:]:
@@ -187,7 +186,7 @@ class Command:
         if self.usage:
             return self.usage
 
-        parents = []
+        parents: list[str] = []
 
         if self.parent:
             parent = self.parent
@@ -196,7 +195,7 @@ class Command:
                 parents.append(parent.name)
                 parent = parent.parent
 
-        parameters = []
+        parameters: list[str] = []
 
         for parameter in self.parameters[2:]:
             if parameter.kind == parameter.POSITIONAL_OR_KEYWORD:
@@ -214,7 +213,7 @@ class Command:
 
         return f"{' '.join(parents[::-1])} {self.name} {' '.join(parameters)}"
 
-def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command] = Command, usage: Optional[str] = None):
+def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientT]] = Command, usage: Optional[str] = None):
     """A decorator that turns a function into a :class:`Command`.
 
     Parameters

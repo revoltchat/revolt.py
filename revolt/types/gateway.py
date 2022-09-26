@@ -167,7 +167,7 @@ class ServerRoleUpdateEventPayload(BasePayload):
     id: str
     role_id: str
     data: ServerRoleUpdateEventPayloadData
-    clear: Literal["Color"]
+    clear: Literal["Colour"]
 
 class ServerRoleDeleteEventPayload(BasePayload):
     id: str

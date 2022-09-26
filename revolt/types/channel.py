@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Text, TypedDict, Union
+from typing import TYPE_CHECKING, Literal, TypedDict, Union
 
 from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .file import File
-    from .message import Message
     from .permissions import Overwrite
 
 __all__ = (

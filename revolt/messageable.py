@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from .enums import SortType
 
 if TYPE_CHECKING:
-    from .embed import Embed, SendableEmbed
+    from .embed import SendableEmbed
     from .file import File
     from .message import Masquerade, Message, MessageReply, MessageInteractions
     from .state import State

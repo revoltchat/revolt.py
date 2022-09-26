@@ -1,27 +1,27 @@
+from __future__ import annotations
+
 from typing import Any, Callable, Coroutine, TypeVar, Union
 
 from .command import Command
 from .context import Context
 from .errors import NotBotOwner, NotServerOwner, ServerOnly
+from .utils import ClientT
+
 
 __all__ = ("check", "Check", "is_bot_owner", "is_server_owner")
 
-Check = Callable[[Context], Union[Any, Coroutine[Any, Any, Any]]]
-
 T = TypeVar("T", Callable[..., Any], Command)
 
-def check(check: Check):
+Check = Callable[[Context[ClientT]], Union[Any, Coroutine[Any, Any, Any]]]
+
+
+def check(check: Check[ClientT]):
     """A decorator for adding command checks
 
     Parameters
     -----------
     check: Callable[[Context], Union[Any, Coroutine[Any, Any, Any]]]
-        The function to be called, must take one parameter, context and optionally be a coroutine
-
-    Returns
-    --------
-    Any
-        The value denoating whether the check should pass or fail
+        The function to be called, must take one parameter, context and optionally be a coroutine, the return value denoating whether the check should pass or fail
     """
     def inner(func: T) -> T:
         if isinstance(func, Command):
@@ -38,7 +38,7 @@ def check(check: Check):
 def is_bot_owner():
     """A command check for limiting the command to only the bot's owner"""
     @check
-    def inner(context: Context):
+    def inner(context: Context[ClientT]):
         if context.author.id == context.client.user.owner_id:
             return True
 
@@ -49,7 +49,7 @@ def is_bot_owner():
 def is_server_owner():
     """A command check for limiting the command to only a server's owner"""
     @check
-    def inner(context: Context):
+    def inner(context: Context[ClientT]):
         if not context.server:
             raise ServerOnly
 

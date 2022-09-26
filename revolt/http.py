@@ -25,7 +25,6 @@ if TYPE_CHECKING:
                         PartialInvite, Role, EmojiParent, Member, ApiInfo)
     from .types import Autumn as AutumnPayload
     from .types import Channel, DMChannel
-    from .types import Embed as EmbedPayload
     from .types import GetServerMembers, GroupDMChannel, Invite
     from .types import Masquerade as MasqueradePayload
     from .types import Message as MessagePayload
@@ -255,7 +254,7 @@ class HttpClient:
         include_users: bool = False
     ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
 
-        json = {"query": query, "include_users": include_users}
+        json: dict[str, Any] = {"query": query, "include_users": include_users}
 
         if limit:
             json["limit"] = limit
@@ -389,10 +388,10 @@ class HttpClient:
 
         return await self.request("PATCH", "/users/@me", json=values)
 
-    def set_guild_channel_default_permissions(self, channel_id: str, allow: int, deny: int) -> Request:
+    def set_guild_channel_default_permissions(self, channel_id: str, allow: int, deny: int) -> Request[None]:
         return self.request("PUT", f"/channels/{channel_id}/permissions/default", json={"permissions": {"allow": allow, "deny": deny}})
 
-    def set_guild_channel_role_permissions(self, channel_id: str, role_id: str, allow: int, deny: int) -> Request:
+    def set_guild_channel_role_permissions(self, channel_id: str, role_id: str, allow: int, deny: int) -> Request[None]:
         return self.request("PUT", f"/channels/{channel_id}/permissions/{role_id}", json={"permissions": {"allow": allow, "deny": deny}})
 
     def set_group_channel_default_permissions(self, channel_id: str, value: int):

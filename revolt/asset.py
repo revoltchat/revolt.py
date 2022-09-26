@@ -4,7 +4,6 @@ import mimetypes
 from typing import TYPE_CHECKING
 
 from .enums import AssetType
-from .errors import AutumnDisabled
 
 if TYPE_CHECKING:
     from io import IOBase

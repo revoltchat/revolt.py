@@ -3,8 +3,8 @@ from __future__ import annotations
 import sys
 import traceback
 from importlib import import_module
-from typing import (TYPE_CHECKING, Any, Optional, Protocol, Union,
-                    runtime_checkable)
+from typing import (TYPE_CHECKING, Any, Generic, Optional, Protocol, TypeVar, Union,
+                    runtime_checkable, overload)
 
 from typing_extensions import Self
 
@@ -18,11 +18,15 @@ from .command import Command
 from .context import Context
 from .errors import CheckError, CommandNotFound, MissingSetup
 from .view import StringView
+from .utils import ClientT
 
 __all__ = (
     "CommandsMeta",
     "CommandsClient"
 )
+
+V = TypeVar("V")
+T = TypeVar("T")
 
 @runtime_checkable
 class ExtensionProtocol(Protocol):
@@ -30,11 +34,11 @@ class ExtensionProtocol(Protocol):
     def setup(client: CommandsClient) -> None:
         raise NotImplementedError
 
-class CommandsMeta(type):
-    _commands: list[Command]
+class CommandsMeta(type, Generic[ClientT]):
+    _commands: list[Command[ClientT]]
 
     def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
-        commands: list[Command] = []
+        commands: list[Command[ClientT]] = []
         self = super().__new__(cls, name, bases, attrs)
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
@@ -46,33 +50,41 @@ class CommandsMeta(type):
         return self
 
 
-class CaseInsensitiveDict(dict):
-    def __setitem__(self, key: str, value: Any) -> None:
+class CaseInsensitiveDict(dict[str, V]):
+    def __setitem__(self, key: str, value: V) -> None:
         super().__setitem__(key.casefold(), value)
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> V:
         return super().__getitem__(key.casefold())
 
     def __contains__(self, key: str) -> bool:
         return super().__contains__(key.casefold())
 
-    def get(self, key: str, default: Any = None) -> Any:
+    @overload
+    def get(self, key: str) -> V | None:
+        ...
+
+    @overload
+    def get(self, key: str, default: V | T) -> V | T:
+        ...
+
+    def get(self, key: str, default: Optional[T] = None) -> V | T:
         return super().get(key.casefold(), default)
 
     def __delitem__(self, key: str) -> None:
         super().__delitem__(key.casefold())
 
 
-class CommandsClient(revolt.Client, metaclass=CommandsMeta):
+class CommandsClient(revolt.Client, metaclass=CommandsMeta[Self]):
     """Main class that adds commands, this class should be subclassed along with `revolt.Client`."""
 
-    _commands: list[Command]
+    _commands: list[Command[Self]]
 
-    def __init__(self, *args, help_command: Optional[HelpCommand] = None, case_insensitive: bool = False, **kwargs):
+    def __init__(self, *args: Any, help_command: Optional[HelpCommand[Self]] = None, case_insensitive: bool = False, **kwargs: Any):
         from .help import DefaultHelpCommand, HelpCommandImpl
 
-        self.all_commands: dict[str, Command] = {} if not case_insensitive else CaseInsensitiveDict()
-        self.cogs: dict[str, Cog] = {}
+        self.all_commands: dict[str, Command[Self]] = {} if not case_insensitive else CaseInsensitiveDict()
+        self.cogs: dict[str, Cog[Self]] = {}
         self.extensions: dict[str, ExtensionProtocol] = {}
 
         for command in self._commands:
@@ -82,14 +94,14 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
                 self.all_commands[alias] = command
 
         if help_command is None:
-            help_command = DefaultHelpCommand()
+            help_command = DefaultHelpCommand[Self]()
 
-        self.help_command = DefaultHelpCommand()
+        self.help_command = DefaultHelpCommand[Self]()
         self.add_command(HelpCommandImpl(self))
         super().__init__(*args, **kwargs)
 
     @property
-    def commands(self) -> list[Command]:
+    def commands(self) -> list[Command[Self]]:
         return list(set(self.all_commands.values()))
 
     async def get_prefix(self, message: revolt.Message) -> Union[str, list[str]]:
@@ -107,7 +119,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         """
         raise NotImplementedError
 
-    def get_command(self, name: str) -> Command:
+    def get_command(self, name: str) -> Command[Self]:
         """Gets a command.
 
         Parameters
@@ -122,7 +134,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         """
         return self.all_commands[name]
 
-    def add_command(self, command: Command):
+    def add_command(self, command: Command[Self]):
         """Adds a command, this is typically only used for dynamic commands, you should use the `commands.command` decorator for most usecases.
 
         Parameters
@@ -137,7 +149,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         for alias in command.aliases:
             self.all_commands[alias] = command
 
-    def remove_command(self, name: str) -> Optional[Command]:
+    def remove_command(self, name: str) -> Optional[Command[Self]]:
         """Removes a command.
 
         Parameters
@@ -162,7 +174,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         return StringView
 
     def get_context(self, message: revolt.Message) -> type[Context[Self]]:
-        return Context
+        return Context[Self]
 
     async def process_commands(self, message: revolt.Message) -> Any:
         """Processes commands, if you overwrite `Client.on_message` you should manually call this function inside the event.
@@ -231,13 +243,12 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             await command._error_handler(command.cog or self, context, e)
             self.dispatch("command_error", context, e)
 
-    @staticmethod
-    async def on_command_error(ctx: Context, error: Exception):
+    async def on_command_error(self, ctx: Context[ClientT], error: Exception, /):
         traceback.print_exception(type(error), error, error.__traceback__)
 
     on_message = process_commands
 
-    async def bot_check(self, context: Context) -> bool:
+    async def bot_check(self, context: Context[Self]) -> bool:
         """A global check for the bot that stops commands from running on certain criteria.
 
         Parameters
@@ -252,7 +263,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
         return True
 
-    def add_cog(self, cog: Cog):
+    def add_cog(self, cog: Cog[Self]):
         """Adds a cog to the bot, this cog must subclass `Cog`.
 
         Parameters
@@ -262,7 +273,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         """
         cog._inject(self)
 
-    def remove_cog(self, cog_name: str) -> Cog:
+    def remove_cog(self, cog_name: str) -> Cog[Self]:
         """Removes a cog from the bot.
 
         Parameters
@@ -322,7 +333,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         self.unload_extension(name)
         self.load_extension(name)
 
-    def get_cog(self, name: str) -> Cog:
+    def get_cog(self, name: str) -> Cog[Self]:
         """Gets a cog from the bot.
 
         Parameters

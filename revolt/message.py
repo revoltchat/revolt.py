@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from .asset import Asset, PartialAsset
 from .channel import Messageable
@@ -90,8 +90,8 @@ class Message:
         else:
             self.mentions = [state.get_user(member_id) for member_id in data.get("mentions", [])]
 
-        self.replies = []
-        self.reply_ids = []
+        self.replies: list[Message] = []
+        self.reply_ids: list[str] = []
 
         for reply in data.get("replies", []):
             try:
@@ -140,7 +140,7 @@ class Message:
         """Deletes the message. The bot can only delete its own messages and messages it has permission to delete """
         await self.state.http.delete_message(self.channel.id, self.id)
 
-    def reply(self, *args, mention: bool = False, **kwargs):
+    def reply(self, *args: Any, mention: bool = False, **kwargs: Any):
         """Replies to this message, equivilant to:
 
         .. code-block:: python

@@ -1,19 +1,21 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional, TypeVar
 
 from .command import Command
 
 if TYPE_CHECKING:
-    from .context import Context
+    from .client import CommandsClient
 
 __all__ = (
     "Group",
     "group"
 )
 
+ClientT = TypeVar("ClientT", bound="CommandsClient")
 
-class Group(Command):
+
+class Group(Command[ClientT]):
     """Class for holding info about a group command.
 
     Parameters
@@ -31,10 +33,10 @@ class Group(Command):
     __slots__ = ("subcommands",)
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str]):
-        self.subcommands: dict[str, Command] = {}
+        self.subcommands: dict[str, Command[ClientT]] = {}
         super().__init__(callback, name, aliases)
 
-    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command] = Command):
+    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientT]] = Command):
         """A decorator that turns a function into a :class:`Command` and registers the command as a subcommand.
 
         Parameters
@@ -59,7 +61,7 @@ class Group(Command):
 
         return inner
 
-    def group(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: Optional[type["Group"]] = None):
+    def group(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: Optional[type[Group[ClientT]]] = None):
         """A decorator that turns a function into a :class:`Group` and registers the command as a subcommand
 
         Parameters
@@ -90,10 +92,10 @@ class Group(Command):
         return f"<Group name=\"{self.name}\">"
 
     @property
-    def commands(self) -> list[Command]:
+    def commands(self) -> list[Command[ClientT]]:
         return list(self.subcommands.values())
 
-def group(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Group] = Group):
+def group(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Group[ClientT]] = Group):
     """A decorator that turns a function into a :class:`Group`
 
     Parameters

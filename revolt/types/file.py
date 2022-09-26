@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, TypedDict, Union
+from typing import Literal, TypedDict, Union
 
 __all__ = ("File",)
 

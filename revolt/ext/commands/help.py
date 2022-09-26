@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from itertools import groupby
-from typing import TYPE_CHECKING, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Optional, TypedDict, Union, Generic
 
 from typing_extensions import NotRequired
 
-from .client import CommandsClient
-from .command import Command, command
+from .command import Command
 from .context import Context
 from .group import Group
-from .utils import evaluate_parameters
+from .utils import ClientT
+from .cog import Cog
 
 if TYPE_CHECKING:
     from revolt import File, Message, Messageable, MessageReply, SendableEmbed
@@ -26,29 +25,28 @@ class MessagePayload(TypedDict):
     attachments: NotRequired[list[File]]
     replies: NotRequired[list[MessageReply]]
 
-
-class HelpCommand(ABC):
+class HelpCommand(ABC, Generic[ClientT]):
     @abstractmethod
-    async def create_bot_help(self, context: Context, commands: dict[Optional[Cog], list[Command]]) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_bot_help(self, context: Context[ClientT], commands: dict[Optional[Cog[ClientT]], list[Command[ClientT]]]) -> Union[str, SendableEmbed, MessagePayload]:
         raise NotImplementedError
 
     @abstractmethod
-    async def create_command_help(self, context: Context, command: Command) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_command_help(self, context: Context[ClientT], command: Command[ClientT]) -> Union[str, SendableEmbed, MessagePayload]:
         raise NotImplementedError
 
     @abstractmethod
-    async def create_group_help(self, context: Context, group: Group) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_group_help(self, context: Context[ClientT], group: Group[ClientT]) -> Union[str, SendableEmbed, MessagePayload]:
         raise NotImplementedError
 
     @abstractmethod
-    async def create_cog_help(self, context: Context, cog: Cog) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_cog_help(self, context: Context[ClientT], cog: Cog[ClientT]) -> Union[str, SendableEmbed, MessagePayload]:
         raise NotImplementedError
 
-    async def send_help_command(self, context: Context, message_payload: MessagePayload) -> Message:
+    async def send_help_command(self, context: Context[ClientT], message_payload: MessagePayload) -> Message:
         return await context.send(**message_payload)
 
-    async def filter_commands(self, context: Context, commands: list[Command]) -> list[Command]:
-        filtered: list[Command] = []
+    async def filter_commands(self, context: Context[ClientT], commands: list[Command[ClientT]]) -> list[Command[ClientT]]:
+        filtered: list[Command[ClientT]] = []
 
         for command in commands:
             try:
@@ -59,38 +57,38 @@ class HelpCommand(ABC):
 
         return filtered
 
-    async def group_commands(self, context: Context, commands: list[Command]) -> dict[Optional[Cog], list[Command]]:
-        cogs = {}
+    async def group_commands(self, context: Context[ClientT], commands: list[Command[ClientT]]) -> dict[Optional[Cog[ClientT]], list[Command[ClientT]]]:
+        cogs: dict[Optional[Cog[ClientT]], list[Command[ClientT]]] = {}
 
         for command in commands:
             cogs.setdefault(command.cog, []).append(command)
 
         return cogs
 
-    async def handle_message(self, context: Context, message: Message):
+    async def handle_message(self, context: Context[ClientT], message: Message):
         pass
 
-    async def get_channel(self, context: Context) -> Messageable:
+    async def get_channel(self, context: Context[ClientT]) -> Messageable:
         return context
 
     @abstractmethod
-    async def handle_no_command_found(self, context: Context, name: str):
+    async def handle_no_command_found(self, context: Context[ClientT], name: str) -> Any:
         raise NotImplementedError
 
     @abstractmethod
-    async def handle_no_cog_found(self, context: Context, name: str):
+    async def handle_no_cog_found(self, context: Context[ClientT], name: str) -> Any:
         raise NotImplementedError
 
 
-class DefaultHelpCommand(HelpCommand):
+class DefaultHelpCommand(HelpCommand[ClientT]):
     def __init__(self, default_cog_name: str = "No Cog"):
         self.default_cog_name = default_cog_name
 
-    async def create_bot_help(self, context: Context, commands: dict[Optional[Cog], list[Command]]) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_bot_help(self, context: Context[ClientT], commands: dict[Optional[Cog[ClientT]], list[Command[ClientT]]]) -> Union[str, SendableEmbed, MessagePayload]:
         lines = ["```"]
 
         for cog, cog_commands in commands.items():
-            cog_lines = []
+            cog_lines: list[str] = []
             cog_lines.append(f"{cog.qualified_name if cog else self.default_cog_name}:")
 
             for command in cog_commands:
@@ -101,7 +99,7 @@ class DefaultHelpCommand(HelpCommand):
         lines.append("```")
         return "\n".join(lines)
 
-    async def create_cog_help(self, context: Context, cog: Cog) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_cog_help(self, context: Context[ClientT], cog: Cog[ClientT]) -> Union[str, SendableEmbed, MessagePayload]:
         lines = ["```"]
 
         lines.append(f"{cog.qualified_name}:")
@@ -112,7 +110,7 @@ class DefaultHelpCommand(HelpCommand):
         lines.append("```")
         return "\n".join(lines)
 
-    async def create_command_help(self, context: Context, command: Command) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_command_help(self, context: Context[ClientT], command: Command[ClientT]) -> Union[str, SendableEmbed, MessagePayload]:
         lines = ["```"]
 
         lines.append(f"{command.name}:")
@@ -128,7 +126,7 @@ class DefaultHelpCommand(HelpCommand):
         lines.append("```")
         return "\n".join(lines)
 
-    async def create_group_help(self, context: Context, group: Group) -> Union[str, SendableEmbed, MessagePayload]:
+    async def create_group_help(self, context: Context[ClientT], group: Group[ClientT]) -> Union[str, SendableEmbed, MessagePayload]:
         lines = ["```"]
 
         lines.append(f"{group.name}:")
@@ -146,23 +144,27 @@ class DefaultHelpCommand(HelpCommand):
         lines.append("```")
         return "\n".join(lines)
 
-    async def handle_no_command_found(self, context: Context, name: str):
+    async def handle_no_command_found(self, context: Context[ClientT], name: str):
         channel = await self.get_channel(context)
         await channel.send(f"Command `{name}` not found.")
 
-    async def handle_no_cog_found(self, context: Context, name: str):
+    async def handle_no_cog_found(self, context: Context[ClientT], name: str):
         channel = await self.get_channel(context)
         await channel.send(f"Cog `{name}` not found.")
 
 
-class HelpCommandImpl(Command):
-    def __init__(self, client: CommandsClient):
+class HelpCommandImpl(Command[ClientT]):
+    def __init__(self, client: ClientT):
         self.client = client
-        super().__init__(callback=lambda _, context, *args: help_command_impl(self.client, context, *args), name="help", aliases=[])
+
+        async def callback(_: Union[ClientT, Cog[ClientT]], context: Context[ClientT], *args: str):
+            await help_command_impl(context.client, context, *args)
+
+        super().__init__(callback=callback, name="help", aliases=[])
         self.description = "Shows help for a command, cog or the entire bot"
 
 
-async def help_command_impl(self: CommandsClient, context: Context, *arguments: str):
+async def help_command_impl(self: ClientT, context: Context[ClientT], *arguments: str):
     filtered_commands = await context.client.help_command.filter_commands(context, self.commands)
     commands = await self.help_command.group_commands(context, filtered_commands)
 

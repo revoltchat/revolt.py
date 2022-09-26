@@ -1,5 +1,4 @@
 import io
-import os
 from typing import Optional, Union
 
 __all__ = ("File",)
@@ -21,7 +20,7 @@ class File:
     def __init__(self, file: Union[str, bytes], *, filename: Optional[str] = None, spoiler: bool = False):
         if isinstance(file, str):
             self.f = open(file, "rb")
-        elif isinstance(file, bytes):
+        else:
             self.f = io.BytesIO(file)
 
         if filename is None and isinstance(file, str):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from .channel import Channel, channel_factory
 from .member import Member

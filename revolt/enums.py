@@ -29,6 +29,7 @@ class PresenceType(enum.Enum):
     idle = "Idle"
     invisible = "Invisible"
     online = "Online"
+    focus = "Focus"
 
 class RelationshipType(enum.Enum):
     blocked = "Blocked"

@@ -39,7 +39,6 @@ if TYPE_CHECKING:
 
     from .state import State
     from .types import AuthenticatePayload, BasePayload
-    from .types import Member as MemberPayload
     from .types import MessageEventPayload, ReadyEventPayload
 
 
@@ -443,7 +442,7 @@ class WebsocketHandler:
             else:
                 payload = json.loads(msg.data)
 
-            task = self.loop.create_task(self.handle_event(payload))
+            self.loop.create_task(self.handle_event(payload))
             # task.add_done_callback(task_done)
 
 def task_done(task: asyncio.Task[None]):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from revolt.utils import Missing
 
@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from .types import GroupDMChannel as GroupDMChannelPayload
     from .types import SavedMessages as SavedMessagesPayload
     from .types import TextChannel as TextChannelPayload
-    from .types import VoiceChannel as VoiceChannelPayload
     from .types import GuildChannel as GuildChannelPayload
     from .types import File as FilePayload
     from .types import Overwrite as OverwritePayload
@@ -33,7 +32,7 @@ class EditableChannel:
     state: State
     id: str
 
-    async def edit(self, **kwargs):
+    async def edit(self, **kwargs: Any):
         """Edits the channel
 
         Passing ``None`` to the parameters that accept it will remove them.
