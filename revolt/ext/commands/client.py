@@ -34,11 +34,11 @@ class ExtensionProtocol(Protocol):
     def setup(client: CommandsClient) -> None:
         raise NotImplementedError
 
-class CommandsMeta(type, Generic[ClientT]):
-    _commands: list[Command[ClientT]]
+class CommandsMeta(type):
+    _commands: list[Command[Any]]
 
     def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
-        commands: list[Command[ClientT]] = []
+        commands: list[Command[Any]] = []
         self = super().__new__(cls, name, bases, attrs)
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
@@ -75,7 +75,7 @@ class CaseInsensitiveDict(dict[str, V]):
         super().__delitem__(key.casefold())
 
 
-class CommandsClient(revolt.Client, metaclass=CommandsMeta[Self]):
+class CommandsClient(revolt.Client, metaclass=CommandsMeta):
     """Main class that adds commands, this class should be subclassed along with `revolt.Client`."""
 
     _commands: list[Command[Self]]
