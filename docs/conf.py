@@ -24,7 +24,7 @@ import revolt
 project = 'Revolt.py'
 copyright = '2021-present, Zomatree'
 author = 'Zomatree'
-version = "0.0.1"
+version = ".".join(map(str, revolt.__version__))
 
 # -- General configuration ---------------------------------------------------
 

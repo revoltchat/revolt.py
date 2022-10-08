@@ -4,217 +4,109 @@ API Reference
 ===============
 
 
-Client
-~~~~~~~
-
 .. autoclass:: Client
     :members:
-
-Asset
-~~~~~~
 
 .. autoclass:: Asset
     :members:
 
-PartialAsset
-~~~~~~~~~~~~~
-
 .. autoclass:: PartialAsset
     :members:
-
-
-Channel
-~~~~~~~~
 
 .. autoclass:: Channel
     :members:
 
-SavedMessageChannel
-~~~~~~~~~~~~~~~~~~~~
-
 .. autoclass:: SavedMessageChannel
     :members:
-
-DMChannel
-~~~~~~~~~~
 
 .. autoclass:: DMChannel
     :members:
 
-GroupDMChannel
-~~~~~~~~~~~~~~~
-
 .. autoclass:: GroupDMChannel
     :members:
-
-TextChannel
-~~~~~~~~~~~~
 
 .. autoclass:: TextChannel
     :members:
 
-VoiceChannel
-~~~~~~~~~~~~~
-
 .. autoclass:: VoiceChannel
     :members:
-
-
-Embed
-~~~~~~
 
 .. autoclass:: Embed
     :members:
 
-WebsiteEmbed
-~~~~~~~~~~~~~
-
 .. autoclass:: WebsiteEmbed
     :members:
-
-ImageEmbed
-~~~~~~~~~~~
 
 .. autoclass:: ImageEmbed
     :members:
 
-TextEmbed
-~~~~~~~~~~
-
 .. autoclass:: TextEmbed
     :members:
-
-NoneEmbed
-~~~~~~~~~~
 
 .. autoclass:: NoneEmbed
     :members:
 
-SendableEmbed
-~~~~~~~~~~~~~~
-
 .. autoclass:: SendableEmbed
     :members:
-
-File
-~~~~~
 
 .. autoclass:: File
     :members:
 
-Member
-~~~~~~~
-
 .. autoclass:: Member
     :members:
-
-Message
-~~~~~~~~
 
 .. autoclass:: Message
     :members:
 
-MessageReply
-~~~~~~~~~~~~~
 .. autoclass:: MessageReply
     :members:
 
-Masquerade
-~~~~~~~~~~~~~
 .. autoclass:: Masquerade
     :members:
-
-Messageable
-~~~~~~~~~~~~
 
 .. autoclass:: Messageable
     :members:
 
-Permissions
-~~~~~~~~~~~~
-
 .. autoclass:: Permissions
     :members:
 
-PermissionsOverwrite
-~~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: PermissionsOverwrite
     :members:
-
-Role
-~~~~~
 
 .. autoclass:: Role
     :members:
 
-Server
-~~~~~~~
-
 .. autoclass:: Server
     :members:
-
-ServerBan
-~~~~~~~~~~
 
 .. autoclass:: ServerBan
     :members:
 
-Category
-~~~~~~~~~
-
 .. autoclass:: Category
     :members:
-
-
-SystemMessages
-~~~~~~~~~~~~~~~
 
 .. autoclass:: SystemMessages
     :members:
 
-
-User
-~~~~~
-
 .. autoclass:: User
     :members:
 
-Relation
-~~~~~~~~~
-
 .. autonamedtuple:: Relation
 
-
-Status
-~~~~~~~
-
 .. autonamedtuple:: Status
-
-UserBadges
-~~~~~~~~~~~
 
 .. autoclass:: UserBadges
     :members:
 
-UserProfile
-~~~~~~~~~~~~
-
 .. autoclass:: UserProfile
     :members:
-
-Invite
-~~~~~~~
 
 .. autoclass:: Invite
     :members:
 
-Emoji
-~~~~~~
 .. autoclass:: Emoji
     :members:
 
-MessageInteractions
-~~~~~~~~~~~~~~~~~~~~
 .. autoclass:: MessageInteractions
     :members:
 
@@ -267,7 +159,7 @@ All enums subclass `aenum.Enum`.
 
         The user is offline or invisible
 
-.. attribute:: RelationshipType
+.. class:: RelationshipType
 
     Specifies the relationship between two users
 
