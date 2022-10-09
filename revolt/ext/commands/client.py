@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import traceback
 from importlib import import_module
-from typing import (TYPE_CHECKING, Any, Generic, Optional, Protocol, TypeVar, Union,
+from typing import (TYPE_CHECKING, Any, Optional, Protocol, TypeVar, Union,
                     runtime_checkable, overload)
 
 from typing_extensions import Self
@@ -18,7 +18,6 @@ from .command import Command
 from .context import Context
 from .errors import CheckError, CommandNotFound, MissingSetup
 from .view import StringView
-from .utils import ClientT
 
 __all__ = (
     "CommandsMeta",
@@ -242,7 +241,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             await command._error_handler(command.cog or self, context, e)
             self.dispatch("command_error", context, e)
 
-    async def on_command_error(self, ctx: Context[ClientT], error: Exception, /):
+    async def on_command_error(self, ctx: Context[Self], error: Exception, /):
         traceback.print_exception(type(error), error, error.__traceback__)
 
     on_message = process_commands
