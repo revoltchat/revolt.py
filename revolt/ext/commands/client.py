@@ -80,7 +80,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
     _commands: list[Command[Self]]
 
-    def __init__(self, *args: Any, help_command: Optional[HelpCommand[Self]] = None, case_insensitive: bool = False, **kwargs: Any):
+    def __init__(self, *args: Any, help_command: Union[HelpCommand[Self], None, revolt.utils._Missing] = revolt.utils.Missing, case_insensitive: bool = False, **kwargs: Any):
         from .help import DefaultHelpCommand, HelpCommandImpl
 
         self.all_commands: dict[str, Command[Self]] = {} if not case_insensitive else CaseInsensitiveDict()
@@ -93,11 +93,10 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             for alias in command.aliases:
                 self.all_commands[alias] = command
 
-        if help_command is None:
-            help_command = DefaultHelpCommand[Self]()
+        if help_command is not revolt.utils.Missing:
+            self.help_command = help_command or DefaultHelpCommand[Self]()
+            self.add_command(HelpCommandImpl(self))
 
-        self.help_command = DefaultHelpCommand[Self]()
-        self.add_command(HelpCommandImpl(self))
         super().__init__(*args, **kwargs)
 
     @property
