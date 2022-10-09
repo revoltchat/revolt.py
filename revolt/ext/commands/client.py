@@ -92,7 +92,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             for alias in command.aliases:
                 self.all_commands[alias] = command
 
-        if help_command is not revolt.utils.Missing:
+        if not isinstance(help_command, revolt.utils._Missing):
             self.help_command = help_command or DefaultHelpCommand[Self]()
             self.add_command(HelpCommandImpl(self))
 
