@@ -25,7 +25,6 @@ More examples can be found in the [examples folder](https://github.com/revoltcha
 ```py
 import revolt
 import asyncio
-import aiohttp
 
 class Client(revolt.Client):
     async def on_message(self, message: revolt.Message):
@@ -33,7 +32,7 @@ class Client(revolt.Client):
             await message.channel.send("hi how are you")
 
 async def main():
-    async with aiohttp.ClientSession() as session:
+    async with revolt.utils.client_session() as session:
         client = Client(session, "BOT TOKEN HERE")
         await client.start()
 
