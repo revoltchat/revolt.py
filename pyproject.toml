@@ -23,7 +23,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-aiohttp = "3.7.4"
+aiohttp = "3.8.3"
 ulid-py = "1.1.0"
 aenum = "3.1.8"
 typing-extensions = "4.1.1"
