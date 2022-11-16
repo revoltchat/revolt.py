@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
+import datetime
 
 from .asset import Asset
 from .user import User
@@ -31,7 +32,7 @@ class Member(User):
     guild_avatar: Optional[:class:`Asset`]
         The member's guild avatar if any
     """
-    __slots__ = ("state", "nickname", "roles", "server", "guild_avatar")
+    __slots__ = ("state", "nickname", "roles", "server", "guild_avatar", "joined_at", "timeout")
 
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
@@ -53,6 +54,16 @@ class Member(User):
 
         self.server = server
         self.nickname = data.get("nickname")
+        joined_at = data["joined_at"]
+
+        if isinstance(joined_at, int):
+            self.joined_at = datetime.datetime.fromtimestamp(joined_at / 1000)
+        else:
+            self.joined_at = datetime.datetime.strptime(joined_at, "%Y-%m-%dT%H:%M:%S.%f%z")
+        self.timeout = None
+
+        if timeout := data.get("timeout"):
+            self.timeout = datetime.datetime.strptime(timeout, "%Y-%m-%dT%H:%M:%S.%f%z")
 
     @property
     def avatar(self) -> Optional[Asset]:
@@ -71,7 +82,7 @@ class Member(User):
         if avatar:
             self.guild_avatar = Asset(avatar, self.state)
 
-        if roles:
+        if roles is not None:
             member_roles = [self.server.get_role(role_id) for role_id in roles]
             self.roles = sorted(member_roles, key=lambda role: role.rank, reverse=True)
 

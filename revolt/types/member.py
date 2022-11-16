@@ -19,3 +19,5 @@ class Member(TypedDict):
     nickname: NotRequired[str]
     avatar: NotRequired[File]
     roles: NotRequired[list[str]]
+    joined_at: int | str
+    timeout: NotRequired[str]

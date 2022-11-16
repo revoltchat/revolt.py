@@ -39,8 +39,8 @@ class State:
     def get_user(self, id: str) -> User:
         try:
             return self.users[id]
-        except KeyError as e:
-            raise LookupError from e
+        except KeyError:
+            raise LookupError from None
 
     def get_member(self, server_id: str, member_id: str) -> Member:
         server = self.servers[server_id]
@@ -49,14 +49,14 @@ class State:
     def get_channel(self, id: str) -> Channel:
         try:
             return self.channels[id]
-        except KeyError as e:
-            raise LookupError from e
+        except KeyError:
+            raise LookupError from None
 
     def get_server(self, id: str) -> Server:
         try:
             return self.servers[id]
-        except KeyError as e:
-            raise LookupError from e
+        except KeyError:
+            raise LookupError from None
 
     def add_user(self, payload: UserPayload) -> User:
         user = User(payload, self)

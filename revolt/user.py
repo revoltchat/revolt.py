@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .types import File
     from .types import Status as StatusPayload
     from .types import User as UserPayload
+    from .types import UserProfile as UserProfileData
     from .member import Member
 
 __all__ = ("User", "Status", "Relation", "UserProfile")
@@ -138,27 +139,29 @@ class User(Messageable, Ulid):
         """:class:`str`: Returns a string that allows you to mention the given user."""
         return f"<@{self.id}>"
 
-    def _update(self, *, status: Optional[StatusPayload] = None, profile_content: Optional[str] = None, profile_background: Optional[File] = None, avatar: Optional[File] = None, online: Optional[bool] = None):
-        if status:
+    def _update(self, *, status: Optional[StatusPayload] = None, profile: Optional[UserProfileData] = None, avatar: Optional[File] = None, online: Optional[bool] = None):
+        if status is not None:
             presence = status.get("presence")
             self.status = Status(status.get("text"), PresenceType(presence) if presence else None)
 
-        if profile_background:
-            self.profile = UserProfile(self.profile.content if self.profile else None, Asset(profile_background, self.state))
+        if profile is not None:
+            if background_file := profile.get("background"):
+                background = Asset(background_file, self.state)
+            else:
+                background = None
 
-        if profile_content:
-            self.profile = UserProfile(profile_content, self.profile.background if self.profile else None)
+            self.profile = UserProfile(profile.get("content"), background)
 
         if avatar:
             self.original_avatar = Asset(avatar, self.state)
 
-        if online:
+        if online is not None:
             self.online = online
 
         # update user infomation for all members
 
         for member in self._members:
-            User._update(member, status=status, profile_content=profile_content, profile_background=profile_background, avatar=avatar, online=online)
+            User._update(member, status=status, profile=profile, avatar=avatar, online=online)
 
     async def default_avatar(self) -> bytes:
         """Returns the default avatar for this user

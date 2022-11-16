@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from inspect import Parameter
-from typing import Any, Iterable, TYPE_CHECKING, TypeVar
+from typing import Any, Iterable, TYPE_CHECKING
+from typing_extensions import TypeVar
 
 if TYPE_CHECKING:
     from .client import CommandsClient
@@ -9,7 +10,7 @@ if TYPE_CHECKING:
 
 __all__ = ("evaluate_parameters",)
 
-ClientT = TypeVar("ClientT", bound="CommandsClient")
+ClientT = TypeVar("ClientT", bound="CommandsClient", default="CommandsClient")
 
 
 def evaluate_parameters(parameters: Iterable[Parameter], globals: dict[str, Any]) -> list[Parameter]:

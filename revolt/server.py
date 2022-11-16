@@ -118,7 +118,15 @@ class Server(Ulid):
         self._members: dict[str, Member] = {}
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, self, state) for role_id, role in data.get("roles", {}).items()}
 
-        self._channels: dict[str, Channel] = {channel_id: state.get_channel(channel_id) for channel_id in data.get("channels", [])}
+        self._channels: dict[str, Channel] = {}
+
+        # The api doesnt send us all the channels but sends us all the ids, this is because channels we dont have permissions to see are not sent
+        # this causes get_channel to error so we have to first check ourself if its in the cache.
+
+        for channel_id in data["channels"]:
+            if channel := state.channels.get(channel_id):
+                self._channels[channel_id] = channel
+
         self._emojis: dict[str, Emoji] = {}
 
     def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[int] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None, channels: Optional[list[str]] = None):
@@ -198,8 +206,8 @@ class Server(Ulid):
         """
         try:
             return self._members[member_id]
-        except KeyError as e:
-            raise LookupError from e
+        except KeyError:
+            raise LookupError from None
 
     def get_channel(self, channel_id: str) -> Channel:
         """Gets a channel from the cache
@@ -216,8 +224,8 @@ class Server(Ulid):
         """
         try:
             return self._channels[channel_id]
-        except KeyError as e:
-            raise LookupError from e
+        except KeyError:
+            raise LookupError from None
 
     def get_category(self, category_id: str) -> Category:
         """Gets a category from the cache
@@ -234,8 +242,8 @@ class Server(Ulid):
         """
         try:
             return self._categories[category_id]
-        except KeyError as e:
-            raise LookupError from e
+        except KeyError:
+            raise LookupError from None
 
     def get_emoji(self, emoji_id: str) -> Emoji:
         """Gets a emoji from the cache

@@ -1,28 +1,27 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, TypedDict, Union
+from typing_extensions import NotRequired
 
-from revolt.types.permissions import Overwrite
-
+from .permissions import Overwrite
 from .channel import (Channel, DMChannel, GroupDMChannel, SavedMessages,
                       TextChannel, VoiceChannel)
-from .file import File
 from .message import Message
-from .user import Status
 
 if TYPE_CHECKING:
     from .category import Category
     from .member import Member, MemberID
     from .server import Server, SystemMessagesConfig
-    from .user import User
+    from .user import User, UserProfile, Status
     from .emoji import Emoji
+    from .file import File
+
 
 __all__ = (
     "BasePayload",
     "AuthenticatePayload",
     "ReadyEventPayload",
     "MessageEventPayload",
-    "MessageUpdateEditedData",
     "MessageUpdateData",
     "MessageUpdateEventPayload",
     "MessageDeleteEventPayload",
@@ -62,11 +61,9 @@ class ReadyEventPayload(BasePayload):
 class MessageEventPayload(BasePayload, Message):
     pass
 
-MessageUpdateEditedData = TypedDict("MessageUpdateEditedData", {"$date": str})
-
 class MessageUpdateData(TypedDict):
     content: str
-    edited: MessageUpdateEditedData
+    edited: int
 
 class MessageUpdateEventPayload(BasePayload):
     channel: str
@@ -173,14 +170,11 @@ class ServerRoleDeleteEventPayload(BasePayload):
     id: str
     role_id: str
 
-UserUpdateEventPayloadData = TypedDict("UserUpdateEventPayloadData", {
-    "status": Status,
-    "profile.background": File,
-    "profile.content": str,
-    "avatar": File,
-    "online": bool
-
-}, total=False)
+class UserUpdateEventPayloadData(TypedDict):
+    status: NotRequired[Status]
+    avatar: NotRequired[File]
+    online: NotRequired[bool]
+    profile: NotRequired[UserProfile]
 
 class UserUpdateEventPayload(BasePayload):
     id: str

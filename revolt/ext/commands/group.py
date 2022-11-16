@@ -36,7 +36,7 @@ class Group(Command[ClientT]):
         self.subcommands: dict[str, Command[ClientT]] = {}
         super().__init__(callback, name, aliases)
 
-    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientT]] = Command):
+    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientT]] = Command[ClientT]):
         """A decorator that turns a function into a :class:`Command` and registers the command as a subcommand.
 
         Parameters

@@ -144,21 +144,10 @@ class WebsocketHandler:
         except LookupError:
             return
 
-        if server := message.server:
-            await self._wait_for_server_ready(server.id)
+        if server_id := message.channel.server_id:
+            await self._wait_for_server_ready(server_id)
 
-        data = payload["data"]
-        kwargs = {}
-
-        if content := data.get("content"):
-            kwargs["content"] = content
-
-        kwargs["edited_at"] = data["edited"]["$date"]
-
-        if embeds := data.get("embeds"):
-            kwargs["embeds"] = embeds
-
-        message._update(**kwargs)
+        message._update(**payload["data"])
 
         self.dispatch("message_update", message)
 
@@ -170,8 +159,8 @@ class WebsocketHandler:
         except LookupError:
             return
 
-        if server := message.server:
-            await self._wait_for_server_ready(server.id)
+        if server_id := message.channel.server_id:
+            await self._wait_for_server_ready(server_id)
 
         self.state.messages.remove(message)
 
@@ -181,16 +170,19 @@ class WebsocketHandler:
     async def handle_channelcreate(self, payload: ChannelCreateEventPayload):
         channel = self.state.add_channel(payload)
 
-        if server := channel.server:
-            await self._wait_for_server_ready(server.id)
+        if server_id := channel.server_id:
+            await self._wait_for_server_ready(server_id)
 
         self.dispatch("channel_create", channel)
 
     async def handle_channelupdate(self, payload: ChannelUpdateEventPayload):
-        channel = self.state.get_channel(payload["id"])
+        # Revolt sends channel updates for channels we dont have permissions to see, a bug, but still can cause issues as its not in the cache
 
-        if server := channel.server:
-            await self._wait_for_server_ready(server.id)
+        if not (channel := self.state.channels.get(payload["id"], None)):
+            return
+
+        if server_id := channel.server_id:
+            await self._wait_for_server_ready(server_id)
 
         old_channel = copy(channel)
 
@@ -211,16 +203,16 @@ class WebsocketHandler:
     async def handle_channeldelete(self, payload: ChannelDeleteEventPayload):
         channel = self.state.channels.pop(payload["id"])
 
-        if server := channel.server:
-            await self._wait_for_server_ready(server.id)
+        if server_id := channel.server_id:
+            await self._wait_for_server_ready(server_id)
 
         self.dispatch("channel_delete", channel)
 
     async def handle_channelstarttyping(self, payload: ChannelStartTypingEventPayload):
         channel = self.state.get_channel(payload["id"])
 
-        if server := channel.server:
-            await self._wait_for_server_ready(server.id)
+        if server_id := channel.server_id:
+            await self._wait_for_server_ready(server_id)
 
         user = self.state.get_user(payload["user"])
 
@@ -229,8 +221,8 @@ class WebsocketHandler:
     async def handle_channelstoptyping(self, payload: ChannelDeleteTypingEventPayload):
         channel = self.state.get_channel(payload["id"])
 
-        if server := channel.server:
-            await self._wait_for_server_ready(server.id)
+        if server_id := channel.server_id:
+            await self._wait_for_server_ready(server_id)
 
         user = self.state.get_user(payload["user"])
 
@@ -360,14 +352,7 @@ class WebsocketHandler:
             elif clear == "Avatar":
                 user.original_avatar = None
 
-        # the keys have . in them so I need to replace with _
-        # type: ignore is for it to stop complaining about the keys not existing in the typeddict
-
-        data = payload["data"]
-        data["profile_content"] = data.pop("profile.content", None)  # type: ignore
-        data["profile_background"] = data.pop("profile.background", None)  # type: ignore
-
-        user._update(**data)  # type: ignore
+        user._update(**payload["data"])
 
         self.dispatch("user_update", old_user, user)
 

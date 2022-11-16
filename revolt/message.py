@@ -98,7 +98,7 @@ class Message(Ulid):
             try:
                 message = state.get_message(reply)
                 self.replies.append(message)
-            except KeyError:
+            except LookupError:
                 pass
 
             self.reply_ids.append(reply)
@@ -115,12 +115,11 @@ class Message(Ulid):
         else:
             self.interactions = None
 
-    def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited_at: str):
+    def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited: int):
         if content:
             self.content = content
 
-        self.edited_at = datetime.datetime.strptime(edited_at, "%Y-%m-%dT%H:%M:%S.%f%z")
-        # strptime is used here instead of fromisoformat because of its inability to parse `Z` (Zulu or UTC time) in the RFCC 3339 format provided by API
+        self.edited = datetime.datetime.fromtimestamp(edited / 1000)
 
         if embeds:
             self.embeds = [to_embed(embed, self.state) for embed in embeds]
