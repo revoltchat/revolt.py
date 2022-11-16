@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from .asset import Asset, PartialAsset
 from .channel import Messageable
 from .embed import SendableEmbed, to_embed
+from .utils import Ulid
 
 if TYPE_CHECKING:
     from .state import State
@@ -24,7 +25,7 @@ __all__ = (
     "MessageInteractions"
 )
 
-class Message:
+class Message(Ulid):
     """Represents a message
 
     Attributes

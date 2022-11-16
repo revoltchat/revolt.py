@@ -1,7 +1,9 @@
 import inspect
+import datetime
 from contextlib import asynccontextmanager
 from operator import attrgetter
 from typing import Any, Callable, Coroutine, Iterable, TypeVar, Union
+import ulid
 
 from aiohttp import ClientSession
 from typing_extensions import ParamSpec
@@ -37,6 +39,13 @@ async def maybe_coroutine(func: Callable[P, Union[R_T, Coroutine[Any, Any, R_T]]
         value = await value
 
     return value  # type: ignore
+
+
+class Ulid:
+    id: str
+
+    def created_at(self) -> datetime.datetime:
+        return ulid.from_str(self.id).timestamp().datetime
 
 
 def get(iterable: Iterable[T], **attrs: Any) -> T:

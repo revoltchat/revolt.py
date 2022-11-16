@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from revolt.utils import Missing
-
+from .utils import Missing, Ulid
 from .asset import Asset
 from .enums import ChannelType
 from .messageable import Messageable
@@ -66,7 +65,7 @@ class EditableChannel:
 
         await self.state.http.edit_channel(self.id, remove, kwargs)
 
-class Channel:
+class Channel(Ulid):
     """Base class for all channels
 
     Attributes

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .asset import Asset
+from .utils import Ulid
 
 if TYPE_CHECKING:
     from .state import State
@@ -10,13 +11,15 @@ if TYPE_CHECKING:
 
 __all__ = ("Invite",)
 
-class Invite:
+class Invite(Ulid):
     """Represents a server invite.
 
     Attributes
     -----------
     code: :class:`str`
         The code for the invite
+    id: :class:`str`
+        Alias for :attr:`code`
     server: :class:`Server`
         The server this invite is for
     channel: :class:`Channel`
@@ -30,10 +33,14 @@ class Invite:
     member_count: :class:`int`
         The member count of the server this invite is for
     """
+
+    __slots__ = ("state", "code", "id", "server", "channel", "user_name", "user_avatar", "user", "member_count")
+
     def __init__(self, data: InvitePayload, code: str, state: State):
         self.state = state
 
         self.code = code
+        self.id = code
         self.server = state.get_server(data["server_id"])
         self.channel = self.server.get_channel(data["channel_id"])
 

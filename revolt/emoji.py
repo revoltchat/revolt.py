@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+from .utils import Ulid
+
 if TYPE_CHECKING:
     from .state import State
     from .types import Emoji as EmojiPayload
@@ -9,7 +11,7 @@ if TYPE_CHECKING:
 
 __all__ = ("Emoji",)
 
-class Emoji:
+class Emoji(Ulid):
     """Represents a custom emoji.
 
     Attributes

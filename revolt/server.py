@@ -8,6 +8,7 @@ from .channel import Channel, VoiceChannel
 from .invite import Invite
 from .permissions import Permissions
 from .role import Role
+from .utils import Ulid
 
 if TYPE_CHECKING:
     from .channel import TextChannel
@@ -67,7 +68,7 @@ class SystemMessages:
         assert isinstance(channel, TextChannel)
         return channel
 
-class Server:
+class Server(Ulid):
     """Represents a server
 
     Attributes

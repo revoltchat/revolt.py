@@ -4,6 +4,7 @@ import mimetypes
 from typing import TYPE_CHECKING
 
 from .enums import AssetType
+from .utils import Ulid
 
 if TYPE_CHECKING:
     from io import IOBase
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
 __all__ = ("Asset", "PartialAsset")
 
-class Asset:
+class Asset(Ulid):
     """Represents a file on revolt
 
     Attributes

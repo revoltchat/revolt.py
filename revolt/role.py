@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional
 
 from .permissions import PermissionsOverwrite
-from .utils import Missing
+from .utils import Missing, Ulid
 
 if TYPE_CHECKING:
     from .server import Server
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 __all__ = ("Role",)
 
-class Role:
+class Role(Ulid):
     """Represents a role
 
     Attributes

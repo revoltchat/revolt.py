@@ -7,6 +7,7 @@ from .channel import DMChannel
 from .enums import PresenceType, RelationshipType
 from .flags import UserBadges
 from .messageable import Messageable
+from .utils import Ulid
 
 if TYPE_CHECKING:
     from .state import State
@@ -32,7 +33,7 @@ class UserProfile(NamedTuple):
     content: Optional[str]
     background: Optional[Asset]
 
-class User(Messageable):
+class User(Messageable, Ulid):
     """Represents a user
 
     Attributes

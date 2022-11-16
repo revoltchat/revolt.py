@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .utils import Ulid
+
 if TYPE_CHECKING:
     from .channel import Channel
     from .state import State
@@ -9,7 +11,7 @@ if TYPE_CHECKING:
 
 __all__ = ("Category",)
 
-class Category:
+class Category(Ulid):
     """Represents a category in a server that stores channels.
 
     Attributes
