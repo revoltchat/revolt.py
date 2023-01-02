@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Coroutine, TypeVar, Union
+from typing import Any, Callable, Coroutine, TypeVar, Union, cast
 
 from .command import Command
 from .context import Context
@@ -14,7 +14,6 @@ T = TypeVar("T", Callable[..., Any], Command)
 
 Check = Callable[[Context[ClientT]], Union[Any, Coroutine[Any, Any, Any]]]
 
-
 def check(check: Check[ClientT]):
     """A decorator for adding command checks
 
@@ -25,7 +24,8 @@ def check(check: Check[ClientT]):
     """
     def inner(func: T) -> T:
         if isinstance(func, Command):
-            func.checks.append(check)
+            command = cast(Command[ClientT], func)  # cant verify generic at runtime so must cast
+            command.checks.append(check)
         else:
             checks = getattr(func, "_checks", [])
             checks.append(check)

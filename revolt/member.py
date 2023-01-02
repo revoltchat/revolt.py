@@ -38,9 +38,8 @@ class Member(User):
         user = state.get_user(data["_id"]["user"])
 
         # due to not having a user payload and only a user object we have to manually add all the attributes instead of calling User.__init__
-        self._members = []
         flattern_user(self, user)
-        user._members.append(self)
+        user._members.add(self)
 
         self.state = state
 

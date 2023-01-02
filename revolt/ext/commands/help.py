@@ -165,11 +165,16 @@ class HelpCommandImpl(Command[ClientT]):
 
 
 async def help_command_impl(self: ClientT, context: Context[ClientT], *arguments: str):
-    filtered_commands = await context.client.help_command.filter_commands(context, self.commands)
-    commands = await self.help_command.group_commands(context, filtered_commands)
+    help_command = self.help_command
+
+    if not help_command:
+        return
+
+    filtered_commands = await help_command.filter_commands(context, self.commands)
+    commands = await help_command.group_commands(context, filtered_commands)
 
     if not arguments:
-        payload = await self.help_command.create_bot_help(context, commands)
+        payload = await help_command.create_bot_help(context, commands)
     else:
         command_name = arguments[0]
 
@@ -178,14 +183,14 @@ async def help_command_impl(self: ClientT, context: Context[ClientT], *arguments
         except KeyError:
             cog = self.cogs.get(command_name)
             if cog:
-                payload = await self.help_command.create_cog_help(context, cog)
+                payload = await help_command.create_cog_help(context, cog)
             else:
-                return await self.help_command.handle_no_command_found(context, command_name)
+                return await help_command.handle_no_command_found(context, command_name)
         else:
             if isinstance(command, Group):
-                payload = await self.help_command.create_group_help(context, command)
+                payload = await help_command.create_group_help(context, command)
             else:
-                payload = await self.help_command.create_command_help(context, command)
+                payload = await help_command.create_command_help(context, command)
 
     msg_payload: MessagePayload
 
@@ -196,4 +201,4 @@ async def help_command_impl(self: ClientT, context: Context[ClientT], *arguments
     else:
         msg_payload = payload
 
-    await self.help_command.send_help_command(context, msg_payload)
+    await help_command.send_help_command(context, msg_payload)

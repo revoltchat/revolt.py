@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
+from weakref import WeakSet
 
 from .asset import Asset, PartialAsset
 from .channel import DMChannel
@@ -65,7 +66,7 @@ class User(Messageable, Ulid):
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
-        self._members: list[Member] = []  # we store all member versions of this user to avoid having to check every guild when needing to update.
+        self._members: WeakSet[Member] = WeakSet()  # we store all member versions of this user to avoid having to check every guild when needing to update.
         self.id = data["_id"]
         self.original_name = data["username"]
         self.dm_channel = None
@@ -160,8 +161,9 @@ class User(Messageable, Ulid):
 
         # update user infomation for all members
 
-        for member in self._members:
-            User._update(member, status=status, profile=profile, avatar=avatar, online=online)
+        if self.__class__ is User:
+            for member in self._members:
+                User._update(member, status=status, profile=profile, avatar=avatar, online=online)
 
     async def default_avatar(self) -> bytes:
         """Returns the default avatar for this user

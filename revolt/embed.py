@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Optional, TypedDict, Union
+
+from typing_extensions import Unpack, NotRequired
 
 from .asset import Asset
 from .enums import EmbedType
@@ -69,8 +71,16 @@ def to_embed(payload: EmbedPayload, state: State) -> Embed:
     else:
         return NoneEmbed()
 
+class EmbedParameters(TypedDict):
+    title: NotRequired[str]
+    description: NotRequired[str]
+    media: NotRequired[str]
+    icon_url: NotRequired[str]
+    colour: NotRequired[str]
+    url: NotRequired[str]
+
 class SendableEmbed:
-    def __init__(self, **attrs: dict[str, Any]):
+    def __init__(self, **attrs: Unpack[EmbedParameters]):
         self.title: Optional[str] = None
         self.description: Optional[str] = None
         self.media: Optional[str] = None

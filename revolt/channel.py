@@ -88,7 +88,7 @@ class Channel(Ulid):
     async def _get_channel_id(self) -> str:
         return self.id
 
-    def _update(self, **_):
+    def _update(self, **_: Any):
         pass
 
     async def delete(self):

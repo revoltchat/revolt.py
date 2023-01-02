@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, Optional
+from typing import Any, Generic, Optional, cast
 
 from .command import Command
 from .utils import ClientT
@@ -19,7 +19,7 @@ class CogMeta(type, Generic[ClientT]):
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
                 if isinstance(value, Command):
-                    commands.append(value)
+                    commands.append(cast(Command[ClientT], value))  # cant verify generic at runtime so must cast
 
 
         self._commands = commands

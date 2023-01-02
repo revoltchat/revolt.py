@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import asyncio
+import time
 import logging
 from copy import copy
-from traceback import print_exception
 from typing import TYPE_CHECKING, Callable, cast
 
 from .channel import GroupDMChannel, TextChannel, VoiceChannel
 from .enums import RelationshipType
-from .types import (ChannelCreateEventPayload, ChannelDeleteEventPayload,
-                    ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
+from .types import Member as MemberPayload
 from .types import Message as MessagePayload
+from .types import MemberID as MemberIDPayload
 from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerDeleteEventPayload, ServerMemberJoinEventPayload,
                     ServerMemberLeaveEventPayload,
@@ -19,7 +18,9 @@ from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerMemberUpdateEventPayload,
                     ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
-                    UserUpdateEventPayload, MessageReactEventPayload, MessageUnreactEventPayload, MessageRemoveReactionEventPayload)
+                    UserUpdateEventPayload, MessageReactEventPayload, MessageUnreactEventPayload, MessageRemoveReactionEventPayload, ChannelCreateEventPayload, ChannelDeleteEventPayload,
+                    ChannelDeleteTypingEventPayload,
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
 from .user import Status, UserProfile
 from . import utils
 
@@ -290,7 +291,7 @@ class WebsocketHandler:
         self.dispatch("member_update", old_member, member)
 
     async def handle_servermemberjoin(self, payload: ServerMemberJoinEventPayload):
-        member = self.state.add_member(payload["id"], {"_id": {"server": payload["id"], "user": payload["user"]}})
+        member = self.state.add_member(payload["id"], MemberPayload(_id=MemberIDPayload(server=payload["id"], user=payload["user"]), joined_at=int(time.time())))  # revolt doesnt give us the joined at time
 
         user = await self.state.http.fetch_user(member.id)
         self.state.add_user(user)
@@ -423,13 +424,12 @@ class WebsocketHandler:
 
         async for msg in self.websocket:
             if use_msgpack:
-                payload = msgpack.unpackb(msg.data)
+                data: bytes = cast(bytes, msg.data)
+
+                payload = msgpack.unpackb(data)
             else:
-                payload = json.loads(msg.data)
+                data = cast(str, msg.data)
+
+                payload = json.loads(data)
 
             self.loop.create_task(self.handle_event(payload))
-            # task.add_done_callback(task_done)
-
-def task_done(task: asyncio.Task[None]):
-    if exception := task.exception():
-        print_exception(type(exception), exception, exception.__traceback__)

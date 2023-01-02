@@ -56,8 +56,11 @@ class CaseInsensitiveDict(dict[str, V]):
     def __getitem__(self, key: str) -> V:
         return super().__getitem__(key.casefold())
 
-    def __contains__(self, key: str) -> bool:
-        return super().__contains__(key.casefold())
+    def __contains__(self, key: object) -> bool:
+        if isinstance(key, str):
+            return super().__contains__(key.casefold())
+        else:
+            return False
 
     @overload
     def get(self, key: str) -> V | None:
@@ -67,7 +70,7 @@ class CaseInsensitiveDict(dict[str, V]):
     def get(self, key: str, default: V | T) -> V | T:
         ...
 
-    def get(self, key: str, default: Optional[T] = None) -> V | T:
+    def get(self, key: str, default: Optional[T] = None) -> V | T | None:
         return super().get(key.casefold(), default)
 
     def __delitem__(self, key: str) -> None:
@@ -92,9 +95,11 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             for alias in command.aliases:
                 self.all_commands[alias] = command
 
-        if not isinstance(help_command, revolt.utils._Missing):
+        if help_command is not None:
             self.help_command = help_command or DefaultHelpCommand[Self]()
             self.add_command(HelpCommandImpl(self))
+        else:
+            self.help_command = None
 
         super().__init__(*args, **kwargs)
 

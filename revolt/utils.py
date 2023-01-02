@@ -2,7 +2,7 @@ import inspect
 import datetime
 from contextlib import asynccontextmanager
 from operator import attrgetter
-from typing import Any, Callable, Coroutine, Iterable, TypeVar, Union
+from typing import Any, Callable, Coroutine, Iterable, Literal, TypeVar, Union
 import ulid
 
 from aiohttp import ClientSession
@@ -13,6 +13,9 @@ __all__ = ("Missing", "copy_doc", "maybe_coroutine", "get", "client_session")
 class _Missing:
     def __repr__(self):
         return "<Missing>"
+
+    def __bool__(self) -> Literal[False]:
+        return False
 
 Missing = _Missing()
 

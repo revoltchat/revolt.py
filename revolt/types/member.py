@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .file import File
 
 
-__all__ = ("Member",)
+__all__ = ("Member", "MemberID")
 
 class MemberID(TypedDict):
     server: str
