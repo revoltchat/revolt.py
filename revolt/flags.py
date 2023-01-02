@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import Callable, Iterator, Optional, TypeVar, Union, overload
+from typing import Callable, Iterator, Optional, Union, overload
+from typing_extensions import Self
 
-__all__ = ("flag_value", "Flags", "UserBadges")
-
-F_T = TypeVar("F_T", bound="Flags")
-F_V = TypeVar("F_V", bound="flag_value")
+__all__ = ("Flag", "Flags", "UserBadges")
 
 
-class flag_value:
+class Flag:
     __slots__ = ("flag", "__doc__")
 
     def __init__(self, func: Callable[[], int]):
@@ -16,14 +14,14 @@ class flag_value:
         self.__doc__ = func.__doc__
 
     @overload
-    def __get__(self: F_V, instance: None, owner: type[F_T]) -> F_V:
+    def __get__(self: Self, instance: None, owner: type[Flags]) -> Self:
         ...
 
     @overload
-    def __get__(self, instance: F_T, owner: type[F_T]) -> bool:
+    def __get__(self, instance: Flags, owner: type[Flags]) -> bool:
         ...
 
-    def __get__(self: F_V, instance: Optional[F_T], owner: type[F_T]) -> Union[F_V, bool]:
+    def __get__(self: Self, instance: Optional[Flags], owner: type[Flags]) -> Union[Self, bool]:
         if instance is None:
             return self
 
@@ -36,17 +34,16 @@ class Flags:
     FLAG_NAMES: list[str]
 
     def __init_subclass__(cls) -> None:
-        flags = cls._flags()
-        cls.FLAG_NAMES = list(flags.keys())
+        cls.FLAG_NAMES = []
 
-    def __init__(self, value: int = 0, **kwargs: bool):
+    def __init__(self, value: int = 0, **flags: bool):
         self.value = value
 
-        for k, v in kwargs.items():
+        for k, v in flags.items():
             setattr(self, k, v)
 
     @classmethod
-    def _from_value(cls: type[F_T], value: int) -> F_T:
+    def _from_value(cls, value: int) -> Self:
         self = cls.__new__(cls)
         self.value = value
         return self
@@ -60,31 +57,31 @@ class Flags:
         else:
             self.value &= ~flag
 
-    def __eq__(self: F_T, other: F_T) -> bool:
+    def __eq__(self, other: Self) -> bool:
         return self.value == other.value
 
-    def __ne__(self: F_T, other: F_T) -> bool:
+    def __ne__(self, other: Self) -> bool:
         return not self.__eq__(other)
 
-    def __or__(self: F_T, other: F_T) -> F_T:
+    def __or__(self, other: Self) -> Self:
         return self.__class__._from_value(self.value | other.value)
 
-    def __and__(self: F_T, other: F_T) -> F_T:
+    def __and__(self, other: Self) -> Self:
         return self.__class__._from_value(self.value & other.value)
 
-    def __invert__(self: F_T) -> F_T:
+    def __invert__(self) -> Self:
         return self.__class__._from_value(~self.value)
 
-    def __add__(self: F_T, other: F_T) -> F_T:
+    def __add__(self, other: Self) -> Self:
         return self | other
 
-    def __sub__(self: F_T, other: F_T) -> F_T:
+    def __sub__(self, other: Self) -> Self:
         return self & ~other
 
-    def __lt__(self: F_T, other: F_T) -> bool:
+    def __lt__(self, other: Self) -> bool:
         return self.value < other.value
 
-    def __gt__(self: F_T, other: F_T) -> bool:
+    def __gt__(self, other: Self) -> bool:
         return self.value > other.value
 
     def __repr__(self):
@@ -92,65 +89,61 @@ class Flags:
 
     def __iter__(self) -> Iterator[tuple[str, bool]]:
         for name, value in self.__class__.__dict__.items():
-            if isinstance(value, flag_value):
-                yield name, value.__get__(self, self.__class__)
+            if isinstance(value, Flag):
+                yield name, self._check_flag(value.flag)
 
     def __hash__(self) -> int:
         return hash(self.value)
 
-    @classmethod
-    def _flags(cls) -> dict[str, flag_value]:
-        return {name: value for name, value in cls.__dict__.items() if isinstance(value, flag_value)}
-
 class UserBadges(Flags):
     """Contains all user badges"""
 
-    @flag_value
+    @Flag
     def developer():
         """:class:`bool` The developer badge."""
         return 1 << 0
 
-    @flag_value
+    @Flag
     def translator():
         """:class:`bool` The translator badge."""
         return 1 << 1
 
-    @flag_value
+    @Flag
     def supporter():
         """:class:`bool` The supporter badge."""
         return 1 << 2
 
-    @flag_value
+    @Flag
     def responsible_disclosure():
         """:class:`bool` The responsible disclosure badge."""
         return 1 << 3
 
-    @flag_value
+    @Flag
     def founder():
         """:class:`bool` The founder badge."""
         return 1 << 4
 
-    @flag_value
+    @Flag
     def platform_moderation():
         """:class:`bool` The platform moderation badge."""
         return 1 << 5
 
-    @flag_value
+    @Flag
     def active_supporter():
         """:class:`bool` The active supporter badge."""
         return 1 << 6
 
-    @flag_value
+    @Flag
     def paw():
         """:class:`bool` The paw badge."""
         return 1 << 7
 
-    @flag_value
+    @Flag
     def early_adopter():
         """:class:`bool` The early adopter badge."""
         return 1 << 8
 
-    @flag_value
+    @Flag
     def reserved_relevant_joke_badge_1():
         """:class:`bool` The reserved relevant joke badge 1 badge."""
         return 1 << 9

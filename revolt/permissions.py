@@ -3,116 +3,116 @@ from typing import TYPE_CHECKING, Any, Optional
 from typing_extensions import Self
 
 from .types.permissions import Overwrite
-from .flags import Flags, flag_value
+from .flags import Flags, Flag
 
 __all__ = ("Permissions", "PermissionsOverwrite")
 
 class Permissions(Flags):
-    @flag_value
+    @Flag
     def manage_channel() -> int:
         return 1 << 0
 
-    @flag_value
+    @Flag
     def manage_server() -> int:
         return 1 << 1
 
-    @flag_value
+    @Flag
     def manage_permissions() -> int:
         return 1 << 2
 
-    @flag_value
+    @Flag
     def manage_role() -> int:
         return 1 << 3
 
-    @flag_value
+    @Flag
     def kick_members() -> int:
         return 1 << 6
 
-    @flag_value
+    @Flag
     def ban_members() -> int:
         return 1 << 7
 
-    @flag_value
+    @Flag
     def timeout_members() -> int:
         return 1 << 8
 
-    @flag_value
+    @Flag
     def asign_roles() -> int:
         return 1 << 9
 
-    @flag_value
+    @Flag
     def change_nickname() -> int:
         return 1 << 10
 
-    @flag_value
+    @Flag
     def manage_nicknames() -> int:
         return 1 << 11
 
-    @flag_value
+    @Flag
     def change_avatars() -> int:
         return 1 << 12
 
-    @flag_value
+    @Flag
     def remove_avatars() -> int:
         return 1 << 13
 
-    @flag_value
+    @Flag
     def view_channel() -> int:
         return 1 << 20
 
-    @flag_value
+    @Flag
     def read_message_history() -> int:
         return 1 << 21
 
-    @flag_value
+    @Flag
     def send_messages() -> int:
         return 1 << 22
 
-    @flag_value
+    @Flag
     def manage_messages() -> int:
         return 1 << 23
 
-    @flag_value
+    @Flag
     def manage_webhooks() -> int:
         return 1 << 24
 
-    @flag_value
+    @Flag
     def invite_others() -> int:
         return 1 << 25
 
-    @flag_value
+    @Flag
     def send_embeds() -> int:
         return 1 << 26
 
-    @flag_value
+    @Flag
     def upload_files() -> int:
         return 1 << 27
 
-    @flag_value
+    @Flag
     def masquerade() -> int:
         return 1 << 28
 
-    @flag_value
+    @Flag
     def connect() -> int:
         return 1 << 30
 
-    @flag_value
+    @Flag
     def speak() -> int:
         return 1 << 31
 
-    @flag_value
+    @Flag
     def video() -> int:
         return 1 << 32
 
-    @flag_value
+    @Flag
     def mute_members() -> int:
         return 1 << 33
 
-    @flag_value
+    @Flag
     def deafen_members() -> int:
         return 1 << 34
 
-    @flag_value
+    @Flag
     def move_members() -> int:
         return 1 << 35
 
