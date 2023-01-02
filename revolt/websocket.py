@@ -424,7 +424,7 @@ class WebsocketHandler:
 
         async for msg in self.websocket:
             if use_msgpack:
-                data: bytes = cast(bytes, msg.data)
+                data = cast(bytes, msg.data)
 
                 payload = msgpack.unpackb(data)
             else:
