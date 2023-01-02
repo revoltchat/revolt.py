@@ -1,12 +1,11 @@
-[tool.poetry]
+[project]
 name = "revolt.py"
-version = "0.1.9"
+dynamic = ["version"]
 description = "Python wrapper for the revolt.chat API"
-authors = ["Zomatee <me@zomatree.live>"]
+requires-python = ">=3.9"
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/revoltchat/revolt.py"
-documentation = "https://revoltpy.readthedocs.io/en/latest/"
+keywords = ["wrapper", "async", "api", "websockets", "http"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -16,32 +15,50 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3 :: Only",
 ]
-keywords = ["wrapper", "async", "api", "websockets", "http"]
-packages = [
-    { include = "revolt" }
+dependencies = [
+    "aiohttp==3.8.*",
+    "ulid-py==1.1.*",
+    "aenum==3.1.*",
+    "typing_extensions>=4.4.0"
 ]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-aiohttp = "3.8.3"
-ulid-py = "1.1.0"
-aenum = "3.1.8"
-typing-extensions = "4.1.1"
-ujson = { version = "5.1.0", optional = true }
-msgpack = { version = "1.0.4", optional = true }
-Sphinx = { version = "5.2.3", optional = true }
-sphinx-nameko-theme = { version = "0.0.3", optional = true }
-sphinx-toolbox = { version = "3.2.0", optional = true }
-setuptools = { version = " 65.4.1", optional = true }
+[project.optional-dependencies]
+speedups = [
+    "ujson==5.1.*",
+    "aiohttp[speedups]==3.8.*",
+    "msgpack==1.0.*"
+]
+docs = [
+    "Sphinx==5.2.*",
+    "sphinx-nameko-theme==0.0.*",
+    "sphinx-toolbox==3.2.*",
+    "setuptools==65.4.*"
+]
+dev = [
+    "msgpack-types @ git+https://github.com/Zomatree/msgpack-types"
+]
 
-[tool.poetry.extras]
-speedups = ["ujson", "aiohttp[speedups]", "msgpack"]
-docs = ["Sphinx", "sphinx-nameko-theme", "sphinx-toolbox", "setuptools"]
+[project.urls]
+Homepage = "https://github.com/revoltchat/revolt.py"
+Documentation = "https://revoltpy.readthedocs.io/en/latest/"
+"Source Code" = "https://github.com/revoltchat/revolt.py"
+"Bug Tracker" = "https://github.com/revoltchat/revolt.py/issues"
+
+[[project.authors]]
+name = "Zomatree"
+email = "me@zomatree.live"
+
+[tool.hatch.version]
+path = "revolt/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.pyright]
+reportPrivateUsage = false
+reportImportCycles = false
+reportIncompatibleMethodOverride = false
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/revoltchat/revolt.py/issues"
-Source = "https://github.com/revoltchat/revolt.py/"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
