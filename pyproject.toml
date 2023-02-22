@@ -34,9 +34,6 @@ docs = [
     "sphinx-toolbox==3.2.*",
     "setuptools==65.4.*"
 ]
-dev = [
-    "msgpack-types @ git+https://github.com/Zomatree/msgpack-types"
-]
 
 [project.urls]
 Homepage = "https://github.com/revoltchat/revolt.py"
@@ -51,8 +48,8 @@ email = "me@zomatree.live"
 [tool.hatch.version]
 path = "revolt/__init__.py"
 
-[tool.hatch.metadata]
-allow-direct-references = true
+[tool.hatch.build]
+only-packages = true
 
 [tool.pyright]
 reportPrivateUsage = false
