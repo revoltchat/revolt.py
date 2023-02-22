@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Literal, Optional, Union, cast
 
 import aiohttp
 
@@ -12,7 +12,7 @@ from .http import HttpClient
 from .invite import Invite
 from .message import Message
 from .state import State
-from .utils import Missing
+from .utils import Missing, Ulid
 from .websocket import WebsocketHandler
 
 try:
@@ -310,7 +310,7 @@ class Client:
         """
         if kwargs.get("avatar", Missing) is None:
             del kwargs["avatar"]
-            remove = "Avatar"
+            remove = ["Avatar"]
         else:
             remove = None
 
@@ -328,7 +328,7 @@ class Client:
         """
         if kwargs.get("text", Missing) is None:
             del kwargs["text"]
-            remove = "StatusText"
+            remove = ["StatusText"]
         else:
             remove = None
 
@@ -347,14 +347,15 @@ class Client:
         background: Optional[:class:`File`]
             The new background for the profile, passing in ``None`` will remove the profile background
         """
+        remove = []
+
         if kwargs.get("content", Missing) is None:
             del kwargs["content"]
-            remove = "ProfileContent"
-        elif kwargs.get("background", Missing) is None:
+            remove.append("ProfileContent")
+
+        if kwargs.get("background", Missing) is None:
             del kwargs["background"]
-            remove = "ProfileBackground"
-        else:
-            remove = None
+            remove.append("ProfileBackground")
 
         await self.state.http.edit_self(remove, {"profile": kwargs})
 
@@ -374,18 +375,23 @@ class Client:
 
         return await self.state.http.fetch_emoji(emoji_id)
 
-    async def create_emoji(self, name: str, file: File, *, nsfw: bool = False):
-        """Creates an emoji
+    async def upload_file(self, file: File, tag: Literal['attachments', 'avatars', 'backgrounds', 'icons', 'banners', 'emojis']) -> Ulid:
+        """Uploads a file to revolt
 
         Parameters
         -----------
-        name: :class:`str`
-            The name for the emoji
         file: :class:`File`
-            The image for the emoji
-        nsfw: :class:`bool`
-            Whether or not the emoji is nsfw
+            The file to upload
+        tag: :class:`str`
+            The type of file to upload, this should a string of either `'attachments'`, `'avatars'`, `'backgrounds'`, `'icons'`, `'banners'` or `'emojis'`
+        Returns
+        --------
+        :class:`Ulid`
+            The id of the file that was uploaded
         """
-        payload = await self.http.create_emoji(name, file, nsfw, {"type": "Detached"})
+        asset = await self.http.upload_file(file, tag)
 
-        return self.state.add_emoji(payload)
+        ulid = Ulid()
+        ulid.id = asset["id"]
+
+        return ulid

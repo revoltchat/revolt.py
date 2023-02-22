@@ -49,12 +49,12 @@ class EditableChannel:
         nsfw: bool
             Sets whether the channel is nsfw or not
         """
+        remove = []
+
         if kwargs.get("icon", Missing) == None:
-            remove = "Icon"
+            remove.append("Icon")
         elif kwargs.get("description", Missing) == None:
-            remove = "Description"
-        else:
-            remove = None
+            remove.append("Description")
 
         if icon := kwargs.get("icon"):
             asset = await self.state.http.upload_file(icon, "icons")

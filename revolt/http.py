@@ -6,9 +6,8 @@ from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, TypeVar,
 import aiohttp
 import ulid
 
-from revolt.utils import Missing
-
-from .errors import HTTPError, ServerError
+from .utils import Missing
+from .errors import HTTPError, ServerError, Forbidden
 from .file import File
 
 try:
@@ -34,6 +33,7 @@ if TYPE_CHECKING:
     from .types import UserProfile, VoiceChannel
     from .types import Interactions as InteractionsPayload
     from .types import Emoji as EmojiPayload
+    from .types import Member as MemberPayload
 
 __all__ = ("HttpClient",)
 
@@ -87,6 +87,8 @@ class HttpClient:
 
         if 200 <= resp_code <= 300:
             return response
+        elif resp_code == 401:
+            raise Forbidden("401: Missing Permissions")
         else:
             raise HTTPError(resp_code)
 
@@ -355,19 +357,19 @@ class HttpClient:
     def delete_invite(self, code: str) -> Request[None]:
         return self.request("DELETE", f"/invites/{code}")
 
-    def edit_channel(self, channel_id: str, remove: Optional[str], values: dict[str, Any]):
+    def edit_channel(self, channel_id: str, remove: list[str] | None, values: dict[str, Any]):
         if remove:
             values["remove"] = remove
 
         return self.request("PATCH", f"/channels/{channel_id}", json=values)
 
-    def edit_role(self, server_id: str, role_id: str, remove: Optional[str], values: dict[str, Any]):
+    def edit_role(self, server_id: str, role_id: str, remove: list[str] | None, values: dict[str, Any]):
         if remove:
             values["remove"] = remove
 
         return self.request("PATCH", f"/servers/{server_id}/roles/{role_id}", json=values)
 
-    async def edit_self(self, remove: Optional[str], values: dict[str, Any]):
+    async def edit_self(self, remove: list[str] | None, values: dict[str, Any]):
         if remove:
             values["remove"] = remove
 
@@ -422,3 +424,6 @@ class HttpClient:
         asset = await self.upload_file(file, "emojis")
 
         return await self.request("PUT", f"/custom/emoji/{asset['id']}", json={"name": name, "parent": parent, "nsfw": nsfw})
+
+    async def edit_member(self, server_id: str, member_id: str, remove: list[str] | None, values: dict[str, Any]) -> Request[MemberPayload]:
+        return self.request("PATCH", f"/servers/{server_id}/members/{member_id}", json={"remove": remove, **values})

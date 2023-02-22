@@ -95,7 +95,7 @@ class Role(Ulid):
             The position of the role
         """
         if kwargs.get("colour", Missing) is None:
-            remove = "Colour"
+            remove = ["Colour"]
         else:
             remove = None
 

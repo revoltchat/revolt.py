@@ -68,7 +68,7 @@ class WebsocketHandler:
 
     async def send_payload(self, payload: BasePayload):
         if use_msgpack:
-            await self.websocket.send_bytes(msgpack.packb(payload))  # type: ignore
+            await self.websocket.send_bytes(msgpack.packb(payload))
         else:
             await self.websocket.send_str(json.dumps(payload))
 

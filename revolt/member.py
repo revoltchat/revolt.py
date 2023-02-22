@@ -32,7 +32,7 @@ class Member(User):
     guild_avatar: Optional[:class:`Asset`]
         The member's guild avatar if any
     """
-    __slots__ = ("state", "nickname", "roles", "server", "guild_avatar", "joined_at", "timeout")
+    __slots__ = ("state", "nickname", "roles", "server", "guild_avatar", "joined_at", "current_timeout")
 
     def __init__(self, data: MemberPayload, server: Server, state: State):
         user = state.get_user(data["_id"]["user"])
@@ -59,10 +59,10 @@ class Member(User):
             self.joined_at = datetime.datetime.fromtimestamp(joined_at / 1000)
         else:
             self.joined_at = datetime.datetime.strptime(joined_at, "%Y-%m-%dT%H:%M:%S.%f%z")
-        self.timeout = None
+        self.current_timeout = None
 
-        if timeout := data.get("timeout"):
-            self.timeout = datetime.datetime.strptime(timeout, "%Y-%m-%dT%H:%M:%S.%f%z")
+        if current_timeout := data.get("timeout"):
+            self.current_timeout = datetime.datetime.strptime(current_timeout, "%Y-%m-%dT%H:%M:%S.%f%z")
 
     @property
     def avatar(self) -> Optional[Asset]:
@@ -102,3 +102,15 @@ class Member(User):
     async def unban(self):
         """Unbans the member from the server"""
         await self.state.http.unban_member(self.server.id, self.id)
+
+    async def timeout(self, length: datetime.timedelta):
+        """Timeouts the member
+
+        Parameters
+        -----------
+        length: :class:`datetime.timedelta`
+            The length of the timeout
+        """
+        ends_at = datetime.datetime.utcnow() + length
+
+        await self.state.http.edit_member(self.server.id, self.id, None, {"timeout": ends_at.isoformat()})
