@@ -25,7 +25,6 @@ dependencies = [
 [project.optional-dependencies]
 speedups = [
     "ujson==5.1.*",
-    "aiohttp[speedups]==3.8.*",
     "msgpack==1.0.*"
 ]
 docs = [
