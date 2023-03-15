@@ -14,7 +14,7 @@ __all__ = (
     "GroupDMChannel",
     "TextChannel",
     "VoiceChannel",
-    "GuildChannel",
+    "ServerChannel",
     "Channel",
 )
 
@@ -64,5 +64,5 @@ class VoiceChannel(BaseChannel):
     role_permissions: NotRequired[dict[str, Overwrite]]
     nsfw: NotRequired[bool]
 
-GuildChannel = Union[TextChannel, VoiceChannel]
+ServerChannel = Union[TextChannel, VoiceChannel]
 Channel = Union[SavedMessages, DMChannel, GroupDMChannel, TextChannel, VoiceChannel]

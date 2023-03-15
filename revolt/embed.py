@@ -80,6 +80,29 @@ class EmbedParameters(TypedDict):
     url: NotRequired[str]
 
 class SendableEmbed:
+    """
+    Represents an embed that can be sent in a message, you will never receive this, you will receive :class:`Embed`.
+
+    Attributes
+    -----------
+    title: Optional[:class:`str`]
+        The title of the embed
+
+    description: Optional[:class:`str`]
+        The description of the embed
+
+    media: Optional[:class:`str`]
+        The file inside the embed, this is the ID of the file, you can use :meth:`Client.update_file` to get an ID.
+
+    icon_url: Optional[:class:`str`]
+        The url of the icon url
+
+    colour: Optional[:class:`str`]
+        The embed's accent colour, this is any valid `CSS color <https://developer.mozilla.org/en-US/docs/Web/CSS/color_value>`_
+
+    url: Optional[:class:`str`]
+        URL for hyperlinking the embed's title
+    """
     def __init__(self, **attrs: Unpack[EmbedParameters]):
         self.title: Optional[str] = None
         self.description: Optional[str] = None
@@ -92,6 +115,13 @@ class SendableEmbed:
             setattr(self, key, value)
 
     def to_dict(self) -> SendableEmbedPayload:
+        """Converts the embed to a dictionary which Revolt accepts
+
+        Returns
+        --------
+        :class:`dict[str, Any]`
+            The embed
+        """
         output: SendableEmbedPayload = {"type": "Text"}
 
         if title := self.title:

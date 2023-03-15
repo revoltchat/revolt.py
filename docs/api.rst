@@ -6,90 +6,123 @@ API Reference
 
 .. autoclass:: Client
     :members:
+    :inherited-members:
 
 .. autoclass:: Asset
     :members:
+    :inherited-members:
 
 .. autoclass:: PartialAsset
     :members:
+    :inherited-members:
 
 .. autoclass:: Channel
     :members:
+    :inherited-members:
+
+.. autoclass:: ServerChannel
+    :members:
+    :inherited-members:
 
 .. autoclass:: SavedMessageChannel
     :members:
+    :inherited-members:
 
 .. autoclass:: DMChannel
     :members:
+    :inherited-members:
 
 .. autoclass:: GroupDMChannel
     :members:
+    :inherited-members:
 
 .. autoclass:: TextChannel
     :members:
+    :inherited-members:
 
 .. autoclass:: VoiceChannel
     :members:
+    :inherited-members:
 
 .. autoclass:: Embed
     :members:
+    :inherited-members:
 
 .. autoclass:: WebsiteEmbed
     :members:
+    :inherited-members:
 
 .. autoclass:: ImageEmbed
     :members:
+    :inherited-members:
 
 .. autoclass:: TextEmbed
     :members:
+    :inherited-members:
 
 .. autoclass:: NoneEmbed
     :members:
+    :inherited-members:
 
 .. autoclass:: SendableEmbed
     :members:
+    :inherited-members:
 
 .. autoclass:: File
     :members:
+    :inherited-members:
 
 .. autoclass:: Member
     :members:
+    :inherited-members:
 
 .. autoclass:: Message
     :members:
+    :inherited-members:
 
 .. autoclass:: MessageReply
     :members:
+    :inherited-members:
 
 .. autoclass:: Masquerade
     :members:
+    :inherited-members:
 
 .. autoclass:: Messageable
     :members:
+    :inherited-members:
 
 .. autoclass:: Permissions
     :members:
+    :inherited-members:
 
 .. autoclass:: PermissionsOverwrite
     :members:
+    :inherited-members:
 
 .. autoclass:: Role
     :members:
+    :inherited-members:
 
 .. autoclass:: Server
     :members:
+    :inherited-members:
 
 .. autoclass:: ServerBan
     :members:
+    :inherited-members:
 
 .. autoclass:: Category
     :members:
+    :inherited-members:
 
 .. autoclass:: SystemMessages
     :members:
+    :inherited-members:
 
 .. autoclass:: User
     :members:
+    :inherited-members:
 
 .. autonamedtuple:: Relation
 

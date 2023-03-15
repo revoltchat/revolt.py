@@ -19,11 +19,11 @@ if TYPE_CHECKING:
     from .types import GroupDMChannel as GroupDMChannelPayload
     from .types import SavedMessages as SavedMessagesPayload
     from .types import TextChannel as TextChannelPayload
-    from .types import GuildChannel as GuildChannelPayload
+    from .types import ServerChannel as ServerChannelPayload
     from .types import File as FilePayload
     from .types import Overwrite as OverwritePayload
 
-__all__ = ("DMChannel", "GroupDMChannel", "SavedMessageChannel", "TextChannel", "VoiceChannel", "Channel")
+__all__ = ("DMChannel", "GroupDMChannel", "SavedMessageChannel", "TextChannel", "VoiceChannel", "Channel", "ServerChannel")
 
 class EditableChannel:
     __slots__ = ()
@@ -214,8 +214,23 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
 
         return self.state.get_message(self.last_message_id)
 
-class GuildChannel(Channel):
-    def __init__(self, data: GuildChannelPayload, state: State):
+class ServerChannel(Channel):
+    """Base class for all guild channels
+
+    Attributes
+    -----------
+    server_id: :class:`str`
+        The id of the server this text channel belongs to
+    name: :class:`str`
+        The name of the text channel
+    description: Optional[:class:`str`]
+        The description of the channel, if any
+    nsfw: bool
+        Sets whether the channel is nsfw or not
+    default_permissions: :class:`ChannelPermissions`
+        The default permissions for all users in the text channel
+    """
+    def __init__(self, data: ServerChannelPayload, state: State):
         super().__init__(data, state)
 
         self.server_id = data["server"]
@@ -286,8 +301,10 @@ class GuildChannel(Channel):
         if default_permissions is not None:
             self.default_permissions = default_permissions
 
-class TextChannel(GuildChannel, Messageable, EditableChannel):
+class TextChannel(ServerChannel, Messageable, EditableChannel):
     """A text channel
+
+    Subclasses :class:`ServerChannel` and :class:`Messageable`
 
     Attributes
     -----------
@@ -331,8 +348,10 @@ class TextChannel(GuildChannel, Messageable, EditableChannel):
 
         return self.state.get_message(self.last_message_id)
 
-class VoiceChannel(GuildChannel, EditableChannel):
+class VoiceChannel(ServerChannel, EditableChannel):
     """A voice channel
+
+    Subclasses :class:`ServerChannel`
 
     Attributes
     -----------
