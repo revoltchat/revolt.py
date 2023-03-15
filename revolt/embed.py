@@ -92,7 +92,7 @@ class SendableEmbed:
         The description of the embed
 
     media: Optional[:class:`str`]
-        The file inside the embed, this is the ID of the file, you can use :meth:`Client.update_file` to get an ID.
+        The file inside the embed, this is the ID of the file, you can use :meth:`Client.upload_file` to get an ID.
 
     icon_url: Optional[:class:`str`]
         The url of the icon url
