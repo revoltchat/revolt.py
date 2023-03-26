@@ -293,10 +293,12 @@ class WebsocketHandler:
         self.dispatch("member_update", old_member, member)
 
     async def handle_servermemberjoin(self, payload: ServerMemberJoinEventPayload):
-        member = self.state.add_member(payload["id"], MemberPayload(_id=MemberIDPayload(server=payload["id"], user=payload["user"]), joined_at=int(time.time())))  # revolt doesnt give us the joined at time
+        # avoid an api request if possible
+        if payload["user"] not in self.state.users:
+            user = await self.state.http.fetch_user(payload["user"])
+            self.state.add_user(user)
 
-        user = await self.state.http.fetch_user(member.id)
-        self.state.add_user(user)
+        member = self.state.add_member(payload["id"], MemberPayload(_id=MemberIDPayload(server=payload["id"], user=payload["user"]), joined_at=int(time.time())))  # revolt doesnt give us the joined at time
 
         self.dispatch("member_join", member)
 
