@@ -11,6 +11,7 @@ from .enums import RelationshipType
 from .types import Member as MemberPayload
 from .types import Message as MessagePayload
 from .types import MemberID as MemberIDPayload
+from .types import Role as RolePayload
 from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerDeleteEventPayload, ServerMemberJoinEventPayload,
                     ServerMemberLeaveEventPayload,
@@ -21,8 +22,10 @@ from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     UserUpdateEventPayload, MessageReactEventPayload, MessageUnreactEventPayload, MessageRemoveReactionEventPayload, ChannelCreateEventPayload, ChannelDeleteEventPayload,
                     ChannelDeleteTypingEventPayload,
                     ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
+
 from .user import Status, UserProfile
 from . import utils
+from .role import Role
 
 try:
     import ujson as json
@@ -95,8 +98,7 @@ class WebsocketHandler:
 
             func = getattr(self, f"handle_{event_type}")
         except AttributeError:
-            logger.debug("Unknown event '%s'", event_type)
-            return
+            return logger.debug("Unknown event '%s'", event_type)
 
         await func(payload)
 
@@ -311,20 +313,28 @@ class WebsocketHandler:
 
         self.dispatch("member_leave", member)
 
-    async def handle_serveroleupdate(self, payload: ServerRoleUpdateEventPayload):
+    async def handle_serverroleupdate(self, payload: ServerRoleUpdateEventPayload):
         server = self.state.get_server(payload["id"])
-        role = server.get_role(payload["role_id"])
-        old_role = copy(role)
-
-        if clear := payload.get("clear"):
-            if clear == "Colour":
-                role.colour = None
-
-        role._update(**payload["data"])
-
         await self._wait_for_server_ready(server.id)
 
-        self.dispatch("role_update", old_role, role)
+        try:
+            role = server.get_role(payload["role_id"])
+        except LookupError:
+            # the role wasnt found meaning it was just created
+
+            role = Role(cast(RolePayload, payload["data"]), payload["role_id"], server, self.state)
+            server._roles[role.id] = role
+            self.dispatch("role_create", role)
+        else:
+            old_role = copy(role)
+
+            if clear := payload.get("clear"):
+                if clear == "Colour":
+                    role.colour = None
+
+            role._update(**payload["data"])
+
+            self.dispatch("role_update", old_role, role)
 
     async def handle_serverroledelete(self, payload: ServerRoleDeleteEventPayload):
         server = self.state.get_server(payload["id"])
