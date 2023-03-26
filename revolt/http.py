@@ -425,5 +425,8 @@ class HttpClient:
 
         return await self.request("PUT", f"/custom/emoji/{asset['id']}", json={"name": name, "parent": parent, "nsfw": nsfw})
 
-    async def edit_member(self, server_id: str, member_id: str, remove: list[str] | None, values: dict[str, Any]) -> Request[MemberPayload]:
+    def edit_member(self, server_id: str, member_id: str, remove: list[str] | None, values: dict[str, Any]) -> Request[MemberPayload]:
         return self.request("PATCH", f"/servers/{server_id}/members/{member_id}", json={"remove": remove, **values})
+
+    def delete_messages(self, channel_id: str, messages: list[str]):
+        return self.request("DELETE", f"/channels/{channel_id}/messages/bulk", json={"ids": messages})

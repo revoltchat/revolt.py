@@ -21,7 +21,7 @@ from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
                     UserUpdateEventPayload, MessageReactEventPayload, MessageUnreactEventPayload, MessageRemoveReactionEventPayload, ChannelCreateEventPayload, ChannelDeleteEventPayload,
                     ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload, BulkMessageDeleteEventPayload)
 
 from .user import Status, UserProfile
 from . import utils
@@ -421,6 +421,31 @@ class WebsocketHandler:
         users = message.reactions.pop(payload["emoji_id"])
 
         self.dispatch("reaction_clear", message, users, payload["emoji_id"])
+
+    async def handle_bulkmessagedelete(self, payload: BulkMessageDeleteEventPayload):
+        channel = self.state.get_channel(payload["channel"])
+
+        self.dispatch("raw_bulk_message_delete", payload)
+
+        messages = []
+
+        for message_id in payload["ids"]:
+            if server_id := channel.server_id:
+                await self._wait_for_server_ready(server_id)
+
+            self.dispatch("raw_message_delete", MessageDeleteEventPayload(type="messagedelete", channel=payload["channel"], id=message_id))
+
+            try:
+                message = self.state.get_message(message_id)
+            except LookupError:
+                pass
+            else:
+                self.state.messages.remove(message)
+                self.dispatch("message_delete", message)
+
+                messages.append(message)
+
+            self.dispatch("bulk_message_delete", messages)
 
     async def start(self):
         if use_msgpack:

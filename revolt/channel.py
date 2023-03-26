@@ -99,7 +99,7 @@ class Channel(Ulid):
     def server(self) -> Server:
         """:class:`Server` The server this voice channel belongs too"""
         if not self.server_id:
-            raise IndexError
+            raise LookupError
 
         return self.state.get_server(self.server_id)
 

@@ -42,7 +42,8 @@ __all__ = (
     "ServerCreateEventPayload",
     "MessageReactEventPayload",
     "MessageUnreactEventPayload",
-    "MessageRemoveReactionEventPayload"
+    "MessageRemoveReactionEventPayload",
+    "BulkMessageDeleteEventPayload"
 )
 
 class BasePayload(TypedDict):
@@ -198,3 +199,7 @@ class MessageRemoveReactionEventPayload(BasePayload):
     id: str
     channel_id: str
     emoji_id: str
+
+class BulkMessageDeleteEventPayload(BasePayload):
+    channel: str
+    ids: list[str]
