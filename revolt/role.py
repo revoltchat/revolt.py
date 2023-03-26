@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from .permissions import PermissionsOverwrite
+from .permissions import PermissionsOverwrite, Overwrite
 from .utils import Missing, Ulid
 
 if TYPE_CHECKING:
@@ -63,18 +63,21 @@ class Role(Ulid):
         allow, deny = permissions.to_pair()
         await self.state.http.set_server_role_permissions(self.server.id, self.id, allow.value, deny.value)
 
-    def _update(self, *, name: Optional[str] = None, colour: Optional[str] = None, hoist: Optional[bool] = None, rank: Optional[int] = None):
-        if name:
+    def _update(self, *, name: Optional[str] = None, colour: Optional[str] = None, hoist: Optional[bool] = None, rank: Optional[int] = None, permissions: Optional[Overwrite] = None):
+        if name is not None:
             self.name = name
 
-        if colour:
+        if colour is not None:
             self.colour = colour
 
-        if hoist:
+        if hoist is not None:
             self.hoist = hoist
 
-        if rank:
+        if rank is not None:
             self.rank = rank
+
+        if permissions is not None:
+            self.permissions = PermissionsOverwrite._from_overwrite(permissions)
 
     async def delete(self):
         """Deletes the role"""

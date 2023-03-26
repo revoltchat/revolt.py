@@ -182,13 +182,13 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         self.permissions = Permissions(data.get("permissions", 0))
 
     def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None, description: Optional[str] = None):
-        if name:
+        if name is not None:
             self.name = name
 
-        if recipients:
+        if recipients is not None:
             self.recipients = [self.state.get_user(user_id) for user_id in recipients]
 
-        if description:
+        if description is not None:
             self.description = description
 
     async def set_default_permissions(self, permissions: Permissions) -> None:
@@ -280,7 +280,7 @@ class ServerChannel(Channel):
         if description is not None:
             self.description = description
 
-        if icon:
+        if icon is not None:
             self.icon = Asset(icon, self.state)
 
         if nsfw is not None:

@@ -116,12 +116,12 @@ class Message(Ulid):
             self.interactions = None
 
     def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited: int):
-        if content:
+        if content is not None:
             self.content = content
 
         self.edited = datetime.datetime.fromtimestamp(edited / 1000)
 
-        if embeds:
+        if embeds is not None:
             self.embeds = [to_embed(embed, self.state) for embed in embeds]
 
     async def edit(self, *, content: Optional[str] = None, embeds: Optional[list[SendableEmbed]] = None) -> None:

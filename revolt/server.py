@@ -130,15 +130,15 @@ class Server(Ulid):
         self._emojis: dict[str, Emoji] = {}
 
     def _update(self, *, owner: Optional[str] = None, name: Optional[str] = None, description: Optional[str] = None, icon: Optional[FilePayload] = None, banner: Optional[FilePayload] = None, default_permissions: Optional[int] = None, nsfw: Optional[bool] = None, system_messages: Optional[SystemMessagesConfig] = None, categories: Optional[list[CategoryPayload]] = None, channels: Optional[list[str]] = None):
-        if owner:
+        if owner is not None:
             self.owner_id = owner
-        if name:
+        if name is not None:
             self.name = name
         if description is not None:
             self.description = description or None
-        if icon:
+        if icon is not None:
             self.icon = Asset(icon, self.state)
-        if banner:
+        if banner is not None:
             self.banner = Asset(banner, self.state)
         if default_permissions is not None:
             self.default_permissions = Permissions(default_permissions)

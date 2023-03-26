@@ -75,10 +75,10 @@ class Member(User):
         return f"<@{self.id}>"
 
     def _update(self, *, nickname: Optional[str] = None, avatar: Optional[File] = None, roles: Optional[list[str]] = None):
-        if nickname:
+        if nickname is not None:
             self.nickname = nickname
 
-        if avatar:
+        if avatar is not None:
             self.guild_avatar = Asset(avatar, self.state)
 
         if roles is not None:

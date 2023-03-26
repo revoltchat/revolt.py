@@ -153,7 +153,7 @@ class User(Messageable, Ulid):
 
             self.profile = UserProfile(profile.get("content"), background)
 
-        if avatar:
+        if avatar is not None:
             self.original_avatar = Asset(avatar, self.state)
 
         if online is not None:
