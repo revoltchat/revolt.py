@@ -400,19 +400,19 @@ class HttpClient:
         return self.request("PUT", f"/channels/{channel_id}/permissions/default", json={"permissions": value})
 
     def set_server_role_permissions(self, server_id: str, role_id: str, allow: int, deny: int):
-        return self.request("PUT", f"/server/{server_id}/permissions/{role_id}", json={"permissions": {"allow": allow, "deny": deny}})
+        return self.request("PUT", f"/servers/{server_id}/permissions/{role_id}", json={"permissions": {"allow": allow, "deny": deny}})
 
     def set_server_default_permissions(self, server_id: str, value: int):
-        return self.request("PUT", f"/server/{server_id}/permissions/default", json={"permissions": value})
+        return self.request("PUT", f"/servers/{server_id}/permissions/default", json={"permissions": value})
 
     def add_reaction(self, channel_id: str, message_id: str, emoji: str):
-        return self.request("PUT", f"/channel/{channel_id}/message/{message_id}/reactions/{emoji}")
+        return self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
 
     def remove_reaction(self, channel_id: str, message_id: str, emoji: str, user_id: Optional[str], remove_all: bool):
-        return self.request("PUT", f"/channel/{channel_id}/message/{message_id}/reactions/{emoji}")
+        return self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
 
     def remove_all_reactions(self, channel_id: str, message_id: str):
-        return self.request("DELETE", f"/channel/{channel_id}/message/{message_id}/reactions")
+        return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions")
 
     def delete_emoji(self, emoji_id: str):
         return self.request("DELETE", f"/custom/emoji/{emoji_id}")
