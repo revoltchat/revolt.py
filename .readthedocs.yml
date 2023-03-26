@@ -4,7 +4,6 @@ sphinx:
   configuration: docs/conf.py
 
 python:
-  version: "3.9"
   install:
     - method: pip
       path: .
@@ -12,4 +11,6 @@ python:
         - docs
 
 build:
-   image: testing
+  tools:
+    python: "3.9"
+  os: "ubuntu-22.04"
