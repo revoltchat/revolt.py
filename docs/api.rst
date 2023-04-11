@@ -96,6 +96,10 @@ API Reference
     :members:
     :inherited-members:
 
+.. autoclass:: UserPermissions
+    :members:
+    :inherited-members:
+
 .. autoclass:: PermissionsOverwrite
     :members:
     :inherited-members:

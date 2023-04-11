@@ -5,7 +5,6 @@ from typing import Any, Generic, Optional, cast
 from .command import Command
 from .utils import ClientT
 
-
 __all__ = ("Cog", "CogMeta")
 
 class CogMeta(type, Generic[ClientT]):

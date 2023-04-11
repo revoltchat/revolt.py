@@ -9,13 +9,13 @@ from .embed import SendableEmbed, to_embed
 from .utils import Ulid
 
 if TYPE_CHECKING:
+    from .server import Server
     from .state import State
     from .types import Embed as EmbedPayload
+    from .types import Interactions as InteractionsPayload
     from .types import Masquerade as MasqueradePayload
     from .types import Message as MessagePayload
-    from .types import Interactions as InteractionsPayload
     from .types import MessageReplyPayload
-    from .server import Server
     from .user import User
 
 __all__ = (

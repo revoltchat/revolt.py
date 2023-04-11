@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Optional, TypedDict, Union, Generic
+from typing import TYPE_CHECKING, Any, Generic, Optional, TypedDict, Union
 
 from typing_extensions import NotRequired
 
+from .cog import Cog
 from .command import Command
 from .context import Context
 from .group import Group
 from .utils import ClientT
-from .cog import Cog
 
 if TYPE_CHECKING:
     from revolt import File, Message, Messageable, MessageReply, SendableEmbed

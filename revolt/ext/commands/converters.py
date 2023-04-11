@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Annotated, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, TypeVar
 
 from revolt import Category, Channel, Member, User, utils
 

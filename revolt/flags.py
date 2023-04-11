@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Callable, Iterator, Optional, Union, overload
+
 from typing_extensions import Self
 
 __all__ = ("Flag", "Flags", "UserBadges")

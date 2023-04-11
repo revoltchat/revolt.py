@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from .utils import Missing, Ulid
 from .asset import Asset
 from .enums import ChannelType
 from .messageable import Messageable
 from .permissions import Permissions, PermissionsOverwrite
-from .utils import Missing
+from .utils import Missing, Ulid
 
 if TYPE_CHECKING:
     from .message import Message
@@ -16,12 +15,13 @@ if TYPE_CHECKING:
     from .state import State
     from .types import Channel as ChannelPayload
     from .types import DMChannel as DMChannelPayload
-    from .types import GroupDMChannel as GroupDMChannelPayload
-    from .types import SavedMessages as SavedMessagesPayload
-    from .types import TextChannel as TextChannelPayload
-    from .types import ServerChannel as ServerChannelPayload
     from .types import File as FilePayload
+    from .types import GroupDMChannel as GroupDMChannelPayload
     from .types import Overwrite as OverwritePayload
+    from .types import SavedMessages as SavedMessagesPayload
+    from .types import ServerChannel as ServerChannelPayload
+    from .types import TextChannel as TextChannelPayload
+    from .user import User
 
 __all__ = ("DMChannel", "GroupDMChannel", "SavedMessageChannel", "TextChannel", "VoiceChannel", "Channel", "ServerChannel")
 
@@ -49,7 +49,7 @@ class EditableChannel:
         nsfw: bool
             Sets whether the channel is nsfw or not
         """
-        remove = []
+        remove: list[str] = []
 
         if kwargs.get("icon", Missing) == None:
             remove.append("Icon")
@@ -123,11 +123,27 @@ class DMChannel(Channel, Messageable):
         The id of the last message in this channel, if any
     """
 
-    __slots__ = ("last_message_id",)
+    __slots__ = ("last_message_id", "recipient_ids")
 
     def __init__(self, data: DMChannelPayload, state: State):
         super().__init__(data, state)
+        self.recipient_ids: tuple[str, str] = tuple(data["recipients"])
         self.last_message_id = data.get("last_message_id")
+
+    @property
+    def recipients(self) -> tuple[User, User]:
+        a, b = self.recipient_ids
+
+        return (self.state.get_user(a), self.state.get_user(b))
+
+    @property
+    def recipient(self) -> User:
+        if self.recipient_ids[0] != self.state.user_id:
+            user_id = self.recipient_ids[0]
+        else:
+            user_id = self.recipient_ids[1]
+
+        return self.state.get_user(user_id)
 
     @property
     def last_message(self) -> Message:
@@ -164,13 +180,13 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
         The id of the last message in this channel, if any
     """
 
-    __slots__ = ("recipients", "name", "owner", "permissions", "icon", "description", "last_message_id")
+    __slots__ = ("recipient_ids", "name", "owner_id", "permissions", "icon", "description", "last_message_id")
 
     def __init__(self, data: GroupDMChannelPayload, state: State):
         super().__init__(data, state)
-        self.recipients = [state.get_user(user_id) for user_id in data["recipients"]]
+        self.recipient_ids = data["recipients"]
         self.name = data["name"]
-        self.owner = state.get_user(data["owner"])
+        self.owner_id = data["owner"]
         self.description: Optional[str] = data.get("description")
         self.last_message_id = data.get("last_message_id")
 
@@ -186,10 +202,18 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
             self.name = name
 
         if recipients is not None:
-            self.recipients = [self.state.get_user(user_id) for user_id in recipients]
+            self.recipient_ids = recipients
 
         if description is not None:
             self.description = description
+
+    @property
+    def recipients(self) -> list[User]:
+        return [self.state.get_user(user_id) for user_id in self.recipient_ids]
+
+    @property
+    def owner(self) -> User:
+        return self.state.get_user(self.owner_id)
 
     async def set_default_permissions(self, permissions: Permissions) -> None:
         """Sets the default permissions for a group.
@@ -299,7 +323,7 @@ class ServerChannel(Channel):
             self.permissions = permissions
 
         if default_permissions is not None:
-            self.default_permissions = default_permissions
+            self.default_permissions = PermissionsOverwrite._from_overwrite(default_permissions)
 
 class TextChannel(ServerChannel, Messageable, EditableChannel):
     """A text channel

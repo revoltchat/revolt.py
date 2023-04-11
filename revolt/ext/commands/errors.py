@@ -49,6 +49,9 @@ class NotServerOwner(CheckError):
 class ServerOnly(CheckError):
     """Raised when a check requires the command to be ran in a server"""
 
+class MissingPermissionsError(CheckError):
+    """Raised when a check requires permissions the user does not have"""
+
 class ConverterError(CommandError):
     """Base class for all converter errors"""
 

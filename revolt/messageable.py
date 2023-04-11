@@ -7,7 +7,7 @@ from .enums import SortType
 if TYPE_CHECKING:
     from .embed import SendableEmbed
     from .file import File
-    from .message import Masquerade, Message, MessageReply, MessageInteractions
+    from .message import Masquerade, Message, MessageInteractions, MessageReply
     from .state import State
 
 

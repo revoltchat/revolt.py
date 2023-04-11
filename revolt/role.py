@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from .permissions import PermissionsOverwrite, Overwrite
+from .permissions import Overwrite, PermissionsOverwrite
 from .utils import Missing, Ulid
 
 if TYPE_CHECKING:

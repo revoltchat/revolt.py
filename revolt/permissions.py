@@ -1,13 +1,40 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Optional
+
+from typing import TYPE_CHECKING, Any, Optional, cast
+
 from typing_extensions import Self
 
+from .flags import Flag, Flags
 from .types.permissions import Overwrite
-from .flags import Flags, Flag
 
-__all__ = ("Permissions", "PermissionsOverwrite")
+__all__ = ("Permissions", "PermissionsOverwrite", "UserPermissions")
+
+class UserPermissions(Flags):
+    """Permissions for users"""
+
+    @Flag
+    def access() -> int:
+        return 1 << 0
+
+    @Flag
+    def view_profile() -> int:
+        return 1 << 1
+
+    @Flag
+    def send_message() -> int:
+        return 1 << 2
+
+    @Flag
+    def invite() -> int:
+        return 1 << 3
+
+    @classmethod
+    def all(cls) -> Self:
+        return cls(access=True, view_profile=True, send_message=True, invite=True)
 
 class Permissions(Flags):
+    """Server permissions for members and roles"""
+
     @Flag
     def manage_channel() -> int:
         return 1 << 0
@@ -128,7 +155,13 @@ class Permissions(Flags):
     def default(cls) -> Self:
         return cls.default_view_only() | cls(send_messages=True, invite_others=True, send_embeds=True, upload_files=True, connect=True, speak=True)
 
+    @classmethod
+    def default_direct_message(cls) -> Self:
+        return cls.default_view_only() | cls(react=True, manage_channel=True)
+
 class PermissionsOverwrite:
+    """A permissions overwrite in a channel"""
+
     def __init__(self, allow: Permissions, deny: Permissions):
         self._allow = allow
         self._deny = deny

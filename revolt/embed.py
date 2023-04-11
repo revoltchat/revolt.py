@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional, TypedDict, Union
 
-from typing_extensions import Unpack, NotRequired
+from typing_extensions import NotRequired, Unpack
 
 from .asset import Asset
 from .enums import EmbedType
