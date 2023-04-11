@@ -1,31 +1,33 @@
 from __future__ import annotations
 
 import asyncio
-import time
 import logging
+import time
 from copy import copy
 from typing import TYPE_CHECKING, Callable, cast
 
+from . import utils
 from .channel import GroupDMChannel, TextChannel, VoiceChannel
 from .enums import RelationshipType
+from .role import Role
+from .types import (BulkMessageDeleteEventPayload, ChannelCreateEventPayload,
+                    ChannelDeleteEventPayload, ChannelDeleteTypingEventPayload,
+                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload)
 from .types import Member as MemberPayload
-from .types import Message as MessagePayload
 from .types import MemberID as MemberIDPayload
+from .types import Message as MessagePayload
+from .types import (MessageDeleteEventPayload, MessageReactEventPayload,
+                    MessageRemoveReactionEventPayload,
+                    MessageUnreactEventPayload, MessageUpdateEventPayload)
 from .types import Role as RolePayload
-from .types import (MessageDeleteEventPayload, MessageUpdateEventPayload,
-                    ServerDeleteEventPayload, ServerMemberJoinEventPayload,
+from .types import (ServerCreateEventPayload, ServerDeleteEventPayload,
+                    ServerMemberJoinEventPayload,
                     ServerMemberLeaveEventPayload,
-                    ServerCreateEventPayload,
                     ServerMemberUpdateEventPayload,
                     ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
-                    UserUpdateEventPayload, MessageReactEventPayload, MessageUnreactEventPayload, MessageRemoveReactionEventPayload, ChannelCreateEventPayload, ChannelDeleteEventPayload,
-                    ChannelDeleteTypingEventPayload,
-                    ChannelStartTypingEventPayload, ChannelUpdateEventPayload, BulkMessageDeleteEventPayload)
-
+                    UserUpdateEventPayload)
 from .user import Status, UserProfile
-from . import utils
-from .role import Role
 
 try:
     import ujson as json
@@ -42,8 +44,8 @@ if TYPE_CHECKING:
     import aiohttp
 
     from .state import State
-    from .types import AuthenticatePayload, BasePayload
-    from .types import MessageEventPayload, ReadyEventPayload
+    from .types import (AuthenticatePayload, BasePayload, MessageEventPayload,
+                        ReadyEventPayload)
 
 
 __all__ = ("WebsocketHandler",)

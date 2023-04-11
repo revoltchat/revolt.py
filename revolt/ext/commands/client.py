@@ -4,7 +4,7 @@ import sys
 import traceback
 from importlib import import_module
 from typing import (TYPE_CHECKING, Any, Optional, Protocol, TypeVar, Union,
-                    runtime_checkable, overload)
+                    overload, runtime_checkable)
 
 from typing_extensions import Self
 

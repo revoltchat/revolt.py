@@ -1,5 +1,7 @@
 from typing import Literal, TypedDict, Union
+
 from typing_extensions import NotRequired
+
 
 class EmojiParentServer(TypedDict):
     type: Literal["Server"]

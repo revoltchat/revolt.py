@@ -1,15 +1,11 @@
 from __future__ import annotations
-from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+
+from typing import TYPE_CHECKING, Any, Optional, cast
+
 from typing_extensions import Self
 
-from revolt.enums import ChannelType
-
-from .channel import Channel, DMChannel
-from .member import Member
-from .server import Server
+from .flags import Flag, Flags
 from .types.permissions import Overwrite
-from .flags import Flags, Flag
 
 __all__ = ("Permissions", "PermissionsOverwrite", "UserPermissions")
 
@@ -155,6 +151,10 @@ class Permissions(Flags):
     def default(cls) -> Self:
         return cls.default_view_only() | cls(send_messages=True, invite_others=True, send_embeds=True, upload_files=True, connect=True, speak=True)
 
+    @classmethod
+    def default_direct_message(cls) -> Self:
+        return cls.default_view_only() | cls(react=True, manage_channel=True)
+
 class PermissionsOverwrite:
     def __init__(self, allow: Permissions, deny: Permissions):
         self._allow = allow
@@ -225,31 +225,3 @@ class PermissionsOverwrite:
         deny = Permissions(overwrite["d"])
 
         return cls(allow, deny)
-
-def calculate_permissions(member: Member, target: Server | Channel) -> Permissions:
-    if member.privileged:
-        return Permissions.all()
-
-    if isinstance(target, Server):
-        if target.owner_id == member.id:
-            return Permissions.all()
-
-        permissions = target.default_permissions
-
-        for role in member.roles:
-            permissions = (permissions | role.permissions._allow) & (~role.permissions._deny)
-
-        if member.current_timeout and member.current_timeout > datetime.now():
-            permissions = permissions & Permissions.default_view_only()
-
-        return permissions
-
-    else:
-        channel_type = target.channel_type
-
-        if channel_type is ChannelType.saved_messages:
-            return Permissions.all()
-        elif channel_type is ChannelType.direct_message:
-            assert isinstance(target,  DMChannel)
-
-            user_permissions = target.recipient.permissions

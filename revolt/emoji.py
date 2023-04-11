@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Optional
 from .utils import Ulid
 
 if TYPE_CHECKING:
+    from .server import Server
     from .state import State
     from .types import Emoji as EmojiPayload
-    from .server import Server
 
 __all__ = ("Emoji",)
 

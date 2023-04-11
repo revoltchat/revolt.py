@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from inspect import Parameter
-from typing import Any, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterable
+
 from typing_extensions import TypeVar
 
 if TYPE_CHECKING:

@@ -22,11 +22,11 @@ except ImportError:
 
 if TYPE_CHECKING:
     from .channel import Channel
+    from .emoji import Emoji
+    from .file import File
     from .server import Server
     from .types import ApiInfo
     from .user import User
-    from .emoji import Emoji
-    from .file import File
 
 __all__ = ("Client",)
 

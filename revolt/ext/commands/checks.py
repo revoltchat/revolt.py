@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Callable, Coroutine, TypeVar, Union, cast
 
+import revolt
+
 from .command import Command
 from .context import Context
-from .errors import NotBotOwner, NotServerOwner, ServerOnly
+from .errors import (MissingPermissionsError, NotBotOwner, NotServerOwner,
+                     ServerOnly)
 from .utils import ClientT
-
 
 __all__ = ("check", "Check", "is_bot_owner", "is_server_owner")
 
@@ -63,4 +65,22 @@ def is_server_owner():
 def has_permissions(**permissions: bool):
     @check
     def inner(context: Context[ClientT]):
-        ...
+        author = context.author
+
+        if not author.has_permissions(**permissions):
+            raise MissingPermissionsError
+
+    return inner
+
+def has_channel_permissions(**permissions: bool):
+    @check
+    def inner(context: Context[ClientT]):
+        author = context.author
+
+        if isinstance(author, revolt.User):
+            raise MissingPermissionsError
+
+        if not author.has_channel_permissions(context.channel, **permissions):
+            raise MissingPermissionsError
+
+    return inner

@@ -3,13 +3,13 @@ from __future__ import annotations
 import inspect
 import traceback
 from contextlib import suppress
-from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine, Generic,
-                    Literal, Optional, Union, get_args, get_origin)
+from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
+                    Generic, Literal, Optional, Union, get_args, get_origin)
 
 from revolt.utils import copy_doc, maybe_coroutine
 
 from .errors import InvalidLiteralArgument, UnionConverterError
-from .utils import evaluate_parameters, ClientT
+from .utils import ClientT, evaluate_parameters
 
 if TYPE_CHECKING:
     from .checks import Check

@@ -1,20 +1,21 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, TypedDict, Union
+
 from typing_extensions import NotRequired
 
-from .permissions import Overwrite
 from .channel import (Channel, DMChannel, GroupDMChannel, SavedMessages,
                       TextChannel, VoiceChannel)
 from .message import Message
+from .permissions import Overwrite
 
 if TYPE_CHECKING:
     from .category import Category
-    from .member import Member, MemberID
-    from .server import Server, SystemMessagesConfig
-    from .user import User, UserProfile, Status
     from .emoji import Emoji
     from .file import File
+    from .member import Member, MemberID
+    from .server import Server, SystemMessagesConfig
+    from .user import Status, User, UserProfile
 
 
 __all__ = (

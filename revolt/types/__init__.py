@@ -1,6 +1,7 @@
 from .category import *
 from .channel import *
 from .embed import *
+from .emoji import *
 from .file import *
 from .gateway import *
 from .http import *
@@ -11,4 +12,3 @@ from .permissions import *
 from .role import *
 from .server import *
 from .user import *
-from .emoji import *

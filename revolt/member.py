@@ -1,16 +1,15 @@
 from __future__ import annotations
-import this
 
-from typing import TYPE_CHECKING, Optional
 import datetime
-from revolt.channel import Channel
-
-from revolt.permissions import Permissions
+from typing import TYPE_CHECKING, Optional
 
 from .asset import Asset
+from .permissions import Permissions
+from .permissions_calculator import calculate_permissions
 from .user import User
 
 if TYPE_CHECKING:
+    from .channel import Channel
     from .server import Server
     from .state import State
     from .types import File
@@ -125,7 +124,12 @@ class Member(User):
     def get_channel_permissions(self, channel: Channel):
         return calculate_permissions(self, channel)
 
-    def has_permissions(self, **kwargs: bool) -> bool:
+    def has_permissions(self, **permissions: bool) -> bool:
         calculated_perms = self.get_permissions()
 
-        return all([getattr(calculated_perms, key) == value for key, value in kwargs.items()])
+        return all([getattr(calculated_perms, key, False) == value for key, value in permissions.items()])
+
+    def has_channel_permissions(self, channel: Channel, **permissions: bool) -> bool:
+        calculated_perms = self.get_channel_permissions(channel)
+
+        return all([getattr(calculated_perms, key, False) == value for key, value in permissions.items()])

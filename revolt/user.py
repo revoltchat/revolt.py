@@ -3,21 +3,21 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 from weakref import WeakSet
 
-from .permissions import UserPermissions
 from .asset import Asset, PartialAsset
-from .channel import DMChannel
+from .channel import DMChannel, GroupDMChannel
 from .enums import PresenceType, RelationshipType
 from .flags import UserBadges
 from .messageable import Messageable
+from .permissions import UserPermissions
 from .utils import Ulid
 
 if TYPE_CHECKING:
+    from .member import Member
     from .state import State
     from .types import File
     from .types import Status as StatusPayload
     from .types import User as UserPayload
     from .types import UserProfile as UserProfileData
-    from .member import Member
 
 __all__ = ("User", "Status", "Relation", "UserProfile")
 
@@ -113,20 +113,32 @@ class User(Messageable, Ulid):
         self.masquerade_avatar: Optional[PartialAsset] = None
         self.masquerade_name: Optional[str] = None
 
-    @property
-    def permissions(self) -> UserPermissions:
+    def get_permissions(self) -> UserPermissions:
         permissions = UserPermissions()
 
         if self.relationship in [RelationshipType.friend, RelationshipType.user]:
             return UserPermissions.all()
+
         elif self.relationship in [RelationshipType.blocked, RelationshipType.blocked_other]:
             return UserPermissions(access=True)
+
         elif self.relationship in [RelationshipType.incoming_friend_request, RelationshipType.outgoing_friend_request]:
             permissions.access = True
 
+        for channel in self.state.channels.values():
+            if (isinstance(channel, (GroupDMChannel, DMChannel)) and self.id in channel.recipient_ids) or any(self.id in (m.id for m in server.members) for server in self.state.servers.values()):
+                if self.state.me.bot or self.bot:
+                    permissions.send_message = True
 
+                permissions.access = True
+                permissions.view_profile = True
 
         return permissions
+
+    def has_permissions(self, **permissions: bool) -> bool:
+        perms = self.get_permissions()
+
+        return all([getattr(perms, key, False) == value for key, value in permissions.items()])
 
     async def _get_channel_id(self):
         if not self.dm_channel:
