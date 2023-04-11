@@ -40,6 +40,7 @@ class User(TypedDict):
     online: NotRequired[bool]
     flags: NotRequired[int]
     bot: NotRequired[UserBot]
+    privileged: NotRequired[bool]
 
 class UserProfile(TypedDict, total=False):
     content: str

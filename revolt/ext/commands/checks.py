@@ -59,3 +59,8 @@ def is_server_owner():
         raise NotServerOwner
 
     return inner
+
+def has_permissions(**permissions: bool):
+    @check
+    def inner(context: Context[ClientT]):
+        ...

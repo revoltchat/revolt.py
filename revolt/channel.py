@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
+from revolt.user import User
+
 from .utils import Missing, Ulid
 from .asset import Asset
 from .enums import ChannelType
@@ -49,7 +51,7 @@ class EditableChannel:
         nsfw: bool
             Sets whether the channel is nsfw or not
         """
-        remove = []
+        remove: list[str] = []
 
         if kwargs.get("icon", Missing) == None:
             remove.append("Icon")
@@ -123,11 +125,27 @@ class DMChannel(Channel, Messageable):
         The id of the last message in this channel, if any
     """
 
-    __slots__ = ("last_message_id",)
+    __slots__ = ("last_message_id", "recipients")
 
     def __init__(self, data: DMChannelPayload, state: State):
         super().__init__(data, state)
+        self.recipient_ids: tuple[str, str] = tuple(data["recipients"])
         self.last_message_id = data.get("last_message_id")
+
+    @property
+    def recipients(self) -> tuple[User, User]:
+        a, b = self.recipient_ids
+
+        return (self.state.get_user(a), self.state.get_user(b))
+
+    @property
+    def recipient(self) -> User:
+        if self.recipient_ids[0] != self.state.user_id:
+            user_id = self.recipient_ids[0]
+        else:
+            user_id = self.recipient_ids[1]
+
+        return self.state.get_user(user_id)
 
     @property
     def last_message(self) -> Message:

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 from weakref import WeakSet
 
+from .permissions import UserPermissions
 from .asset import Asset, PartialAsset
 from .channel import DMChannel
 from .enums import PresenceType, RelationshipType
@@ -60,8 +61,10 @@ class User(Messageable, Ulid):
         The users status
     dm_channel: Optional[:class:`DMChannel`]
         The dm channel between the client and the user, this will only be set if the client has dm'ed the user or :meth:`User.open_dm` was run
+    privileged: :class:`bool`
+        Whether the user is privileged
     """
-    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile", "dm_channel")
+    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile", "dm_channel", "privileged")
     __slots__ = (*__flattern_attributes__, "state", "_members")
 
     def __init__(self, data: UserPayload, state: State):
@@ -82,6 +85,7 @@ class User(Messageable, Ulid):
         self.badges = UserBadges._from_value(data.get("badges", 0))
         self.online = data.get("online", False)
         self.flags = data.get("flags", 0)
+        self.privileged = data.get("privileged", False)
 
         avatar = data.get("avatar")
         self.original_avatar = Asset(avatar, state) if avatar else None
@@ -108,6 +112,21 @@ class User(Messageable, Ulid):
 
         self.masquerade_avatar: Optional[PartialAsset] = None
         self.masquerade_name: Optional[str] = None
+
+    @property
+    def permissions(self) -> UserPermissions:
+        permissions = UserPermissions()
+
+        if self.relationship in [RelationshipType.friend, RelationshipType.user]:
+            return UserPermissions.all()
+        elif self.relationship in [RelationshipType.blocked, RelationshipType.blocked_other]:
+            return UserPermissions(access=True)
+        elif self.relationship in [RelationshipType.incoming_friend_request, RelationshipType.outgoing_friend_request]:
+            permissions.access = True
+
+
+
+        return permissions
 
     async def _get_channel_id(self):
         if not self.dm_channel:

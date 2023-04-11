@@ -1,11 +1,38 @@
 from __future__ import annotations
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Optional
 from typing_extensions import Self
 
+from revolt.enums import ChannelType
+
+from .channel import Channel, DMChannel
+from .member import Member
+from .server import Server
 from .types.permissions import Overwrite
 from .flags import Flags, Flag
 
-__all__ = ("Permissions", "PermissionsOverwrite")
+__all__ = ("Permissions", "PermissionsOverwrite", "UserPermissions")
+
+class UserPermissions(Flags):
+    @Flag
+    def access() -> int:
+        return 1 << 0
+
+    @Flag
+    def view_profile() -> int:
+        return 1 << 1
+
+    @Flag
+    def send_message() -> int:
+        return 1 << 2
+
+    @Flag
+    def invite() -> int:
+        return 1 << 3
+
+    @classmethod
+    def all(cls) -> Self:
+        return cls(access=True, view_profile=True, send_message=True, invite=True)
 
 class Permissions(Flags):
     @Flag
@@ -198,3 +225,31 @@ class PermissionsOverwrite:
         deny = Permissions(overwrite["d"])
 
         return cls(allow, deny)
+
+def calculate_permissions(member: Member, target: Server | Channel) -> Permissions:
+    if member.privileged:
+        return Permissions.all()
+
+    if isinstance(target, Server):
+        if target.owner_id == member.id:
+            return Permissions.all()
+
+        permissions = target.default_permissions
+
+        for role in member.roles:
+            permissions = (permissions | role.permissions._allow) & (~role.permissions._deny)
+
+        if member.current_timeout and member.current_timeout > datetime.now():
+            permissions = permissions & Permissions.default_view_only()
+
+        return permissions
+
+    else:
+        channel_type = target.channel_type
+
+        if channel_type is ChannelType.saved_messages:
+            return Permissions.all()
+        elif channel_type is ChannelType.direct_message:
+            assert isinstance(target,  DMChannel)
+
+            user_permissions = target.recipient.permissions

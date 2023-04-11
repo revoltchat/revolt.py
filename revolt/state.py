@@ -23,18 +23,19 @@ if TYPE_CHECKING:
 __all__ = ("State",)
 
 class State:
-    __slots__ = ("http", "api_info", "max_messages", "users", "channels", "servers", "messages")
+    __slots__ = ("http", "api_info", "max_messages", "users", "channels", "servers", "messages", "global_emojis", "user_id")
 
     def __init__(self, http: HttpClient, api_info: ApiInfo, max_messages: int):
         self.http = http
         self.api_info = api_info
         self.max_messages = max_messages
+        self.user_id = ""
 
         self.users: dict[str, User] = {}
         self.channels: dict[str, Channel] = {}
         self.servers: dict[str, Server] = {}
         self.messages: deque[Message] = deque()
-        self.global_emojis: list[Emoji]
+        self.global_emojis: list[Emoji] = []
 
     def get_user(self, id: str) -> User:
         try:
@@ -59,6 +60,9 @@ class State:
             raise LookupError from None
 
     def add_user(self, payload: UserPayload) -> User:
+        if payload["relationship"] == "User":
+            self.user_id = payload["_id"]
+
         user = User(payload, self)
         self.users[user.id] = user
         return user

@@ -1,7 +1,11 @@
 from __future__ import annotations
+import this
 
 from typing import TYPE_CHECKING, Optional
 import datetime
+from revolt.channel import Channel
+
+from revolt.permissions import Permissions
 
 from .asset import Asset
 from .user import User
@@ -114,3 +118,14 @@ class Member(User):
         ends_at = datetime.datetime.utcnow() + length
 
         await self.state.http.edit_member(self.server.id, self.id, None, {"timeout": ends_at.isoformat()})
+
+    def get_permissions(self) -> Permissions:
+        return calculate_permissions(self, self.server)
+
+    def get_channel_permissions(self, channel: Channel):
+        return calculate_permissions(self, channel)
+
+    def has_permissions(self, **kwargs: bool) -> bool:
+        calculated_perms = self.get_permissions()
+
+        return all([getattr(calculated_perms, key) == value for key, value in kwargs.items()])
