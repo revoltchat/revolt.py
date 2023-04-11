@@ -10,6 +10,8 @@ from .types.permissions import Overwrite
 __all__ = ("Permissions", "PermissionsOverwrite", "UserPermissions")
 
 class UserPermissions(Flags):
+    """Permissions for users"""
+
     @Flag
     def access() -> int:
         return 1 << 0
@@ -31,6 +33,8 @@ class UserPermissions(Flags):
         return cls(access=True, view_profile=True, send_message=True, invite=True)
 
 class Permissions(Flags):
+    """Server permissions for members and roles"""
+
     @Flag
     def manage_channel() -> int:
         return 1 << 0
@@ -156,6 +160,8 @@ class Permissions(Flags):
         return cls.default_view_only() | cls(react=True, manage_channel=True)
 
 class PermissionsOverwrite:
+    """A permissions overwrite in a channel"""
+
     def __init__(self, allow: Permissions, deny: Permissions):
         self._allow = allow
         self._deny = deny

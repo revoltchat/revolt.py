@@ -119,17 +119,62 @@ class Member(User):
         await self.state.http.edit_member(self.server.id, self.id, None, {"timeout": ends_at.isoformat()})
 
     def get_permissions(self) -> Permissions:
+        """Gets the permissions for the member in the server
+
+        Returns
+        --------
+        :class:`Permissions`
+            The members permissions
+        """
         return calculate_permissions(self, self.server)
 
     def get_channel_permissions(self, channel: Channel):
+        """Gets the permissions for the member in the server taking into account the channel as well
+
+        Parameters
+        -----------
+        channel: :class:`Channel`
+            The channel to calculate permissions with
+
+        Returns
+        --------
+        :class:`Permissions`
+            The members permissions
+        """
         return calculate_permissions(self, channel)
 
     def has_permissions(self, **permissions: bool) -> bool:
+        """Computes if the member has the specified permissions
+
+        Parameters
+        -----------
+        permissions: :class:`bool`
+            The permissions to check, this also accepted `False` if you need to check if the member does not have the permission
+
+        Returns
+        --------
+        :class:`bool`
+            Whether or not they have the permissions
+        """
         calculated_perms = self.get_permissions()
 
         return all([getattr(calculated_perms, key, False) == value for key, value in permissions.items()])
 
     def has_channel_permissions(self, channel: Channel, **permissions: bool) -> bool:
+        """Computes if the member has the specified permissions, taking into account the channel as well
+
+        Parameters
+        -----------
+        channel: :class:`Channel`
+            The channel to calculate permissions with
+        permissions: :class:`bool`
+            The permissions to check, this also accepted `False` if you need to check if the member does not have the permission
+
+        Returns
+        --------
+        :class:`bool`
+            Whether or not they have the permissions
+        """
         calculated_perms = self.get_channel_permissions(channel)
 
         return all([getattr(calculated_perms, key, False) == value for key, value in permissions.items()])

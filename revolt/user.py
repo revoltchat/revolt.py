@@ -45,8 +45,8 @@ class User(Messageable, Ulid):
         The users id
     bot: :class:`bool`
         Whether or not the user is a bot
-    owner: Optional[:class:`User`]
-        The bot's owner if the user is a bot
+    owner_id: Optional[:class:`str`]
+        The bot's owner id if the user is a bot
     badges: :class:`UserBadges`
         The users badges
     online: :class:`bool`
@@ -114,6 +114,13 @@ class User(Messageable, Ulid):
         self.masquerade_name: Optional[str] = None
 
     def get_permissions(self) -> UserPermissions:
+        """Gets the permissions for the user
+
+        Returns
+        --------
+        :class:`UserPermissions`
+            The users permissions
+        """
         permissions = UserPermissions()
 
         if self.relationship in [RelationshipType.friend, RelationshipType.user]:
@@ -136,6 +143,18 @@ class User(Messageable, Ulid):
         return permissions
 
     def has_permissions(self, **permissions: bool) -> bool:
+        """Computes if the user has the specified permissions
+
+        Parameters
+        -----------
+        permissions: :class:`bool`
+            The permissions to check, this also accepted `False` if you need to check if the user does not have the permission
+
+        Returns
+        --------
+        :class:`bool`
+            Whether or not they have the permissions
+        """
         perms = self.get_permissions()
 
         return all([getattr(perms, key, False) == value for key, value in permissions.items()])
@@ -148,13 +167,13 @@ class User(Messageable, Ulid):
         return self.id
 
     @property
-    def owner(self) -> Optional[User]:
-        owner_id = self.owner_id
+    def owner(self) -> User:
+        """:class:`User` the owner of the bot account"""
 
-        if not owner_id:
-            return
+        if not self.owner_id:
+            raise LookupError
 
-        return self.state.get_user(owner_id)
+        return self.state.get_user(self.owner_id)
 
     @property
     def name(self) -> str:
