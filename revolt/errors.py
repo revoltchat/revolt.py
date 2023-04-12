@@ -4,6 +4,7 @@ __all__ = (
     "ServerError",
     "FeatureDisabled",
     "AutumnDisabled",
+    "Forbidden",
 )
 
 class RevoltError(Exception):

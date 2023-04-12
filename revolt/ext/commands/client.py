@@ -95,6 +95,8 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             for alias in command.aliases:
                 self.all_commands[alias] = command
 
+        self.help_command: HelpCommand[Self] | None
+
         if help_command is not None:
             self.help_command = help_command or DefaultHelpCommand[Self]()
             self.add_command(HelpCommandImpl(self))
