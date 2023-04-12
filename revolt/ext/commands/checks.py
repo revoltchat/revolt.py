@@ -10,7 +10,7 @@ from .errors import (MissingPermissionsError, NotBotOwner, NotServerOwner,
                      ServerOnly)
 from .utils import ClientT
 
-__all__ = ("check", "Check", "is_bot_owner", "is_server_owner")
+__all__ = ("check", "Check", "is_bot_owner", "is_server_owner", "has_permissions", "has_channel_permissions")
 
 T = TypeVar("T", Callable[..., Any], Command)
 
