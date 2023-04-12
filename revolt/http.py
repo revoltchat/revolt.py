@@ -385,12 +385,6 @@ class HttpClient:
                 asset = await self.upload_file(background, "backgrounds")
                 profile["background"] = asset["id"]
 
-        if not values.get("profile", Missing):
-            del values["profile"]
-
-        if not values.get("status", Missing):
-            del values["status"]
-
         return await self.request("PATCH", "/users/@me", json=values)
 
     def set_guild_channel_default_permissions(self, channel_id: str, allow: int, deny: int) -> Request[None]:
@@ -420,7 +414,7 @@ class HttpClient:
     def delete_emoji(self, emoji_id: str):
         return self.request("DELETE", f"/custom/emoji/{emoji_id}")
 
-    def fetch_emoji(self, emoji_id: str):
+    def fetch_emoji(self, emoji_id: str) -> Request[EmojiPayload]:
         return self.request("GET", f"/custom/emoji/{emoji_id}")
 
     async def create_emoji(self, name: str, file: File, nsfw: bool, parent: EmojiParent) -> EmojiPayload:

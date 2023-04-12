@@ -373,7 +373,9 @@ class Client:
             The emoji with the corrasponding id
         """
 
-        return await self.state.http.fetch_emoji(emoji_id)
+        emoji = await self.state.http.fetch_emoji(emoji_id)
+
+        return Emoji(emoji, self.state)
 
     async def upload_file(self, file: File, tag: Literal['attachments', 'avatars', 'backgrounds', 'icons', 'banners', 'emojis']) -> Ulid:
         """Uploads a file to revolt
