@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
-from weakref import WeakSet
+from weakref import WeakValueDictionary
 
 from .asset import Asset, PartialAsset
 from .channel import DMChannel, GroupDMChannel
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from .types import Status as StatusPayload
     from .types import User as UserPayload
     from .types import UserProfile as UserProfileData
+    from .server import Server
 
 __all__ = ("User", "Status", "Relation", "UserProfile")
 
@@ -69,7 +70,7 @@ class User(Messageable, Ulid):
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
-        self._members: WeakSet[Member] = WeakSet()  # we store all member versions of this user to avoid having to check every guild when needing to update.
+        self._members: WeakValueDictionary[str, Member] = WeakValueDictionary()  # we store all member versions of this user to avoid having to check every guild when needing to update.
         self.id = data["_id"]
         self.original_name = data["username"]
         self.dm_channel = None
@@ -212,7 +213,7 @@ class User(Messageable, Ulid):
         # update user infomation for all members
 
         if self.__class__ is User:
-            for member in self._members:
+            for member in self._members.values():
                 User._update(member, status=status, profile=profile, avatar=avatar, online=online)
 
     async def default_avatar(self) -> bytes:
@@ -245,3 +246,33 @@ class User(Messageable, Ulid):
 
         self.profile = UserProfile(payload.get("content"), background)
         return self.profile
+
+    def to_member(self, server: Server) -> Member:
+        """Gets the member instance for this user for a specific server.
+
+        Roughly equivelent to:
+
+        .. code-block:: python
+
+            member = server.get_member(user.id)
+
+
+        Parameters
+        -----------
+        server: :class:`Server`
+            The server to get the member for
+
+        Returns
+        --------
+        :class:`Member`
+            The member
+
+        Raises
+        -------
+        :class:`LookupError`
+
+        """
+        try:
+            return self._members[server.id]
+        except IndexError:
+            raise LookupError from None

@@ -7,7 +7,7 @@ from revolt.utils import maybe_coroutine
 
 from .command import Command
 from .group import Group
-from .utils import ClientT
+from .utils import ClientCoT
 
 if TYPE_CHECKING:
     from .view import StringView
@@ -16,7 +16,7 @@ __all__ = (
     "Context",
 )
 
-class Context(revolt.Messageable, Generic[ClientT]):
+class Context(revolt.Messageable, Generic[ClientCoT]):
     """Stores metadata the commands execution.
 
     Attributes
@@ -45,7 +45,7 @@ class Context(revolt.Messageable, Generic[ClientT]):
     async def _get_channel_id(self) -> str:
         return self.channel.id
 
-    def __init__(self, command: Optional[Command[ClientT]], invoked_with: str, view: StringView, message: revolt.Message, client: ClientT):
+    def __init__(self, command: Optional[Command[ClientCoT]], invoked_with: str, view: StringView, message: revolt.Message, client: ClientCoT):
         self.command = command
         self.invoked_with = invoked_with
         self.view = view
@@ -85,8 +85,14 @@ class Context(revolt.Messageable, Generic[ClientT]):
             await command.parse_arguments(self)
             return await command.invoke(self, *self.args, **self.kwargs)
 
-    async def can_run(self, command: Optional[Command[ClientT]] = None) -> bool:
+    async def can_run(self, command: Optional[Command[ClientCoT]] = None) -> bool:
         """Runs all of the commands checks, and returns true if all of them pass"""
         command = command or self.command
 
         return all([await maybe_coroutine(check, self) for check in (command.checks if command else [])])
+
+    async def send_help(self, argument: Command[Any] | Group[Any] | ClientCoT | None = None):
+        argument = argument or self.client
+
+        command = self.client.get_command("help")
+        await command.invoke(self, argument)

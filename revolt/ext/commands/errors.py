@@ -50,7 +50,16 @@ class ServerOnly(CheckError):
     """Raised when a check requires the command to be ran in a server"""
 
 class MissingPermissionsError(CheckError):
-    """Raised when a check requires permissions the user does not have"""
+    """Raised when a check requires permissions the user does not have
+
+    Attributes
+    -----------
+    permissions: :class:`dict[str, bool]`
+        The permissions which the user did not have
+    """
+
+    def __init__(self, permissions: dict[str, bool]):
+        self.permissions = permissions
 
 class ConverterError(CommandError):
     """Base class for all converter errors"""

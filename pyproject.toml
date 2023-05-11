@@ -54,6 +54,7 @@ only-packages = true
 reportPrivateUsage = false
 reportImportCycles = false
 reportIncompatibleMethodOverride = false
+typeCheckingMode = "strict"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,19 +1,24 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
+
+
+from .utils import _Missing, Missing
 
 from .asset import Asset
 from .permissions import Permissions
 from .permissions_calculator import calculate_permissions
 from .user import User
+from .file import File
 
 if TYPE_CHECKING:
     from .channel import Channel
     from .server import Server
     from .state import State
-    from .types import File
+    from .types import File as FilePayload
     from .types import Member as MemberPayload
+    from .role import Role
 
 __all__ = ("Member",)
 
@@ -42,7 +47,7 @@ class Member(User):
 
         # due to not having a user payload and only a user object we have to manually add all the attributes instead of calling User.__init__
         flattern_user(self, user)
-        user._members.add(self)
+        user._members[server.id] = self
 
         self.state = state
 
@@ -77,7 +82,7 @@ class Member(User):
         """:class:`str`: Returns a string that allows you to mention the given member."""
         return f"<@{self.id}>"
 
-    def _update(self, *, nickname: Optional[str] = None, avatar: Optional[File] = None, roles: Optional[list[str]] = None):
+    def _update(self, *, nickname: Optional[str] = None, avatar: Optional[FilePayload] = None, roles: Optional[list[str]] = None):
         if nickname is not None:
             self.nickname = nickname
 
@@ -105,6 +110,43 @@ class Member(User):
     async def unban(self):
         """Unbans the member from the server"""
         await self.state.http.unban_member(self.server.id, self.id)
+
+    async def edit(
+        self,
+        *,
+        nickname: str | None | _Missing = Missing,
+        roles: list[Role] | None | _Missing = Missing,
+        avatar: File | None | _Missing = Missing,
+        timeout: datetime.timedelta | None | _Missing = Missing
+    ):
+        remove: list[str] = []
+        data: dict[str, Any] = {}
+
+        if nickname is None:
+            remove.append("Nickname")
+        elif nickname is not Missing:
+            data["nickname"] = nickname
+
+        if roles is None:
+            remove.append("Roles")
+        elif roles is not Missing:
+            data["roles"] = roles
+
+        if avatar is None:
+            remove.append("Avatar")
+        elif avatar is not Missing:
+            # pyright cant understand custom singletons - it doesnt know this will never be an instance of _Missing here because Missing is the only instance
+            assert not isinstance(avatar, _Missing)
+
+            data["avatar"] = (await self.state.http.upload_file(avatar, "avatars"))["id"]
+
+        if timeout is None:
+            remove.append("Timeout")
+        elif timeout is not Missing:
+            assert not isinstance(timeout, _Missing)
+            data["timeout"] = (datetime.datetime.now(datetime.timezone.utc) + timeout).isoformat()
+
+        await self.state.http.edit_member(self.server.id, self.id, remove, data)
 
     async def timeout(self, length: datetime.timedelta):
         """Timeouts the member

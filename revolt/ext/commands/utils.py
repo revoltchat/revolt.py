@@ -7,12 +7,14 @@ from typing_extensions import TypeVar
 
 if TYPE_CHECKING:
     from .client import CommandsClient
+    from .context import Context
 
 
 __all__ = ("evaluate_parameters",)
 
 ClientT = TypeVar("ClientT", bound="CommandsClient", default="CommandsClient")
-
+ClientCoT = TypeVar("ClientCoT", bound="CommandsClient", default="CommandsClient", covariant=True)
+ContextT = TypeVar("ContextT", bound="Context")
 
 def evaluate_parameters(parameters: Iterable[Parameter], globals: dict[str, Any]) -> list[Parameter]:
     new_parameters: list[Parameter] = []

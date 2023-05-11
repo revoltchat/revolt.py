@@ -8,7 +8,6 @@ import ulid
 
 from .errors import Forbidden, HTTPError, ServerError
 from .file import File
-from .utils import Missing
 
 try:
     import ujson as _json
@@ -203,7 +202,7 @@ class HttpClient:
         include_users: bool = False
     ) -> Request[Union[list[MessagePayload], MessageWithUserData]]:
 
-        json = {"sort": sort.value, "include_users": str(include_users)}
+        json: dict[str, Any] = {"sort": sort.value, "include_users": str(include_users)}
 
         if limit:
             json["limit"] = limit

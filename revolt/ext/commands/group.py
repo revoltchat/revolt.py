@@ -1,21 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Optional, TypeVar
+from typing import Any, Callable, Coroutine, Optional
 
 from .command import Command
+from .utils import ClientCoT, ClientT
 
-if TYPE_CHECKING:
-    from .client import CommandsClient
 
 __all__ = (
     "Group",
     "group"
 )
 
-ClientT = TypeVar("ClientT", bound="CommandsClient")
-
-
-class Group(Command[ClientT]):
+class Group(Command[ClientCoT]):
     """Class for holding info about a group command.
 
     Parameters
@@ -33,10 +29,10 @@ class Group(Command[ClientT]):
     __slots__ = ("subcommands",)
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str]):
-        self.subcommands: dict[str, Command[ClientT]] = {}
+        self.subcommands: dict[str, Command[ClientCoT]] = {}
         super().__init__(callback, name, aliases)
 
-    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientT]] = Command[ClientT]):
+    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientCoT]] = Command[ClientCoT]):
         """A decorator that turns a function into a :class:`Command` and registers the command as a subcommand.
 
         Parameters
@@ -61,7 +57,7 @@ class Group(Command[ClientT]):
 
         return inner
 
-    def group(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: Optional[type[Group[ClientT]]] = None):
+    def group(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: Optional[type[Group[ClientCoT]]] = None):
         """A decorator that turns a function into a :class:`Group` and registers the command as a subcommand
 
         Parameters
@@ -92,7 +88,7 @@ class Group(Command[ClientT]):
         return f"<Group name=\"{self.name}\">"
 
     @property
-    def commands(self) -> list[Command[ClientT]]:
+    def commands(self) -> list[Command[ClientCoT]]:
         return list(self.subcommands.values())
 
 def group(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Group[ClientT]] = Group):

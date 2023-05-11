@@ -68,7 +68,7 @@ def has_permissions(**permissions: bool):
         author = context.author
 
         if not author.has_permissions(**permissions):
-            raise MissingPermissionsError
+            raise MissingPermissionsError(permissions)
 
     return inner
 
@@ -77,10 +77,10 @@ def has_channel_permissions(**permissions: bool):
     def inner(context: Context[ClientT]):
         author = context.author
 
-        if isinstance(author, revolt.User):
-            raise MissingPermissionsError
+        if not isinstance(author, revolt.Member):
+            raise ServerOnly
 
         if not author.has_channel_permissions(context.channel, **permissions):
-            raise MissingPermissionsError
+            raise MissingPermissionsError(permissions)
 
     return inner

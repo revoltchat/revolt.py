@@ -9,7 +9,7 @@ from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
 from revolt.utils import copy_doc, maybe_coroutine
 
 from .errors import InvalidLiteralArgument, UnionConverterError
-from .utils import ClientT, evaluate_parameters
+from .utils import ClientCoT, evaluate_parameters
 
 if TYPE_CHECKING:
     from .checks import Check
@@ -25,7 +25,7 @@ __all__ = (
 NoneType = type(None)
 
 
-class Command(Generic[ClientT]):
+class Command(Generic[ClientCoT]):
     """Class for holding info about a command.
 
     Parameters
@@ -52,13 +52,13 @@ class Command(Generic[ClientT]):
         self.usage = usage
         self.signature = inspect.signature(self.callback)
         self.parameters = evaluate_parameters(self.signature.parameters.values(), getattr(callback, "__globals__", {}))
-        self.checks: list[Check[ClientT]] = getattr(callback, "_checks", [])
-        self.parent: Optional[Group[ClientT]] = None
-        self.cog: Optional[Cog[ClientT]] = None
-        self._error_handler: Callable[[Any, Context[ClientT], Exception], Coroutine[Any, Any, Any]] = type(self)._default_error_handler
+        self.checks: list[Check[ClientCoT]] = getattr(callback, "_checks", [])
+        self.parent: Optional[Group[ClientCoT]] = None
+        self.cog: Optional[Cog[ClientCoT]] = None
+        self._error_handler: Callable[[Any, Context[ClientCoT], Exception], Coroutine[Any, Any, Any]] = type(self)._default_error_handler
         self.description = callback.__doc__
 
-    async def invoke(self, context: Context[ClientT], *args: Any, **kwargs: Any) -> Any:
+    async def invoke(self, context: Context[ClientCoT], *args: Any, **kwargs: Any) -> Any:
         """Runs the command and calls the error handler if the command errors.
 
         Parameters
@@ -74,7 +74,7 @@ class Command(Generic[ClientT]):
             return await self._error_handler(self.cog or context.client, context, err)
 
     @copy_doc(invoke)
-    def __call__(self, context: Context[ClientT], *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, context: Context[ClientCoT], *args: Any, **kwargs: Any) -> Any:
         return self.invoke(context, *args, **kwargs)
 
     def error(self, func: Callable[..., Coroutine[Any, Any, Any]]):
@@ -97,11 +97,11 @@ class Command(Generic[ClientT]):
         self._error_handler = func
         return func
 
-    async def _default_error_handler(self, ctx: Context[ClientT], error: Exception):
+    async def _default_error_handler(self, ctx: Context[ClientCoT], error: Exception):
         traceback.print_exception(type(error), error, error.__traceback__)
 
     @classmethod
-    async def handle_origin(cls, context: Context[ClientT], origin: Any, annotation: Any, arg: str) -> Any:
+    async def handle_origin(cls, context: Context[ClientCoT], origin: Any, annotation: Any, arg: str) -> Any:
         if origin is Union:
             for converter in get_args(annotation):
                 try:
@@ -128,11 +128,12 @@ class Command(Generic[ClientT]):
                 raise InvalidLiteralArgument(arg)
 
     @classmethod
-    async def convert_argument(cls, arg: str, annotation: Any, context: Context[ClientT]) -> Any:
+    async def convert_argument(cls, arg: str, annotation: Any, context: Context[ClientCoT]) -> Any:
         if annotation is not inspect.Signature.empty:
             if annotation is str:  # no converting is needed - its already a string
                 return arg
 
+            origin: Any
             if origin := get_origin(annotation):
                 return await cls.handle_origin(context, origin, annotation, arg)
             else:
@@ -140,7 +141,7 @@ class Command(Generic[ClientT]):
         else:
             return arg
 
-    async def parse_arguments(self, context: Context[ClientT]):
+    async def parse_arguments(self, context: Context[ClientCoT]):
         # please pr if you can think of a better way to do this
 
         for parameter in self.parameters[2:]:
@@ -213,7 +214,7 @@ class Command(Generic[ClientT]):
 
         return f"{' '.join(parents[::-1])} {self.name} {' '.join(parameters)}"
 
-def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientT]] = Command, usage: Optional[str] = None):
+def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientCoT]] = Command, usage: Optional[str] = None):
     """A decorator that turns a function into a :class:`Command`.
 
     Parameters

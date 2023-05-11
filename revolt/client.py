@@ -347,7 +347,7 @@ class Client:
         background: Optional[:class:`File`]
             The new background for the profile, passing in ``None`` will remove the profile background
         """
-        remove = []
+        remove: list[str] = []
 
         if kwargs.get("content", Missing) is None:
             del kwargs["content"]

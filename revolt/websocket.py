@@ -4,7 +4,7 @@ import asyncio
 import logging
 import time
 from copy import copy
-from typing import TYPE_CHECKING, Callable, cast
+from typing import TYPE_CHECKING, Callable, NamedTuple, cast
 
 from . import utils
 from .channel import GroupDMChannel, TextChannel, VoiceChannel
@@ -29,6 +29,8 @@ from .types import (ServerCreateEventPayload, ServerDeleteEventPayload,
                     UserUpdateEventPayload)
 from .user import Status, UserProfile
 
+import aiohttp
+
 try:
     import ujson as json
 except ImportError:
@@ -46,7 +48,11 @@ if TYPE_CHECKING:
     from .state import State
     from .types import (AuthenticatePayload, BasePayload, MessageEventPayload,
                         ReadyEventPayload)
+    from .message import Message
 
+class WSMessage(NamedTuple):
+    type: aiohttp.WSMsgType
+    data: str | bytes | aiohttp.WSCloseCode
 
 __all__ = ("WebsocketHandler",)
 
@@ -313,7 +319,7 @@ class WebsocketHandler:
         # remove the member from the user
 
         user = self.state.get_user(payload["user"])
-        user._members.remove(member)
+        user._members.pop(server.id)
 
         self.dispatch("member_leave", member)
 
@@ -431,7 +437,7 @@ class WebsocketHandler:
 
         self.dispatch("raw_bulk_message_delete", payload)
 
-        messages = []
+        messages: list[Message] = []
 
         for message_id in payload["ids"]:
             if server_id := channel.server_id:
@@ -462,6 +468,8 @@ class WebsocketHandler:
         asyncio.create_task(self.heartbeat())
 
         async for msg in self.websocket:
+            msg = cast(WSMessage, msg)  # aiohttp doesnt use NamedTuple so the type info is missing
+
             if use_msgpack:
                 data = cast(bytes, msg.data)
 
