@@ -115,14 +115,15 @@ class Message(Ulid):
         else:
             self.interactions = None
 
-    def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited: int):
+    def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited: Optional[str] = None):
         if content is not None:
             self.content = content
 
-        self.edited = datetime.datetime.fromtimestamp(edited / 1000)
-
         if embeds is not None:
             self.embeds = [to_embed(embed, self.state) for embed in embeds]
+
+        if edited is not None:
+            self.edited_at = datetime.datetime.strptime(edited, "%Y-%m-%dT%H:%M:%S.%f%z")
 
     async def edit(self, *, content: Optional[str] = None, embeds: Optional[list[SendableEmbed]] = None) -> None:
         """Edits the message. The bot can only edit its own message
