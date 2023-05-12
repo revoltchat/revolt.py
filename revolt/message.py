@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from .asset import Asset, PartialAsset
 from .channel import Messageable
@@ -115,7 +115,7 @@ class Message(Ulid):
         else:
             self.interactions = None
 
-    def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited: Optional[str] = None):
+    def _update(self, *, content: Optional[str] = None, embeds: Optional[list[EmbedPayload]] = None, edited: Optional[Union[str, int]] = None):
         if content is not None:
             self.content = content
 
@@ -123,7 +123,10 @@ class Message(Ulid):
             self.embeds = [to_embed(embed, self.state) for embed in embeds]
 
         if edited is not None:
-            self.edited_at = datetime.datetime.strptime(edited, "%Y-%m-%dT%H:%M:%S.%f%z")
+            if isinstance(edited, int):
+                self.edited_at = datetime.datetime.fromtimestamp(edited / 1000, tz=datetime.timezone.utc)
+            else:
+                self.edited_at = datetime.datetime.strptime(edited, "%Y-%m-%dT%H:%M:%S.%f%z")
 
     async def edit(self, *, content: Optional[str] = None, embeds: Optional[list[SendableEmbed]] = None) -> None:
         """Edits the message. The bot can only edit its own message

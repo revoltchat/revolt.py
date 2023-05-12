@@ -67,7 +67,7 @@ class MessageEventPayload(BasePayload, Message):
 class MessageUpdateData(TypedDict):
     content: str
     embeds: list[Embed]
-    edited: str
+    edited: Union[str, int]
 
 class MessageUpdateEventPayload(BasePayload):
     channel: str
