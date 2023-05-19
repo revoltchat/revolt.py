@@ -96,7 +96,7 @@ class Channel(Ulid):
         await self.state.http.close_channel(self.id)
 
     @property
-    def server(self) -> Server:
+    def server(self) -> Optional[Server]:
         """:class:`Server` The server this voice channel belongs too"""
         if not self.server_id:
             return None
