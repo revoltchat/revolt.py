@@ -52,7 +52,7 @@ def is_server_owner():
     """A command check for limiting the command to only a server's owner"""
     @check
     def inner(context: Context[ClientT]):
-        if not context.server:
+        if not context.server_id:
             raise ServerOnly
 
         if context.author.id == context.server.owner_id:

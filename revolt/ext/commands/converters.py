@@ -22,37 +22,37 @@ ClientT = TypeVar("ClientT", bound="CommandsClient")
 
 def bool_converter(arg: str, _):
     lowered = arg.lower()
-    if lowered in  ["yes", "true", "ye", "y", "1", "on", "enable"]:
+    if lowered in  ("yes", "true", "ye", "y", "1", "on", "enable"):
         return True
-    elif lowered in ('no', 'n', 'false', 'f', '0', 'disable', 'off'):
+    elif lowered in ("no", "false", "n", "f", "0", "off", "disabled"):
         return False
     else:
         raise BadBoolArgument(lowered)
 
 def category_converter(arg: str, context: Context[ClientT]) -> Category:
-    if not (server := context.server):
+    if not context.server_id:
         raise ServerOnly
 
     try:
-        return server.get_category(arg)
+        return context.server.get_category(arg)
     except KeyError:
         try:
-            return utils.get(server.categories, name=arg)
+            return utils.get(context.server.categories, name=arg)
         except LookupError:
             raise CategoryConverterError(arg)
 
 def channel_converter(arg: str, context: Context[ClientT]) -> Channel:
-    if not (server := context.server):
+    if not context.server_id:
         raise ServerOnly
 
     if (match := channel_regex.match(arg)):
         arg = match.group(1)
 
     try:
-        return server.get_channel(arg)
+        return context.server.get_channel(arg)
     except KeyError:
         try:
-            return utils.get(server.channels, name=arg)
+            return utils.get(context.server.channels, name=arg)
         except LookupError:
             raise ChannelConverterError(arg)
 
@@ -69,17 +69,17 @@ def user_converter(arg: str, context: Context[ClientT]) -> User:
             raise UserConverterError(arg)
 
 def member_converter(arg: str, context: Context[ClientT]) -> Member:
-    if not (server := context.server):
+    if not context.server_id:
         raise ServerOnly
 
     if (match := user_regex.match(arg)):
         arg = match.group(1)
 
     try:
-        return server.get_member(arg)
+        return context.server.get_member(arg)
     except KeyError:
         try:
-            return utils.get(server.members, name=arg)
+            return utils.get(context.server.members, name=arg)
         except LookupError:
             raise MemberConverterError(arg)
 

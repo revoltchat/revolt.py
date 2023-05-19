@@ -97,7 +97,13 @@ class Channel(Ulid):
 
     @property
     def server(self) -> Server:
-        """:class:`Server` The server this voice channel belongs too"""
+        """:class:`Server` The server this voice channel belongs too
+
+        Raises
+        -------
+        :class:`LookupError`
+            Raises if the channel is not part of a server
+        """
         if not self.server_id:
             raise LookupError
 

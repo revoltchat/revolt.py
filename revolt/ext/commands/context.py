@@ -29,7 +29,7 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
         The message that was sent to invoke the command
     channel: :class:`Messageable`
         The channel the command was invoked in
-    server: :class:`Server`
+    server_id: Optional[:class:`Server`]
         The server the command was invoked in
     author: Union[:class:`Member`, :class:`User`]
         The user or member that invoked the commad, will be :class:`User` in DMs
@@ -40,7 +40,7 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
     client: :class:`CommandsClient`
         The revolt client
     """
-    __slots__ = ("command", "invoked_with", "args", "message", "server", "channel", "author", "view", "kwargs", "state", "client")
+    __slots__ = ("command", "invoked_with", "args", "message", "channel", "author", "view", "kwargs", "state", "client", "server_id")
 
     async def _get_channel_id(self) -> str:
         return self.channel.id
@@ -53,10 +53,24 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
         self.client = client
         self.args: list[Any] = []
         self.kwargs: dict[str, Any] = {}
-        self.server = message.server
+        self.server_id = message.server_id
         self.channel = message.channel
         self.author = message.author
         self.state = message.state
+
+    @property
+    def server(self) -> revolt.Server:
+        """:class:`Server` The server this voice channel belongs too
+
+        Raises
+        -------
+        :class:`LookupError`
+            Raises if the channel is not part of a server
+        """
+        if not self.server_id:
+            raise LookupError
+
+        return self.state.get_server(self.server_id)
 
     async def invoke(self) -> Any:
         """Invokes the command.

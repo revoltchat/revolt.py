@@ -69,10 +69,14 @@ class Message(Ulid):
         assert isinstance(channel, Messageable)
         self.channel = channel
 
-        if server_id := self.channel.server_id:
-            author = state.get_member(server_id, data["author"])
+        self.server_id = self.channel.server_id
+
+        if self.server_id:
+            author = state.get_member(self.server_id, data["author"])
+            self.mentions = [self.server.get_member(member_id) for member_id in data.get("mentions", [])]
         else:
             author = state.get_user(data["author"])
+            self.mentions = [state.get_user(member_id) for member_id in data.get("mentions", [])]
 
         self.author = author
 
@@ -85,11 +89,6 @@ class Message(Ulid):
 
         if edited_at := data.get("edited"):
             self.edited_at: Optional[datetime.datetime] = datetime.datetime.strptime(edited_at, "%Y-%m-%dT%H:%M:%S.%f%z")
-
-        if self.server:
-            self.mentions = [self.server.get_member(member_id) for member_id in data.get("mentions", [])]
-        else:
-            self.mentions = [state.get_user(member_id) for member_id in data.get("mentions", [])]
 
         self.replies: list[Message] = []
         self.reply_ids: list[str] = []
@@ -162,7 +161,13 @@ class Message(Ulid):
 
     @property
     def server(self) -> Server:
-        """:class:`Server` The server this voice channel belongs too"""
+        """:class:`Server` The server this voice channel belongs too
+
+        Raises
+        -------
+        :class:`LookupError`
+            Raises if the channel is not part of a server
+        """
         return self.channel.server
 
 class MessageReply:
