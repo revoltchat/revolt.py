@@ -463,7 +463,7 @@ class WebsocketHandler:
         else:
             url = f"{self.ws_url}?format=json"
 
-        self.websocket = await self.session.ws_connect(url)
+        self.websocket = await self.session.ws_connect(url)  # type: ignore
         await self.send_authenticate()
         asyncio.create_task(self.heartbeat())
 
