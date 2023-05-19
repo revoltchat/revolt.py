@@ -11,6 +11,7 @@ from .permissions import Overwrite
 
 if TYPE_CHECKING:
     from .category import Category
+    from .embed import Embed
     from .emoji import Emoji
     from .file import File
     from .member import Member, MemberID
@@ -65,7 +66,8 @@ class MessageEventPayload(BasePayload, Message):
 
 class MessageUpdateData(TypedDict):
     content: str
-    edited: int
+    embeds: list[Embed]
+    edited: Union[str, int]
 
 class MessageUpdateEventPayload(BasePayload):
     channel: str
