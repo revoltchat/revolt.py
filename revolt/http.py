@@ -46,11 +46,11 @@ class HttpClient:
     __slots__ = ("session", "token", "api_url", "api_info", "auth_header")
 
     def __init__(self, session: aiohttp.ClientSession, token: str, api_url: str, api_info: ApiInfo, bot: bool = True):
-        self.session = session
-        self.token = token
-        self.api_url = api_url
-        self.api_info = api_info
-        self.auth_header = "x-bot-token" if bot else "x-session-token"
+        self.session: aiohttp.ClientSession = session
+        self.token: str = token
+        self.api_url: str = api_url
+        self.api_info: ApiInfo = api_info
+        self.auth_header: str = "x-bot-token" if bot else "x-session-token"
 
     async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict[str, Any]] = None, nonce: bool = True, params: Optional[dict[str, Any]] = None) -> Any:
         url = f"{self.api_url}{route}"
@@ -359,19 +359,19 @@ class HttpClient:
     def delete_invite(self, code: str) -> Request[None]:
         return self.request("DELETE", f"/invites/{code}")
 
-    def edit_channel(self, channel_id: str, remove: list[str] | None, values: dict[str, Any]):
+    def edit_channel(self, channel_id: str, remove: list[str] | None, values: dict[str, Any]) -> Request[None]:
         if remove:
             values["remove"] = remove
 
         return self.request("PATCH", f"/channels/{channel_id}", json=values)
 
-    def edit_role(self, server_id: str, role_id: str, remove: list[str] | None, values: dict[str, Any]):
+    def edit_role(self, server_id: str, role_id: str, remove: list[str] | None, values: dict[str, Any]) -> Request[None]:
         if remove:
             values["remove"] = remove
 
         return self.request("PATCH", f"/servers/{server_id}/roles/{role_id}", json=values)
 
-    async def edit_self(self, remove: list[str] | None, values: dict[str, Any]):
+    async def edit_self(self, remove: list[str] | None, values: dict[str, Any]) -> Request[None]:
         if remove:
             values["remove"] = remove
 
@@ -392,25 +392,25 @@ class HttpClient:
     def set_guild_channel_role_permissions(self, channel_id: str, role_id: str, allow: int, deny: int) -> Request[None]:
         return self.request("PUT", f"/channels/{channel_id}/permissions/{role_id}", json={"permissions": {"allow": allow, "deny": deny}})
 
-    def set_group_channel_default_permissions(self, channel_id: str, value: int):
+    def set_group_channel_default_permissions(self, channel_id: str, value: int) -> Request[None]:
         return self.request("PUT", f"/channels/{channel_id}/permissions/default", json={"permissions": value})
 
-    def set_server_role_permissions(self, server_id: str, role_id: str, allow: int, deny: int):
+    def set_server_role_permissions(self, server_id: str, role_id: str, allow: int, deny: int) -> Request[None]:
         return self.request("PUT", f"/servers/{server_id}/permissions/{role_id}", json={"permissions": {"allow": allow, "deny": deny}})
 
-    def set_server_default_permissions(self, server_id: str, value: int):
+    def set_server_default_permissions(self, server_id: str, value: int) -> Request[None]:
         return self.request("PUT", f"/servers/{server_id}/permissions/default", json={"permissions": value})
 
-    def add_reaction(self, channel_id: str, message_id: str, emoji: str):
+    def add_reaction(self, channel_id: str, message_id: str, emoji: str) -> Request[None]:
         return self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
 
-    def remove_reaction(self, channel_id: str, message_id: str, emoji: str, user_id: Optional[str], remove_all: bool):
+    def remove_reaction(self, channel_id: str, message_id: str, emoji: str, user_id: Optional[str], remove_all: bool) -> Request[None]:
         return self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
 
-    def remove_all_reactions(self, channel_id: str, message_id: str):
+    def remove_all_reactions(self, channel_id: str, message_id: str) -> Request[None]:
         return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions")
 
-    def delete_emoji(self, emoji_id: str):
+    def delete_emoji(self, emoji_id: str) -> Request[None]:
         return self.request("DELETE", f"/custom/emoji/{emoji_id}")
 
     def fetch_emoji(self, emoji_id: str) -> Request[EmojiPayload]:
@@ -424,5 +424,5 @@ class HttpClient:
     def edit_member(self, server_id: str, member_id: str, remove: list[str] | None, values: dict[str, Any]) -> Request[MemberPayload]:
         return self.request("PATCH", f"/servers/{server_id}/members/{member_id}", json={"remove": remove, **values})
 
-    def delete_messages(self, channel_id: str, messages: list[str]):
+    def delete_messages(self, channel_id: str, messages: list[str]) -> Request[None]:
         return self.request("DELETE", f"/channels/{channel_id}/messages/bulk", json={"ids": messages})

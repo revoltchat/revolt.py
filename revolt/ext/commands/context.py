@@ -11,6 +11,7 @@ from .utils import ClientCoT
 
 if TYPE_CHECKING:
     from .view import StringView
+    from revolt.state import State
 
 __all__ = (
     "Context",
@@ -46,17 +47,17 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
         return self.channel.id
 
     def __init__(self, command: Optional[Command[ClientCoT]], invoked_with: str, view: StringView, message: revolt.Message, client: ClientCoT):
-        self.command = command
-        self.invoked_with = invoked_with
-        self.view = view
-        self.message = message
-        self.client = client
+        self.command: Command[ClientCoT] | None = command
+        self.invoked_with: str = invoked_with
+        self.view: StringView = view
+        self.message: revolt.Message = message
+        self.client: ClientCoT = client
         self.args: list[Any] = []
         self.kwargs: dict[str, Any] = {}
-        self.server_id = message.server_id
-        self.channel = message.channel
-        self.author = message.author
-        self.state = message.state
+        self.server_id: str | None = message.server_id
+        self.channel: revolt.TextChannel | revolt.GroupDMChannel | revolt.DMChannel = message.channel
+        self.author: revolt.Member | revolt.User = message.author
+        self.state: State = message.state
 
     @property
     def server(self) -> revolt.Server:
@@ -105,7 +106,7 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
 
         return all([await maybe_coroutine(check, self) for check in (command.checks if command else [])])
 
-    async def send_help(self, argument: Command[Any] | Group[Any] | ClientCoT | None = None):
+    async def send_help(self, argument: Command[Any] | Group[Any] | ClientCoT | None = None) -> None:
         argument = argument or self.client
 
         command = self.client.get_command("help")

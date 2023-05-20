@@ -2,15 +2,20 @@ on: [push, pull_request]
 name: pyright
 jobs:
   pyright:
+    strategy:
+      matrix:
+        version: ["3.9", "3.10", "3.11"]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: ${{ matrix.version }}
+          cache: pip
       - run: pip install .[speedups,docs]
       - uses: jakebailey/pyright-action@v1
         with:
-          lib: true
-          python-version: 3.9
+          python-version: ${{ matrix.version }}
           working-directory: revolt
+          verify-types: true

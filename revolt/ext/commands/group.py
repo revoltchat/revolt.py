@@ -26,13 +26,13 @@ class Group(Command[ClientCoT]):
         The group's subcommands.
     """
 
-    __slots__ = ("subcommands",)
+    __slots__: tuple[str, ...] = ("subcommands",)
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str]):
         self.subcommands: dict[str, Command[ClientCoT]] = {}
         super().__init__(callback, name, aliases)
 
-    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientCoT]] = Command[ClientCoT]):
+    def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientCoT]] = Command[ClientCoT]) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], Command[ClientCoT]]:
         """A decorator that turns a function into a :class:`Command` and registers the command as a subcommand.
 
         Parameters
@@ -57,7 +57,7 @@ class Group(Command[ClientCoT]):
 
         return inner
 
-    def group(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: Optional[type[Group[ClientCoT]]] = None):
+    def group(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: Optional[type[Group[ClientCoT]]] = None) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], Group[ClientCoT]]:
         """A decorator that turns a function into a :class:`Group` and registers the command as a subcommand
 
         Parameters
@@ -91,7 +91,7 @@ class Group(Command[ClientCoT]):
     def commands(self) -> list[Command[ClientCoT]]:
         return list(self.subcommands.values())
 
-def group(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Group[ClientT]] = Group):
+def group(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Group[ClientT]] = Group) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], Group[ClientT]]:
     """A decorator that turns a function into a :class:`Group`
 
     Parameters

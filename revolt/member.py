@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 __all__ = ("Member",)
 
-def flattern_user(member: Member, user: User):
+def flattern_user(member: Member, user: User) -> None:
     for attr in user.__flattern_attributes__:
         setattr(member, attr, getattr(user, attr))
 
@@ -49,7 +49,9 @@ class Member(User):
         flattern_user(self, user)
         user._members[server.id] = self
 
-        self.state = state
+        self.state: State = state
+
+        self.guild_avatar: Asset | None
 
         if avatar := data.get("avatar"):
             self.guild_avatar = Asset(avatar, state)
@@ -57,20 +59,23 @@ class Member(User):
             self.guild_avatar = None
 
         roles = [server.get_role(role_id) for role_id in data.get("roles", [])]
-        self.roles = sorted(roles, key=lambda role: role.rank, reverse=True)
+        self.roles: list[Role] = sorted(roles, key=lambda role: role.rank, reverse=True)
 
-        self.server = server
-        self.nickname = data.get("nickname")
+        self.server: Server = server
+        self.nickname: str | None = data.get("nickname")
         joined_at = data["joined_at"]
 
         if isinstance(joined_at, int):
-            self.joined_at = datetime.datetime.fromtimestamp(joined_at / 1000)
+            self.joined_at: datetime.datetime = datetime.datetime.fromtimestamp(joined_at / 1000)
         else:
-            self.joined_at = datetime.datetime.strptime(joined_at, "%Y-%m-%dT%H:%M:%S.%f%z")
-        self.current_timeout = None
+            self.joined_at: datetime.datetime = datetime.datetime.strptime(joined_at, "%Y-%m-%dT%H:%M:%S.%f%z")
+
+        self.current_timeout: datetime.datetime | None
 
         if current_timeout := data.get("timeout"):
             self.current_timeout = datetime.datetime.strptime(current_timeout, "%Y-%m-%dT%H:%M:%S.%f%z")
+        else:
+            self.current_timeout = None
 
     @property
     def avatar(self) -> Optional[Asset]:
@@ -93,11 +98,11 @@ class Member(User):
             member_roles = [self.server.get_role(role_id) for role_id in roles]
             self.roles = sorted(member_roles, key=lambda role: role.rank, reverse=True)
 
-    async def kick(self):
+    async def kick(self) -> None:
         """Kicks the member from the server"""
         await self.state.http.kick_member(self.server.id, self.id)
 
-    async def ban(self, *, reason: Optional[str] = None):
+    async def ban(self, *, reason: Optional[str] = None) -> None:
         """Bans the member from the server
 
         Parameters
@@ -107,7 +112,7 @@ class Member(User):
         """
         await self.state.http.ban_member(self.server.id, self.id, reason)
 
-    async def unban(self):
+    async def unban(self) -> None:
         """Unbans the member from the server"""
         await self.state.http.unban_member(self.server.id, self.id)
 
@@ -118,7 +123,7 @@ class Member(User):
         roles: list[Role] | None | _Missing = Missing,
         avatar: File | None | _Missing = Missing,
         timeout: datetime.timedelta | None | _Missing = Missing
-    ):
+    ) -> None:
         remove: list[str] = []
         data: dict[str, Any] = {}
 
@@ -148,7 +153,7 @@ class Member(User):
 
         await self.state.http.edit_member(self.server.id, self.id, remove, data)
 
-    async def timeout(self, length: datetime.timedelta):
+    async def timeout(self, length: datetime.timedelta) -> None:
         """Timeouts the member
 
         Parameters
@@ -170,7 +175,7 @@ class Member(User):
         """
         return calculate_permissions(self, self.server)
 
-    def get_channel_permissions(self, channel: Channel):
+    def get_channel_permissions(self, channel: Channel) -> Permissions:
         """Gets the permissions for the member in the server taking into account the channel as well
 
         Parameters

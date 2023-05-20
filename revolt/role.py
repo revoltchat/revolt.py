@@ -35,20 +35,20 @@ class Role(Ulid):
     channel_permissions: :class:`ChannelPermissions`
         The channel permissions for the role
     """
-    __slots__ = ("id", "name", "colour", "hoist", "rank", "state", "server", "permissions")
+    __slots__: tuple[str, ...] = ("id", "name", "colour", "hoist", "rank", "state", "server", "permissions")
 
     def __init__(self, data: RolePayload, role_id: str, server: Server, state: State):
-        self.state = state
-        self.id = role_id
-        self.name = data["name"]
-        self.colour = data.get("colour", None)
-        self.hoist = False
-        self.rank = 0
-        self.server = server
-        self.permissions = PermissionsOverwrite._from_overwrite(data.get("permissions", {"a": 0, "d": 0}))
+        self.state: State = state
+        self.id: str = role_id
+        self.name: str = data["name"]
+        self.colour: str | None = data.get("colour", None)
+        self.hoist: bool = data.get("hoist", False)
+        self.rank: int = data["rank"]
+        self.server: Server = server
+        self.permissions: PermissionsOverwrite = PermissionsOverwrite._from_overwrite(data.get("permissions", {"a": 0, "d": 0}))
 
     @property
-    def color(self):
+    def color(self) -> str | None:
         return self.colour
 
     async def set_permissions_overwrite(self, *, permissions: PermissionsOverwrite) -> None:
@@ -63,7 +63,7 @@ class Role(Ulid):
         allow, deny = permissions.to_pair()
         await self.state.http.set_server_role_permissions(self.server.id, self.id, allow.value, deny.value)
 
-    def _update(self, *, name: Optional[str] = None, colour: Optional[str] = None, hoist: Optional[bool] = None, rank: Optional[int] = None, permissions: Optional[Overwrite] = None):
+    def _update(self, *, name: Optional[str] = None, colour: Optional[str] = None, hoist: Optional[bool] = None, rank: Optional[int] = None, permissions: Optional[Overwrite] = None) -> None:
         if name is not None:
             self.name = name
 
@@ -79,11 +79,11 @@ class Role(Ulid):
         if permissions is not None:
             self.permissions = PermissionsOverwrite._from_overwrite(permissions)
 
-    async def delete(self):
+    async def delete(self) -> None:
         """Deletes the role"""
         await self.state.http.delete_role(self.server.id, self.id)
 
-    async def edit(self, **kwargs: Any):
+    async def edit(self, **kwargs: Any) -> None:
         """Edits the role
 
         Parameters

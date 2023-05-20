@@ -36,7 +36,7 @@ class ExtensionProtocol(Protocol):
 class CommandsMeta(type):
     _commands: list[Command[Any]]
 
-    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]):
+    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]) -> Self:
         commands: list[Command[Any]] = []
         self = super().__new__(cls, name, bases, attrs)
         for base in reversed(self.__mro__):
@@ -139,7 +139,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         """
         return self.all_commands[name]
 
-    def add_command(self, command: Command[Self]):
+    def add_command(self, command: Command[Self]) -> None:
         """Adds a command, this is typically only used for dynamic commands, you should use the `commands.command` decorator for most usecases.
 
         Parameters
@@ -196,9 +196,6 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         """
         content = message.content
 
-        if not isinstance(content, str):
-            return
-
         prefixes = await self.get_prefix(message)
 
         if isinstance(prefixes, str):
@@ -248,7 +245,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
             await command._error_handler(command.cog or self, context, e)
             self.dispatch("command_error", context, e)
 
-    async def on_command_error(self, ctx: Context[Self], error: Exception, /):
+    async def on_command_error(self, ctx: Context[Self], error: Exception, /) -> None:
         traceback.print_exception(type(error), error, error.__traceback__)
 
     on_message = process_commands
@@ -268,7 +265,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
         return True
 
-    def add_cog(self, cog: Cog[Self]):
+    def add_cog(self, cog: Cog[Self]) -> None:
         """Adds a cog to the bot, this cog must subclass `Cog`.
 
         Parameters
@@ -296,7 +293,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
         return cog
 
-    def load_extension(self, name: str):
+    def load_extension(self, name: str) -> None:
         """Loads an extension, this takes a module name and runs the setup function inside of it.
 
         Parameters
@@ -312,7 +309,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         self.extensions[name] = extension
         extension.setup(self)
 
-    def unload_extension(self, name: str):
+    def unload_extension(self, name: str) -> None:
         """Unloads an extension, this takes a module name and runs the teardown function inside of it.
 
         Parameters
@@ -327,7 +324,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         if teardown := getattr(extension, "teardown", None):
             teardown(self)
 
-    def reload_extension(self, name: str):
+    def reload_extension(self, name: str) -> None:
         """Reloads an extension, this will unload and reload the extension.
 
         Parameters

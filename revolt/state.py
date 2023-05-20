@@ -26,9 +26,9 @@ class State:
     __slots__ = ("http", "api_info", "max_messages", "users", "channels", "servers", "messages", "global_emojis", "user_id", "me")
 
     def __init__(self, http: HttpClient, api_info: ApiInfo, max_messages: int):
-        self.http = http
-        self.api_info = api_info
-        self.max_messages = max_messages
+        self.http: HttpClient = http
+        self.api_info: ApiInfo = api_info
+        self.max_messages: int = max_messages
 
         self.me: User
 
@@ -114,7 +114,7 @@ class State:
 
         raise LookupError
 
-    async def fetch_server_members(self, server_id: str):
+    async def fetch_server_members(self, server_id: str) -> None:
         data = await self.http.fetch_members(server_id)
 
         for user in data["users"]:
@@ -123,6 +123,6 @@ class State:
         for member in data["members"]:
             self.add_member(server_id, member)
 
-    async def fetch_all_server_members(self):
+    async def fetch_all_server_members(self) -> None:
         for server_id in self.servers:
             await self.fetch_server_members(server_id)

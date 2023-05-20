@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from .utils import Ulid
 
@@ -30,16 +30,16 @@ class Emoji(Ulid):
         The server id this emoji belongs to, if any
     """
     def __init__(self, payload: EmojiPayload, state: State):
-        self.state = state
+        self.state: State = state
 
-        self.id = payload["_id"]
-        self.author_id = payload["creator_id"]
-        self.name = payload["name"]
-        self.animated = payload.get("animated", False)
-        self.nsfw = payload.get("nsfw", False)
-        self.server_id: Optional[str] = payload["parent"].get("id")
+        self.id: str = payload["_id"]
+        self.author_id: str = payload["creator_id"]
+        self.name: str = payload["name"]
+        self.animated: bool = payload.get("animated", False)
+        self.nsfw: bool = payload.get("nsfw", False)
+        self.server_id: str | None = payload["parent"].get("id")
 
-    async def delete(self):
+    async def delete(self) -> None:
         """Deletes the emoji."""
         await self.state.http.delete_emoji(self.id)
 

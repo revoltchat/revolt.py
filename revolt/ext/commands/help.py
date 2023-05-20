@@ -66,7 +66,7 @@ class HelpCommand(ABC, Generic[ClientCoT]):
 
         return cogs
 
-    async def handle_message(self, context: Context[ClientCoT], message: Message):
+    async def handle_message(self, context: Context[ClientCoT], message: Message) -> None:
         pass
 
     async def get_channel(self, context: Context) -> Messageable:
@@ -145,11 +145,11 @@ class DefaultHelpCommand(HelpCommand[ClientCoT]):
         lines.append("```")
         return "\n".join(lines)
 
-    async def handle_no_command_found(self, context: Context[ClientCoT], name: str):
+    async def handle_no_command_found(self, context: Context[ClientCoT], name: str) -> None:
         channel = await self.get_channel(context)
         await channel.send(f"Command `{name}` not found.")
 
-    async def handle_no_cog_found(self, context: Context[ClientCoT], name: str):
+    async def handle_no_cog_found(self, context: Context[ClientCoT], name: str) -> None:
         channel = await self.get_channel(context)
         await channel.send(f"Cog `{name}` not found.")
 
@@ -158,14 +158,14 @@ class HelpCommandImpl(Command[ClientCoT]):
     def __init__(self, client: ClientCoT):
         self.client = client
 
-        async def callback(_: Union[ClientCoT, Cog[ClientCoT]], context: Context[ClientCoT], *args: str):
+        async def callback(_: Union[ClientCoT, Cog[ClientCoT]], context: Context[ClientCoT], *args: str) -> None:
             await help_command_impl(context.client, context, *args)
 
         super().__init__(callback=callback, name="help", aliases=[])
-        self.description = "Shows help for a command, cog or the entire bot"
+        self.description: str | None = "Shows help for a command, cog or the entire bot"
 
 
-async def help_command_impl(self: ClientT, context: Context[ClientT], *arguments: str):
+async def help_command_impl(self: ClientT, context: Context[ClientT], *arguments: str) -> None:
     help_command = self.help_command
 
     if not help_command:
@@ -202,4 +202,5 @@ async def help_command_impl(self: ClientT, context: Context[ClientT], *arguments
     else:
         msg_payload = payload
 
-    await help_command.send_help_command(context, msg_payload)
+    message = await help_command.send_help_command(context, msg_payload)
+    await help_command.handle_message(context, message)

@@ -32,7 +32,7 @@ class CommandNotFound(CommandError):
     __slots__ = ("command_name",)
 
     def __init__(self, command_name: str):
-        self.command_name = command_name
+        self.command_name: str = command_name
 
 class NoClosingQuote(CommandError):
     """Raised when there is no closing quote for a command argument"""

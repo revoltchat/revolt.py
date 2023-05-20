@@ -13,14 +13,14 @@ from .errors import (BadBoolArgument, CategoryConverterError,
 if TYPE_CHECKING:
     from .client import CommandsClient
 
-__all__ = ("bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter")
+__all__: tuple[str, ...] = ("bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter")
 
-channel_regex = re.compile("<#([A-z0-9]{26})>")
-user_regex = re.compile("<@([A-z0-9]{26})>")
+channel_regex: re.Pattern[str] = re.compile("<#([A-z0-9]{26})>")
+user_regex: re.Pattern[str] = re.compile("<@([A-z0-9]{26})>")
 
 ClientT = TypeVar("ClientT", bound="CommandsClient")
 
-def bool_converter(arg: str, _):
+def bool_converter(arg: str, _: Context[ClientT]) -> bool:
     lowered = arg.lower()
     if lowered in  ("yes", "true", "ye", "y", "1", "on", "enable"):
         return True

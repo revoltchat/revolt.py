@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import io
-from typing import Optional, Union
+from typing import Optional, Union, cast
 
 __all__ = ("File",)
 
@@ -18,17 +20,19 @@ class File:
     __slots__ = ("f", "spoiler", "filename")
 
     def __init__(self, file: Union[str, bytes], *, filename: Optional[str] = None, spoiler: bool = False):
+        self.f: io.BufferedIOBase
+
         if isinstance(file, str):
             self.f = open(file, "rb")
         else:
             self.f = io.BytesIO(file)
 
         if filename is None and isinstance(file, str):
-            filename = self.f.name
+            filename = cast(Optional[str], self.f.name)
 
-        self.spoiler = spoiler or (filename and filename.startswith("SPOILER_"))
+        self.spoiler: bool = spoiler or (bool(filename) and filename.startswith("SPOILER_"))
 
         if self.spoiler and (filename and not filename.startswith("SPOILER_")):
             filename = f"SPOILER_{filename}"
 
-        self.filename = filename
+        self.filename: str | None = filename

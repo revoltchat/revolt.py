@@ -31,7 +31,7 @@ class EditableChannel:
     state: State
     id: str
 
-    async def edit(self, **kwargs: Any):
+    async def edit(self, **kwargs: Any) -> None:
         """Edits the channel
 
         Passing ``None`` to the parameters that accept it will remove them.
@@ -80,18 +80,18 @@ class Channel(Ulid):
     __slots__ = ("state", "id", "channel_type", "server_id")
 
     def __init__(self, data: ChannelPayload, state: State):
-        self.state = state
-        self.id = data["_id"]
-        self.channel_type = ChannelType(data["channel_type"])
+        self.state: State = state
+        self.id: str = data["_id"]
+        self.channel_type: ChannelType = ChannelType(data["channel_type"])
         self.server_id: Optional[str] = None
 
     async def _get_channel_id(self) -> str:
         return self.id
 
-    def _update(self, **_: Any):
+    def _update(self, **_: Any) -> None:
         pass
 
-    async def delete(self):
+    async def delete(self) -> None:
         """Deletes or closes the channel"""
         await self.state.http.close_channel(self.id)
 
@@ -134,7 +134,7 @@ class DMChannel(Channel, Messageable):
     def __init__(self, data: DMChannelPayload, state: State):
         super().__init__(data, state)
         self.recipient_ids: tuple[str, str] = tuple(data["recipients"])
-        self.last_message_id = data.get("last_message_id")
+        self.last_message_id: str | None = data.get("last_message_id")
 
     @property
     def recipients(self) -> tuple[User, User]:
@@ -190,20 +190,22 @@ class GroupDMChannel(Channel, Messageable, EditableChannel):
 
     def __init__(self, data: GroupDMChannelPayload, state: State):
         super().__init__(data, state)
-        self.recipient_ids = data["recipients"]
-        self.name = data["name"]
-        self.owner_id = data["owner"]
-        self.description: Optional[str] = data.get("description")
-        self.last_message_id = data.get("last_message_id")
+        self.recipient_ids: list[str] = data["recipients"]
+        self.name: str = data["name"]
+        self.owner_id: str = data["owner"]
+        self.description: str | None = data.get("description")
+        self.last_message_id: str | None = data.get("last_message_id")
+
+        self.icon: Asset | None
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
         else:
             self.icon = None
 
-        self.permissions = Permissions(data.get("permissions", 0))
+        self.permissions: Permissions = Permissions(data.get("permissions", 0))
 
-    def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None, description: Optional[str] = None):
+    def _update(self, *, name: Optional[str] = None, recipients: Optional[list[str]] = None, description: Optional[str] = None) -> None:
         if name is not None:
             self.name = name
 
@@ -263,12 +265,12 @@ class ServerChannel(Channel):
     def __init__(self, data: ServerChannelPayload, state: State):
         super().__init__(data, state)
 
-        self.server_id = data["server"]
-        self.name = data["name"]
+        self.server_id: str = data["server"]
+        self.name: str = data["name"]
         self.description: Optional[str] = data.get("description")
-        self.nsfw = data.get("nsfw", False)
-        self.active = False
-        self.default_permissions = PermissionsOverwrite._from_overwrite(data.get("default_permissions", {"a": 0, "d": 0}))
+        self.nsfw: bool = data.get("nsfw", False)
+        self.active: bool = False
+        self.default_permissions: PermissionsOverwrite = PermissionsOverwrite._from_overwrite(data.get("default_permissions", {"a": 0, "d": 0}))
 
         permissions: dict[str, PermissionsOverwrite] = {}
 
@@ -276,7 +278,10 @@ class ServerChannel(Channel):
             overwrite = PermissionsOverwrite._from_overwrite(overwrite_data)
             permissions[role_name] = overwrite
 
-        self.permissions = permissions
+        self.permissions: dict[str, PermissionsOverwrite] = permissions
+
+        self.icon: Asset | None
+
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
         else:
@@ -359,7 +364,7 @@ class TextChannel(ServerChannel, Messageable, EditableChannel):
     def __init__(self, data: TextChannelPayload, state: State):
         super().__init__(data, state)
 
-        self.last_message_id = data.get("last_message_id")
+        self.last_message_id: str | None = data.get("last_message_id")
 
     async def _get_channel_id(self) -> str:
         return self.id

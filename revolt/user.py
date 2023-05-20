@@ -65,17 +65,21 @@ class User(Messageable, Ulid):
     privileged: :class:`bool`
         Whether the user is privileged
     """
-    __flattern_attributes__ = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile", "dm_channel", "privileged")
-    __slots__ = (*__flattern_attributes__, "state", "_members")
+    __flattern_attributes__: tuple[str, ...] = ("id", "bot", "owner_id", "badges", "online", "flags", "relations", "relationship", "status", "masquerade_avatar", "masquerade_name", "original_name", "original_avatar", "profile", "dm_channel", "privileged")
+    __slots__: tuple[str, ...] = (*__flattern_attributes__, "state", "_members")
 
     def __init__(self, data: UserPayload, state: State):
         self.state = state
         self._members: WeakValueDictionary[str, Member] = WeakValueDictionary()  # we store all member versions of this user to avoid having to check every guild when needing to update.
-        self.id = data["_id"]
-        self.original_name = data["username"]
-        self.dm_channel = None
+        self.id: str = data["_id"]
+        self.original_name: str = data["username"]
+        self.dm_channel: DMChannel | None = None
 
         bot = data.get("bot")
+
+        self.bot: bool
+        self.owner_id: str | None
+
         if bot:
             self.bot = True
             self.owner_id = bot["owner"]
@@ -83,13 +87,13 @@ class User(Messageable, Ulid):
             self.bot = False
             self.owner_id = None
 
-        self.badges = UserBadges._from_value(data.get("badges", 0))
-        self.online = data.get("online", False)
-        self.flags = data.get("flags", 0)
-        self.privileged = data.get("privileged", False)
+        self.badges: UserBadges = UserBadges._from_value(data.get("badges", 0))
+        self.online: bool = data.get("online", False)
+        self.flags: int = data.get("flags", 0)
+        self.privileged: bool = data.get("privileged", False)
 
         avatar = data.get("avatar")
-        self.original_avatar = Asset(avatar, state) if avatar else None
+        self.original_avatar: Asset | None = Asset(avatar, state) if avatar else None
 
         relations: list[Relation] = []
 
@@ -97,12 +101,14 @@ class User(Messageable, Ulid):
             user = state.get_user(relation["_id"])
             if user:
                 relations.append(Relation(RelationshipType(relation["status"]), user))
-        self.relations = relations
+        self.relations: list[Relation] = relations
 
         relationship = data.get("relationship")
-        self.relationship = RelationshipType(relationship) if relationship else None
+        self.relationship: RelationshipType | None = RelationshipType(relationship) if relationship else None
 
         status = data.get("status")
+        self.status: Status | None
+
         if status:
             presence = status.get("presence")
             self.status = Status(status.get("text"), PresenceType(presence) if presence else None) if status else None

@@ -1,13 +1,14 @@
+from typing import Iterator
 from .errors import NoClosingQuote
 
 
 class StringView:
     def __init__(self, string: str):
-        self.value = iter(string)
-        self.temp = ""
-        self.should_undo = False
+        self.value: Iterator[str] = iter(string)
+        self.temp: str = ""
+        self.should_undo: bool = False
 
-    def undo(self):
+    def undo(self) -> None:
         self.should_undo = True
 
     def next_char(self) -> str:

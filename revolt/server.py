@@ -25,11 +25,11 @@ __all__ = ("Server", "SystemMessages", "ServerBan")
 
 class SystemMessages:
     def __init__(self, data: SystemMessagesConfig, state: State):
-        self.state = state
-        self.user_joined_id = data.get("user_joined")
-        self.user_left_id = data.get("user_left")
-        self.user_kicked_id = data.get("user_kicked")
-        self.user_banned_id = data.get("user_banned")
+        self.state: State = state
+        self.user_joined_id: str | None = data.get("user_joined")
+        self.user_left_id: str | None = data.get("user_left")
+        self.user_kicked_id: str | None = data.get("user_kicked")
+        self.user_banned_id: str | None = data.get("user_banned")
 
     @property
     def user_joined(self) -> Optional[TextChannel]:
@@ -94,20 +94,24 @@ class Server(Ulid):
     __slots__ = ("state", "id", "name", "owner_id", "default_permissions", "_members", "_roles", "_channels", "description", "icon", "banner", "nsfw", "system_messages", "_categories", "_emojis")
 
     def __init__(self, data: ServerPayload, state: State):
-        self.state = state
-        self.id = data["_id"]
-        self.name = data["name"]
-        self.owner_id = data["owner"]
-        self.description = data.get("description") or None
-        self.nsfw = data.get("nsfw", False)
-        self.system_messages = SystemMessages(data.get("system_messages", cast("SystemMessagesConfig", {})), state)
-        self._categories = {data["id"]: Category(data, state) for data in data.get("categories", [])}
-        self.default_permissions = Permissions(data["default_permissions"])
+        self.state: State = state
+        self.id: str = data["_id"]
+        self.name: str = data["name"]
+        self.owner_id: str = data["owner"]
+        self.description: str | None = data.get("description") or None
+        self.nsfw: bool = data.get("nsfw", False)
+        self.system_messages: SystemMessages = SystemMessages(data.get("system_messages", cast("SystemMessagesConfig", {})), state)
+        self._categories: dict[str, Category] = {data["id"]: Category(data, state) for data in data.get("categories", [])}
+        self.default_permissions: Permissions = Permissions(data["default_permissions"])
+
+        self.icon: Asset | None
 
         if icon := data.get("icon"):
             self.icon = Asset(icon, state)
         else:
             self.icon = None
+
+        self.banner: Asset | None
 
         if banner := data.get("banner"):
             self.banner = Asset(banner, state)
@@ -279,11 +283,11 @@ class Server(Ulid):
 
         await self.state.http.set_server_default_permissions(self.id, permissions.value)
 
-    async def leave_server(self):
+    async def leave_server(self) -> None:
         """Leaves or deletes the server"""
         await self.state.http.delete_leave_server(self.id)
 
-    async def delete_server(self):
+    async def delete_server(self) -> None:
         """Leaves or deletes a server, alias to :meth`Server.leave_server`"""
         await self.leave_server()
 
@@ -388,7 +392,7 @@ class Server(Ulid):
 
         return Role(payload, name, self, self.state)
 
-    async def create_emoji(self, name: str, file: File, *, nsfw: bool = False):
+    async def create_emoji(self, name: str, file: File, *, nsfw: bool = False) -> Emoji:
         """Creates an emoji
 
         Parameters
@@ -421,11 +425,11 @@ class ServerBan:
     __slots__ = ("reason", "server", "user_id", "state")
 
     def __init__(self, ban: Ban, state: State):
-        self.reason = ban.get("reason")
-        self.server = state.get_server(ban["_id"]["server"])
-        self.user_id = ban["_id"]["user"]
-        self.state = state
+        self.reason: str | None = ban.get("reason")
+        self.server: Server = state.get_server(ban["_id"]["server"])
+        self.user_id: str = ban["_id"]["user"]
+        self.state: State = state
 
-    async def unban(self):
+    async def unban(self) -> None:
         """Unbans the user"""
         await self.state.http.unban_member(self.server.id, self.user_id)

@@ -11,8 +11,8 @@ class Flag:
     __slots__ = ("flag", "__doc__")
 
     def __init__(self, func: Callable[[], int]):
-        self.flag = func()
-        self.__doc__ = func.__doc__
+        self.flag: int = func()
+        self.__doc__: str | None = func.__doc__
 
     @overload
     def __get__(self: Self, instance: None, owner: type[Flags]) -> Self:
@@ -28,7 +28,7 @@ class Flag:
 
         return instance._check_flag(self.flag)
 
-    def __set__(self, instance: Flags, value: bool):
+    def __set__(self, instance: Flags, value: bool) -> None:
         instance._set_flag(self.flag, value)
 
 class Flags:
@@ -52,7 +52,7 @@ class Flags:
     def _check_flag(self, flag: int) -> bool:
         return (self.value & flag) == flag
 
-    def _set_flag(self, flag: int, value: bool):
+    def _set_flag(self, flag: int, value: bool) -> None:
         if value:
             self.value |= flag
         else:
@@ -85,7 +85,7 @@ class Flags:
     def __gt__(self, other: Self) -> bool:
         return self.value > other.value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__} value={self.value}>"
 
     def __iter__(self) -> Iterator[tuple[str, bool]]:

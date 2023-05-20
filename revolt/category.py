@@ -25,10 +25,10 @@ class Category(Ulid):
     """
 
     def __init__(self, data: CategoryPayload, state: State):
-        self.state = state
-        self.name = data["title"]
-        self.id = data["id"]
-        self.channel_ids = data["channels"]
+        self.state: State = state
+        self.name: str = data["title"]
+        self.id: str = data["id"]
+        self.channel_ids: list[str] = data["channels"]
 
     @property
     def channels(self) -> list[Channel]:

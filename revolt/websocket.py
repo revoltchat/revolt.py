@@ -27,7 +27,7 @@ from .types import (ServerCreateEventPayload, ServerDeleteEventPayload,
                     ServerRoleDeleteEventPayload, ServerRoleUpdateEventPayload,
                     ServerUpdateEventPayload, UserRelationshipEventPayload,
                     UserUpdateEventPayload)
-from .user import Status, UserProfile
+from .user import Status, User, UserProfile
 
 import aiohttp
 
@@ -35,6 +35,8 @@ try:
     import ujson as json
 except ImportError:
     import json
+
+use_msgpack: bool
 
 try:
     import msgpack
@@ -54,42 +56,42 @@ class WSMessage(NamedTuple):
     type: aiohttp.WSMsgType
     data: str | bytes | aiohttp.WSCloseCode
 
-__all__ = ("WebsocketHandler",)
+__all__: tuple[str, ...] = ("WebsocketHandler",)
 
-logger = logging.getLogger("revolt")
+logger: logging.Logger = logging.getLogger("revolt")
 
 class WebsocketHandler:
     __slots__ = ("session", "token", "ws_url", "dispatch", "state", "websocket", "loop", "user", "ready", "server_events")
 
     def __init__(self, session: aiohttp.ClientSession, token: str, ws_url: str, dispatch: Callable[..., None], state: State):
-        self.session = session
-        self.token = token
-        self.ws_url = ws_url
-        self.dispatch = dispatch
-        self.state = state
+        self.session: aiohttp.ClientSession = session
+        self.token: str = token
+        self.ws_url: str = ws_url
+        self.dispatch: Callable[..., None] = dispatch
+        self.state: State = state
         self.websocket: aiohttp.ClientWebSocketResponse
-        self.loop = asyncio.get_running_loop()
-        self.user = None
-        self.ready = asyncio.Event()
+        self.loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
+        self.user: User | None = None
+        self.ready: asyncio.Event = asyncio.Event()
         self.server_events: dict[str, asyncio.Event] = {}
 
-    async def _wait_for_server_ready(self, server_id: str):
+    async def _wait_for_server_ready(self, server_id: str) -> None:
         if event := self.server_events.get(server_id):
             await event.wait()
 
-    async def send_payload(self, payload: BasePayload):
+    async def send_payload(self, payload: BasePayload) -> None:
         if use_msgpack:
             await self.websocket.send_bytes(msgpack.packb(payload))
         else:
             await self.websocket.send_str(json.dumps(payload))
 
-    async def heartbeat(self):
+    async def heartbeat(self) -> None:
         while not self.websocket.closed:
             logger.info("Sending hearbeat")
             await self.websocket.ping()
             await asyncio.sleep(15)
 
-    async def send_authenticate(self):
+    async def send_authenticate(self) -> None:
         payload: AuthenticatePayload = {
             "type": "Authenticate",
             "token": self.token
@@ -97,7 +99,7 @@ class WebsocketHandler:
 
         await self.send_payload(payload)
 
-    async def handle_event(self, payload: BasePayload):
+    async def handle_event(self, payload: BasePayload) -> None:
         event_type = payload["type"].lower()
         logger.debug("Recieved event %s %s", event_type, payload)
         try:
@@ -110,10 +112,10 @@ class WebsocketHandler:
 
         await func(payload)
 
-    async def handle_authenticated(self, _):
+    async def handle_authenticated(self, _: BasePayload) -> None:
         logger.info("Successfully authenticated")
 
-    async def handle_ready(self, payload: ReadyEventPayload):
+    async def handle_ready(self, payload: ReadyEventPayload) -> None:
         for user_payload in payload["users"]:
             user = self.state.add_user(user_payload)
 
@@ -138,7 +140,7 @@ class WebsocketHandler:
         self.ready.set()
         self.dispatch("ready")
 
-    async def handle_message(self, payload: MessageEventPayload):
+    async def handle_message(self, payload: MessageEventPayload) -> None:
         if server := self.state.get_channel(payload["channel"]).server_id:
             await self._wait_for_server_ready(server)
 
@@ -147,7 +149,7 @@ class WebsocketHandler:
 
         self.dispatch("message", message)
 
-    async def handle_messageupdate(self, payload: MessageUpdateEventPayload):
+    async def handle_messageupdate(self, payload: MessageUpdateEventPayload) -> None:
         self.dispatch("raw_message_update", payload)
 
         try:
@@ -162,7 +164,7 @@ class WebsocketHandler:
 
         self.dispatch("message_update", message)
 
-    async def handle_messagedelete(self, payload: MessageDeleteEventPayload):
+    async def handle_messagedelete(self, payload: MessageDeleteEventPayload) -> None:
         self.dispatch("raw_message_delete", payload)
 
         try:
@@ -178,7 +180,7 @@ class WebsocketHandler:
 
         self.dispatch("message_delete", message)
 
-    async def handle_channelcreate(self, payload: ChannelCreateEventPayload):
+    async def handle_channelcreate(self, payload: ChannelCreateEventPayload) -> None:
         channel = self.state.add_channel(payload)
 
         if server_id := channel.server_id:
@@ -186,7 +188,7 @@ class WebsocketHandler:
 
         self.dispatch("channel_create", channel)
 
-    async def handle_channelupdate(self, payload: ChannelUpdateEventPayload):
+    async def handle_channelupdate(self, payload: ChannelUpdateEventPayload) -> None:
         # Revolt sends channel updates for channels we dont have permissions to see, a bug, but still can cause issues as its not in the cache
 
         if not (channel := self.state.channels.get(payload["id"], None)):
@@ -211,7 +213,7 @@ class WebsocketHandler:
 
         self.dispatch("channel_update", old_channel, channel)
 
-    async def handle_channeldelete(self, payload: ChannelDeleteEventPayload):
+    async def handle_channeldelete(self, payload: ChannelDeleteEventPayload) -> None:
         channel = self.state.channels.pop(payload["id"])
 
         if server_id := channel.server_id:
@@ -219,7 +221,7 @@ class WebsocketHandler:
 
         self.dispatch("channel_delete", channel)
 
-    async def handle_channelstarttyping(self, payload: ChannelStartTypingEventPayload):
+    async def handle_channelstarttyping(self, payload: ChannelStartTypingEventPayload) -> None:
         channel = self.state.get_channel(payload["id"])
 
         if server_id := channel.server_id:
@@ -229,7 +231,7 @@ class WebsocketHandler:
 
         self.dispatch("typing_start", channel, user)
 
-    async def handle_channelstoptyping(self, payload: ChannelDeleteTypingEventPayload):
+    async def handle_channelstoptyping(self, payload: ChannelDeleteTypingEventPayload) -> None:
         channel = self.state.get_channel(payload["id"])
 
         if server_id := channel.server_id:
@@ -239,7 +241,7 @@ class WebsocketHandler:
 
         self.dispatch("typing_stop", channel, user)
 
-    async def handle_serverupdate(self, payload: ServerUpdateEventPayload):
+    async def handle_serverupdate(self, payload: ServerUpdateEventPayload) -> None:
         await self._wait_for_server_ready(payload["id"])
 
         server = self.state.get_server(payload["id"])
@@ -261,7 +263,7 @@ class WebsocketHandler:
 
         self.dispatch("server_update", old_server, server)
 
-    async def handle_serverdelete(self, payload: ServerDeleteEventPayload):
+    async def handle_serverdelete(self, payload: ServerDeleteEventPayload) -> None:
         server = self.state.servers.pop(payload["id"])
 
         for channel in server.channels:
@@ -271,7 +273,7 @@ class WebsocketHandler:
 
         self.dispatch("server_delete", server)
 
-    async def handle_servercreate(self, payload: ServerCreateEventPayload):
+    async def handle_servercreate(self, payload: ServerCreateEventPayload) -> None:
         for channel in payload["channels"]:
             self.state.add_channel(channel)
 
@@ -284,7 +286,7 @@ class WebsocketHandler:
 
         self.dispatch("server_join", server)
 
-    async def handle_servermemberupdate(self, payload: ServerMemberUpdateEventPayload):
+    async def handle_servermemberupdate(self, payload: ServerMemberUpdateEventPayload) -> None:
         await self._wait_for_server_ready(payload["id"]["server"])
 
         member = self.state.get_member(payload["id"]["server"], payload["id"]["user"])
@@ -300,7 +302,7 @@ class WebsocketHandler:
 
         self.dispatch("member_update", old_member, member)
 
-    async def handle_servermemberjoin(self, payload: ServerMemberJoinEventPayload):
+    async def handle_servermemberjoin(self, payload: ServerMemberJoinEventPayload) -> None:
         # avoid an api request if possible
         if payload["user"] not in self.state.users:
             user = await self.state.http.fetch_user(payload["user"])
@@ -310,7 +312,7 @@ class WebsocketHandler:
 
         self.dispatch("member_join", member)
 
-    async def handle_memberleave(self, payload: ServerMemberLeaveEventPayload):
+    async def handle_memberleave(self, payload: ServerMemberLeaveEventPayload) -> None:
         await self._wait_for_server_ready(payload["id"])
 
         server = self.state.get_server(payload["id"])
@@ -323,7 +325,7 @@ class WebsocketHandler:
 
         self.dispatch("member_leave", member)
 
-    async def handle_serverroleupdate(self, payload: ServerRoleUpdateEventPayload):
+    async def handle_serverroleupdate(self, payload: ServerRoleUpdateEventPayload) -> None:
         server = self.state.get_server(payload["id"])
         await self._wait_for_server_ready(server.id)
 
@@ -346,7 +348,7 @@ class WebsocketHandler:
 
             self.dispatch("role_update", old_role, role)
 
-    async def handle_serverroledelete(self, payload: ServerRoleDeleteEventPayload):
+    async def handle_serverroledelete(self, payload: ServerRoleDeleteEventPayload) -> None:
         server = self.state.get_server(payload["id"])
         role = server._roles.pop(payload["role_id"])
 
@@ -354,7 +356,7 @@ class WebsocketHandler:
 
         self.dispatch("role_delete", role)
 
-    async def handle_userupdate(self, payload: UserUpdateEventPayload):
+    async def handle_userupdate(self, payload: UserUpdateEventPayload) -> None:
         user = self.state.get_user(payload["id"])
         old_user = copy(user)
 
@@ -377,14 +379,14 @@ class WebsocketHandler:
 
         self.dispatch("user_update", old_user, user)
 
-    async def handle_userrelationship(self, payload: UserRelationshipEventPayload):
+    async def handle_userrelationship(self, payload: UserRelationshipEventPayload) -> None:
         user = self.state.get_user(payload["user"])
         old_relationship = user.relationship
         user.relationship = RelationshipType(payload["status"])
 
         self.dispatch("user_relationship_update", user, old_relationship, user.relationship)
 
-    async def handle_messagereact(self, payload: MessageReactEventPayload):
+    async def handle_messagereact(self, payload: MessageReactEventPayload) -> None:
         if server := self.state.get_channel(payload["channel_id"]).server_id:
             await self._wait_for_server_ready(server)
 
@@ -401,7 +403,7 @@ class WebsocketHandler:
 
         self.dispatch("reaction_add", message, user, emoji_id)
 
-    async def handle_messageunreact(self, payload: MessageUnreactEventPayload):
+    async def handle_messageunreact(self, payload: MessageUnreactEventPayload) -> None:
         if server := self.state.get_channel(payload["channel_id"]).server_id:
             await self._wait_for_server_ready(server)
 
@@ -417,7 +419,7 @@ class WebsocketHandler:
 
         self.dispatch("reaction_remove", message, user, payload["emoji_id"])
 
-    async def handle_messageremovereaction(self, payload: MessageRemoveReactionEventPayload):
+    async def handle_messageremovereaction(self, payload: MessageRemoveReactionEventPayload) -> None:
         if server := self.state.get_channel(payload["channel_id"]).server_id:
             await self._wait_for_server_ready(server)
 
@@ -432,7 +434,7 @@ class WebsocketHandler:
 
         self.dispatch("reaction_clear", message, users, payload["emoji_id"])
 
-    async def handle_bulkmessagedelete(self, payload: BulkMessageDeleteEventPayload):
+    async def handle_bulkmessagedelete(self, payload: BulkMessageDeleteEventPayload) -> None:
         channel = self.state.get_channel(payload["channel"])
 
         self.dispatch("raw_bulk_message_delete", payload)
@@ -457,7 +459,7 @@ class WebsocketHandler:
 
             self.dispatch("bulk_message_delete", messages)
 
-    async def start(self):
+    async def start(self) -> None:
         if use_msgpack:
             url = f"{self.ws_url}?format=msgpack"
         else:

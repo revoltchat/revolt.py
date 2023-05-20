@@ -65,11 +65,13 @@ class Interactions(TypedDict):
     reactions: NotRequired[list[str]]
     restrict_reactions: NotRequired[bool]
 
+SystemMessageContent = Union[UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBannedContent, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChangeContent]
+
 class Message(TypedDict):
     _id: str
     channel: str
     author: str
-    content: Union[str, UserAddContent, UserRemoveContent, UserJoinedContent, UserLeftContent, UserKickedContent, UserBannedContent, ChannelRenameContent, ChannelDescriptionChangeContent, ChannelIconChangeContent]
+    content: Union[str, SystemMessageContent]
     attachments: NotRequired[list[File]]
     embeds: NotRequired[list[Embed]]
     mentions: NotRequired[list[str]]

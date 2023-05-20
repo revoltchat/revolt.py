@@ -138,7 +138,7 @@ class Messageable:
         payloads = await self.state.http.search_messages(await self._get_channel_id(), query, sort=sort, limit=limit, before=before, after=after)
         return [Message(payload, self.state) for payload in payloads]
 
-    async def delete_messages(self, messages: list[Message]):
+    async def delete_messages(self, messages: list[Message]) -> None:
         """Bulk deletes messages from the channel
 
         .. note:: The messages must have been sent in the last 7 days.

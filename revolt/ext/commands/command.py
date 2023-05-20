@@ -5,6 +5,7 @@ import traceback
 from contextlib import suppress
 from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
                     Generic, Literal, Optional, Union, get_args, get_origin)
+from typing_extensions import ParamSpec
 
 from revolt.utils import copy_doc, maybe_coroutine
 
@@ -17,13 +18,13 @@ if TYPE_CHECKING:
     from .context import Context
     from .group import Group
 
-__all__ = (
+__all__: tuple[str, ...] = (
     "Command",
     "command"
 )
 
-NoneType = type(None)
-
+NoneType: type[None] = type(None)
+P = ParamSpec("P")
 
 class Command(Generic[ClientCoT]):
     """Class for holding info about a command.
@@ -46,17 +47,17 @@ class Command(Generic[ClientCoT]):
     __slots__ = ("callback", "name", "aliases", "signature", "checks", "parent", "_error_handler", "cog", "description", "usage", "parameters")
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str], usage: Optional[str] = None):
-        self.callback = callback
-        self.name = name
-        self.aliases = aliases
-        self.usage = usage
-        self.signature = inspect.signature(self.callback)
-        self.parameters = evaluate_parameters(self.signature.parameters.values(), getattr(callback, "__globals__", {}))
+        self.callback: Callable[..., Coroutine[Any, Any, Any]] = callback
+        self.name: str = name
+        self.aliases: list[str] = aliases
+        self.usage: str | None = usage
+        self.signature: inspect.Signature = inspect.signature(self.callback)
+        self.parameters: list[inspect.Parameter] = evaluate_parameters(self.signature.parameters.values(), getattr(callback, "__globals__", {}))
         self.checks: list[Check[ClientCoT]] = getattr(callback, "_checks", [])
         self.parent: Optional[Group[ClientCoT]] = None
         self.cog: Optional[Cog[ClientCoT]] = None
         self._error_handler: Callable[[Any, Context[ClientCoT], Exception], Coroutine[Any, Any, Any]] = type(self)._default_error_handler
-        self.description = callback.__doc__
+        self.description: str | None = callback.__doc__
 
     async def invoke(self, context: Context[ClientCoT], *args: Any, **kwargs: Any) -> Any:
         """Runs the command and calls the error handler if the command errors.
@@ -77,7 +78,7 @@ class Command(Generic[ClientCoT]):
     def __call__(self, context: Context[ClientCoT], *args: Any, **kwargs: Any) -> Any:
         return self.invoke(context, *args, **kwargs)
 
-    def error(self, func: Callable[..., Coroutine[Any, Any, Any]]):
+    def error(self, func: Callable[..., Coroutine[Any, Any, Any]]) -> Callable[..., Coroutine[Any, Any, Any]]:
         """Sets the error handler for the command.
 
         Parameters
@@ -141,7 +142,7 @@ class Command(Generic[ClientCoT]):
         else:
             return arg
 
-    async def parse_arguments(self, context: Context[ClientCoT]):
+    async def parse_arguments(self, context: Context[ClientCoT]) -> None:
         # please pr if you can think of a better way to do this
 
         for parameter in self.parameters[2:]:
@@ -214,8 +215,8 @@ class Command(Generic[ClientCoT]):
 
         return f"{' '.join(parents[::-1])} {self.name} {' '.join(parameters)}"
 
-def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientCoT]] = Command, usage: Optional[str] = None):
-    """A decorator that turns a function into a :class:`Command`.
+def command(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientCoT]] = Command, usage: Optional[str] = None) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], Command[ClientCoT]]:
+    """A decorator that turns a function into a :class:`Command`.n
 
     Parameters
     -----------

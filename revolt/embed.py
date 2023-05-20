@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Optional, TypedDict, Union
 
 from typing_extensions import NotRequired, Unpack
 
+from revolt.types.embed import WebsiteSpecial
+
 from .asset import Asset
 from .enums import EmbedType
 
@@ -14,6 +16,7 @@ if TYPE_CHECKING:
     from .types import SendableEmbed as SendableEmbedPayload
     from .types import TextEmbed as TextEmbedPayload
     from .types import WebsiteEmbed as WebsiteEmbedPayload
+    from .types import JanuaryImage, JanuaryVideo
 
 __all__ = ("Embed", "WebsiteEmbed", "ImageEmbed", "TextEmbed", "NoneEmbed", "to_embed", "SendableEmbed")
 
@@ -21,43 +24,45 @@ class WebsiteEmbed:
     type = EmbedType.website
 
     def __init__(self, embed: WebsiteEmbedPayload):
-        self.url = embed.get("url")
-        self.special = embed.get("special")
-        self.title = embed.get("title")
-        self.description = embed.get("description")
-        self.image = embed.get("image")
-        self.video = embed.get("video")
-        self.site_name = embed.get("site_name")
-        self.icon_url = embed.get("icon_url")
-        self.colour = embed.get("colour")
+        self.url: str | None = embed.get("url")
+        self.special: WebsiteSpecial | None = embed.get("special")
+        self.title: str | None = embed.get("title")
+        self.description: str | None = embed.get("description")
+        self.image: JanuaryImage | None = embed.get("image")
+        self.video: JanuaryVideo | None = embed.get("video")
+        self.site_name: str | None = embed.get("site_name")
+        self.icon_url: str | None = embed.get("icon_url")
+        self.colour: str | None = embed.get("colour")
 
 class ImageEmbed:
-    type = EmbedType.image
+    type: EmbedType = EmbedType.image
 
     def __init__(self, image: ImageEmbedPayload):
-        self.url = image.get("url")
-        self.width = image.get("width")
-        self.height = image.get("height")
-        self.size = image.get("size")
+        self.url: str = image.get("url")
+        self.width: int = image.get("width")
+        self.height: int = image.get("height")
+        self.size: str = image.get("size")
 
 class TextEmbed:
-    type = EmbedType.text
+    type: EmbedType = EmbedType.text
 
     def __init__(self, embed: TextEmbedPayload, state: State):
-        self.icon_url = embed.get("icon_url")
-        self.url = embed.get("url")
-        self.title = embed.get("title")
-        self.description = embed.get("description")
+        self.icon_url: str | None = embed.get("icon_url")
+        self.url: str | None = embed.get("url")
+        self.title: str | None = embed.get("title")
+        self.description: str | None = embed.get("description")
+
+        self.media: Asset | None
 
         if media := embed.get("media"):
             self.media = Asset(media, state)
         else:
             self.media = None
 
-        self.colour = embed.get("colour")
+        self.colour: str | None = embed.get("colour")
 
 class NoneEmbed:
-    type = EmbedType.none
+    type: EmbedType = EmbedType.none
 
 Embed = Union[WebsiteEmbed, ImageEmbed, TextEmbed, NoneEmbed]
 

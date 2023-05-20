@@ -42,14 +42,16 @@ class Asset(Ulid):
     __slots__ = ("state", "id", "tag", "size", "filename", "content_type", "width", "height", "type", "url")
 
     def __init__(self, data: FilePayload, state: State):
-        self.state = state
+        self.state: State = state
 
-        self.id = data['_id']
-        self.tag = data['tag']
-        self.size = data['size']
-        self.filename = data['filename']
+        self.id: str = data['_id']
+        self.tag: str = data['tag']
+        self.size: int = data['size']
+        self.filename: str = data['filename']
 
         metadata = data['metadata']
+        self.height: int | None
+        self.width: int | None
 
         if metadata["type"] == "Image" or metadata["type"] == "Video":  # cannot use `in` because type narrowing will not happen
             self.height = metadata["height"]
@@ -58,17 +60,17 @@ class Asset(Ulid):
             self.height = None
             self.width = None
 
-        self.content_type = data["content_type"]
-        self.type = AssetType(metadata["type"])
+        self.content_type: str | None = data["content_type"]
+        self.type: AssetType = AssetType(metadata["type"])
 
         base_url = self.state.api_info["features"]["autumn"]["url"]
-        self.url = f"{base_url}/{self.tag}/{self.id}"
+        self.url: str = f"{base_url}/{self.tag}/{self.id}"
 
     async def read(self) -> bytes:
         """Reads the files content into bytes"""
         return await self.state.http.request_file(self.url)
 
-    async def save(self, fp: IOBase):
+    async def save(self, fp: IOBase) -> None:
         """Reads the files content and saves it to a file
 
         Parameters
@@ -85,8 +87,6 @@ class PartialAsset(Asset):
     -----------
     id: :class:`str`
         The id of the asset, this will always be ``"0"``
-    tag: Optional[:class:`str`]
-        The tag of the asset, this corrasponds to where the asset is used, this will always be ``None``
     size: :class:`int`
         Amount of bytes in the file, this will always be ``0``
     filename: :class:`str`
@@ -102,13 +102,12 @@ class PartialAsset(Asset):
     """
 
     def __init__(self, url: str, state: State):
-        self.state = state
-        self.id = "0"
-        self.tag = None
-        self.size = 0
-        self.filename = ""
-        self.height = None
-        self.width = None
-        self.content_type = mimetypes.guess_extension(url)
-        self.type = AssetType.file
-        self.url = url
+        self.state: State = state
+        self.id: str = "0"
+        self.size: int = 0
+        self.filename: str = ""
+        self.height: int | None = None
+        self.width: int | None = None
+        self.content_type: str | None = mimetypes.guess_extension(url)
+        self.type: AssetType = AssetType.file
+        self.url: str = url

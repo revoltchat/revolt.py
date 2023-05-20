@@ -11,10 +11,10 @@ upload:
     python -m twine upload  dist/*
 
 lint:
-    pyright --lib
+    pyright .
 
 coverage:
-    pyright --lib --ignoreexternal --verifytypes revolt
+    pyright --ignoreexternal --verifytypes revolt
 
 docs:
     cd docs && make html

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Coroutine, TypeVar, Union, cast
+from typing import Any, Callable, Coroutine, Union, cast
+from typing_extensions import TypeVar
 
 import revolt
 
@@ -12,11 +13,11 @@ from .utils import ClientT
 
 __all__ = ("check", "Check", "is_bot_owner", "is_server_owner", "has_permissions", "has_channel_permissions")
 
-T = TypeVar("T", Callable[..., Any], Command)
+T = TypeVar("T", Callable[..., Any], Command, default=Command)
 
 Check = Callable[[Context[ClientT]], Union[Any, Coroutine[Any, Any, Any]]]
 
-def check(check: Check[ClientT]):
+def check(check: Check[ClientT]) -> Callable[[T], T]:
     """A decorator for adding command checks
 
     Parameters
@@ -37,7 +38,7 @@ def check(check: Check[ClientT]):
 
     return inner
 
-def is_bot_owner():
+def is_bot_owner() -> Callable[[T], T]:
     """A command check for limiting the command to only the bot's owner"""
     @check
     def inner(context: Context[ClientT]):
@@ -48,10 +49,10 @@ def is_bot_owner():
 
     return inner
 
-def is_server_owner():
+def is_server_owner() -> Callable[[T], T]:
     """A command check for limiting the command to only a server's owner"""
     @check
-    def inner(context: Context[ClientT]):
+    def inner(context: Context[ClientT]) -> bool:
         if not context.server_id:
             raise ServerOnly
 
@@ -62,19 +63,21 @@ def is_server_owner():
 
     return inner
 
-def has_permissions(**permissions: bool):
+def has_permissions(**permissions: bool) -> Callable[[T], T]:
     @check
-    def inner(context: Context[ClientT]):
+    def inner(context: Context[ClientT]) -> bool:
         author = context.author
 
         if not author.has_permissions(**permissions):
             raise MissingPermissionsError(permissions)
 
+        return True
+
     return inner
 
-def has_channel_permissions(**permissions: bool):
+def has_channel_permissions(**permissions: bool) -> Callable[[T], T]:
     @check
-    def inner(context: Context[ClientT]):
+    def inner(context: Context[ClientT]) -> bool:
         author = context.author
 
         if not isinstance(author, revolt.Member):
@@ -82,5 +85,7 @@ def has_channel_permissions(**permissions: bool):
 
         if not author.has_channel_permissions(context.channel, **permissions):
             raise MissingPermissionsError(permissions)
+
+        return True
 
     return inner

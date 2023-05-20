@@ -11,13 +11,13 @@ from typing_extensions import ParamSpec
 __all__ = ("Missing", "copy_doc", "maybe_coroutine", "get", "client_session")
 
 class _Missing:
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Missing>"
 
     def __bool__(self) -> Literal[False]:
         return False
 
-Missing = _Missing()
+Missing: _Missing = _Missing()
 
 T = TypeVar("T")
 

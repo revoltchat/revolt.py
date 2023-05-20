@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 __all__ = ("Client",)
 
-logger = logging.getLogger("revolt")
+logger: logging.Logger = logging.getLogger("revolt")
 
 class Client:
     """The client for interacting with revolt
@@ -48,11 +48,11 @@ class Client:
     """
 
     def __init__(self, session: aiohttp.ClientSession, token: str, *, api_url: str = "https://api.revolt.chat", max_messages: int = 5000, bot: bool = True):
-        self.session = session
-        self.token = token
-        self.api_url = api_url
-        self.max_messages = max_messages
-        self.bot = bot
+        self.session: aiohttp.ClientSession = session
+        self.token: str = token
+        self.api_url: str = api_url
+        self.max_messages: int = max_messages
+        self.bot: bool = bot
 
         self.api_info: ApiInfo
         self.http: HttpClient
@@ -63,7 +63,7 @@ class Client:
 
         super().__init__()
 
-    def dispatch(self, event: str, *args: Any):
+    def dispatch(self, event: str, *args: Any) -> None:
         """Dispatch an event, this is typically used for testing and internals.
 
         Parameters
@@ -88,7 +88,7 @@ class Client:
         async with self.session.get(self.api_url) as resp:
             return json.loads(await resp.text())
 
-    async def start(self):
+    async def start(self) -> None:
         """Starts the client"""
         api_info = await self.get_api_info()
 
@@ -98,7 +98,7 @@ class Client:
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
         await self.websocket.start()
 
-    async def stop(self):
+    async def stop(self) -> None:
         await self.websocket.websocket.close()
 
     def get_user(self, id: str) -> User:
@@ -300,7 +300,7 @@ class Client:
 
         raise LookupError
 
-    async def edit_self(self, **kwargs: Any):
+    async def edit_self(self, **kwargs: Any) -> None:
         """Edits the client's own user
 
         Parameters
@@ -316,7 +316,7 @@ class Client:
 
         await self.state.http.edit_self(remove, kwargs)
 
-    async def edit_status(self, **kwargs: Any):
+    async def edit_status(self, **kwargs: Any) -> None:
         """Edits the client's own status
 
         Parameters
@@ -337,7 +337,7 @@ class Client:
 
         await self.state.http.edit_self(remove, {"status": kwargs})
 
-    async def edit_profile(self, **kwargs: Any):
+    async def edit_profile(self, **kwargs: Any) -> None:
         """Edits the client's own profile
 
         Parameters

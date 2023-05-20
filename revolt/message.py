@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Coroutine, Optional, Union
+
+from revolt.types.message import SystemMessageContent
 
 from .asset import Asset, PartialAsset
-from .channel import Messageable
-from .embed import SendableEmbed, to_embed
+from .channel import DMChannel, GroupDMChannel, TextChannel
+from .embed import Embed, SendableEmbed, to_embed
 from .utils import Ulid
 
 if TYPE_CHECKING:
@@ -17,6 +19,7 @@ if TYPE_CHECKING:
     from .types import Message as MessagePayload
     from .types import MessageReplyPayload
     from .user import User
+    from .member import Member
 
 __all__ = (
     "Message",
@@ -58,18 +61,28 @@ class Message(Ulid):
     __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "author", "edited_at", "mentions", "replies", "reply_ids", "reactions", "interactions")
 
     def __init__(self, data: MessagePayload, state: State):
-        self.state = state
+        self.state: State = state
 
-        self.id = data["_id"]
-        self.content = data.get("content", "")
-        self.attachments = [Asset(attachment, state) for attachment in data.get("attachments", [])]
-        self.embeds = [to_embed(embed, state) for embed in data.get("embeds", [])]
+        self.id: str = data["_id"]
+
+        content = data.get("content", "")
+
+        if not isinstance(content, str):
+            self.system_content: SystemMessageContent = content
+            self.content: str = ""
+        else:
+            self.content = content
+
+        self.attachments: list[Asset] = [Asset(attachment, state) for attachment in data.get("attachments", [])]
+        self.embeds: list[Embed] = [to_embed(embed, state) for embed in data.get("embeds", [])]
 
         channel = state.get_channel(data["channel"])
-        assert isinstance(channel, Messageable)
-        self.channel = channel
+        assert isinstance(channel, Union[TextChannel, GroupDMChannel, DMChannel])
+        self.channel: TextChannel | GroupDMChannel | DMChannel = channel
 
-        self.server_id = self.channel.server_id
+        self.server_id: str | None = self.channel.server_id
+
+        self.mentions: list[Member | User]
 
         if self.server_id:
             author = state.get_member(self.server_id, data["author"])
@@ -78,7 +91,7 @@ class Message(Ulid):
             author = state.get_user(data["author"])
             self.mentions = [state.get_user(member_id) for member_id in data.get("mentions", [])]
 
-        self.author = author
+        self.author: Member | User = author
 
         if masquerade := data.get("masquerade"):
             if name := masquerade.get("name"):
@@ -108,6 +121,8 @@ class Message(Ulid):
 
         for emoji, users in reactions.items():
             self.reactions[emoji] = [self.state.get_user(user_id) for user_id in users]
+
+        self.interactions: MessageInteractions | None
 
         if interactions := data.get("interactions"):
             self.interactions = MessageInteractions(reactions=interactions.get("reactions"), restrict_reactions=interactions.get("restrict_reactions", False))
@@ -143,7 +158,7 @@ class Message(Ulid):
         """Deletes the message. The bot can only delete its own messages and messages it has permission to delete """
         await self.state.http.delete_message(self.channel.id, self.id)
 
-    def reply(self, *args: Any, mention: bool = False, **kwargs: Any):
+    def reply(self, *args: Any, mention: bool = False, **kwargs: Any) -> Coroutine[Any, Any, Message]:
         """Replies to this message, equivilant to:
 
         .. code-block:: python
@@ -153,13 +168,13 @@ class Message(Ulid):
         """
         return self.channel.send(*args, **kwargs, replies=[MessageReply(self, mention)])
 
-    async def add_reaction(self, emoji: str):
+    async def add_reaction(self, emoji: str) -> None:
         await self.state.http.add_reaction(self.channel.id, self.id, emoji)
 
-    async def remove_reaction(self, emoji: str, user: Optional[User] = None, remove_all: bool = False):
+    async def remove_reaction(self, emoji: str, user: Optional[User] = None, remove_all: bool = False) -> None:
         await self.state.http.remove_reaction(self.channel.id, self.id, emoji, user.id if user else None, remove_all)
 
-    async def remove_all_reactions(self):
+    async def remove_all_reactions(self) -> None:
         await self.state.http.remove_all_reactions(self.channel.id, self.id)
 
 
@@ -187,8 +202,8 @@ class MessageReply:
     __slots__ = ("message", "mention")
 
     def __init__(self, message: Message, mention: bool = False):
-        self.message = message
-        self.mention = mention
+        self.message: Message = message
+        self.mention: bool = mention
 
     def to_dict(self) -> MessageReplyPayload:
         return { "id": self.message.id, "mention": self.mention }
@@ -208,9 +223,9 @@ class Masquerade:
     __slots__ = ("name", "avatar", "colour")
 
     def __init__(self, name: Optional[str] = None, avatar: Optional[str] = None, colour: Optional[str] = None):
-        self.name = name
-        self.avatar = avatar
-        self.colour = colour
+        self.name: str | None = name
+        self.avatar: str | None = avatar
+        self.colour: str | None = colour
 
     def to_dict(self) -> MasqueradePayload:
         output: MasqueradePayload = {}
@@ -239,10 +254,10 @@ class MessageInteractions:
     __slots__ = ("reactions", "restrict_reactions")
 
     def __init__(self, *, reactions: Optional[list[str]] = None, restrict_reactions: bool = False):
-        self.reactions = reactions
-        self.restrict_reactions = restrict_reactions
+        self.reactions: list[str] | None = reactions
+        self.restrict_reactions: bool = restrict_reactions
 
-    def to_dict(self):
+    def to_dict(self) -> InteractionsPayload:
         output: InteractionsPayload = {}
 
         if reactions := self.reactions:
