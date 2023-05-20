@@ -44,7 +44,7 @@ class Asset(Ulid):
     def __init__(self, data: FilePayload, state: State):
         self.state: State = state
 
-        self.id: str = data['_id']
+        self.id: int = data['_id']
         self.tag: str = data['tag']
         self.size: int = data['size']
         self.filename: str = data['filename']
