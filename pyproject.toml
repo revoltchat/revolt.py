@@ -49,6 +49,8 @@ path = "revolt/__init__.py"
 
 [tool.hatch.build]
 only-packages = true
+include = ["revolt/**/*"]
+
 
 [tool.pyright]
 reportPrivateUsage = false
