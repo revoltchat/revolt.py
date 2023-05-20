@@ -17,4 +17,4 @@ jobs:
         with:
           python-version: ${{ matrix.version }}
           working-directory: revolt
-          verify-types: true
+          verify-types: revolt
