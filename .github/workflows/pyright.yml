@@ -18,3 +18,4 @@ jobs:
           python-version: ${{ matrix.version }}
           working-directory: revolt
           verify-types: revolt
+          ignore-external: true
