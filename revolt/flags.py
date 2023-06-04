@@ -37,6 +37,12 @@ class Flags:
     def __init_subclass__(cls) -> None:
         cls.FLAG_NAMES = []
 
+        for name in dir(cls):
+            value = getattr(cls, name)
+
+            if isinstance(value, Flag):
+                cls.FLAG_NAMES.append(name)
+
     def __init__(self, value: int = 0, **flags: bool):
         self.value = value
 
