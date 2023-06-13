@@ -76,8 +76,8 @@ class User(Messageable, Ulid):
         self.state = state
         self._members: WeakValueDictionary[str, Member] = WeakValueDictionary()  # we store all member versions of this user to avoid having to check every guild when needing to update.
         self.id: str = data["_id"]
-        self.discriminator = data["discriminator"]
-        self.display_name = data.get("display_name")
+        self.discriminator: str = data["discriminator"]
+        self.display_name: str | None = data.get("display_name")
         self.original_name: str = data["username"]
         self.dm_channel: DMChannel | None = None
 
