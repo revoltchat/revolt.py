@@ -58,6 +58,12 @@ reportImportCycles = false
 reportIncompatibleMethodOverride = false
 typeCheckingMode = "strict"
 
+[tool.hatch.build.targets.sdist]
+strict-naming = false
+
+[tool.hatch.build.targets.wheel]
+strict-naming = false
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
