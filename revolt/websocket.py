@@ -6,6 +6,7 @@ import time
 from copy import copy
 from typing import TYPE_CHECKING, Callable, NamedTuple, cast
 
+from .errors import RevoltError
 from . import utils
 from .channel import GroupDMChannel, TextChannel, VoiceChannel
 from .enums import RelationshipType
@@ -102,8 +103,9 @@ class WebsocketHandler:
     async def handle_event(self, payload: BasePayload) -> None:
         event_type = payload["type"].lower()
         logger.debug("Recieved event %s %s", event_type, payload)
+
         try:
-            if event_type != "ready":
+            if event_type not in ["ready", "notfound"]:
                 await self.ready.wait()
 
             func = getattr(self, f"handle_{event_type}")
@@ -114,6 +116,9 @@ class WebsocketHandler:
 
     async def handle_authenticated(self, _: BasePayload) -> None:
         logger.info("Successfully authenticated")
+
+    async def handle_notfound(self, _: BasePayload) -> None:
+        raise RevoltError("Invalid token")
 
     async def handle_ready(self, payload: ReadyEventPayload) -> None:
         for user_payload in payload["users"]:
