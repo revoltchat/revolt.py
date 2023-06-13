@@ -83,6 +83,11 @@ class Member(User):
         return self.masquerade_avatar or self.guild_avatar or self.original_avatar
 
     @property
+    def name(self) -> str:
+        """:class:`str` The name the user is displaying, this includes (in order) their masqueraded name, display name and orginal name"""
+        return self.nickname or self.display_name or self.masquerade_name or self.original_name
+
+    @property
     def mention(self) -> str:
         """:class:`str`: Returns a string that allows you to mention the given member."""
         return f"<@{self.id}>"

@@ -32,6 +32,8 @@ class UserRelation(TypedDict):
 class User(TypedDict):
     _id: str
     username: str
+    discriminator: str
+    display_name: NotRequired[str]
     avatar: NotRequired[File]
     relations: NotRequired[list[UserRelation]]
     badges: NotRequired[int]
