@@ -77,7 +77,7 @@ class Message(Ulid):
         self.embeds: list[Embed] = [to_embed(embed, state) for embed in data.get("embeds", [])]
 
         channel = state.get_channel(data["channel"])
-        assert isinstance(channel, Union[TextChannel, GroupDMChannel, DMChannel])
+        assert isinstance(channel, (TextChannel, GroupDMChannel, DMChannel))
         self.channel: TextChannel | GroupDMChannel | DMChannel = channel
 
         self.server_id: str | None = self.channel.server_id
