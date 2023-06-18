@@ -10,7 +10,8 @@ class Client(revolt.Client):
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        # Storing the token in source code like this is bad practice. Please see the "dotenv" example for a more secure way of storing bot tokens.
+        # Storing the token in source code like this is bad practice.
+        # Please see the "dotenv" example for a more secure way of storing bot tokens.
         client = Client(session, "BOT TOKEN HERE")
         await client.start()
 
