@@ -18,7 +18,7 @@ class Client(revolt.Client):
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        client = Client(session, token)
+        client = Client(session, token) # pylint: disable=reportGeneralTypeIssues
         await client.start()
 
 asyncio.run(main())
