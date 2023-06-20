@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 import inspect
 from contextlib import asynccontextmanager
@@ -118,6 +120,6 @@ async def client_session():
 
 def parse_timestamp(timestamp: int | str) -> datetime.datetime:
     if isinstance(timestamp, int):
-        return datetime.datetime.fromtimestamp(timestamp / 1000, tz=datetime.UTC)
+        return datetime.datetime.fromtimestamp(timestamp / 1000, tz=datetime.timezone.utc)
     else:
         return datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")

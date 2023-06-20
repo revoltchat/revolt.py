@@ -171,7 +171,7 @@ class Member(User):
         length: :class:`datetime.timedelta`
             The length of the timeout
         """
-        ends_at = datetime.datetime.now(tz=datetime.UTC) + length
+        ends_at = datetime.datetime.now(tz=datetime.timezone.utc) + length
 
         await self.state.http.edit_member(self.server.id, self.id, None, {"timeout": ends_at.isoformat()})
 
