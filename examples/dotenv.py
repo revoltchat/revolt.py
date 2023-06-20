@@ -19,9 +19,9 @@ class Client(revolt.Client):
 async def main():
     # The comment on line 24 exists to suppress a Pyright error on the GitHub repository
     # due to the '.env' file not existing and therefore the token not being accessible.
-    # You can remove these comments if you're using this example as intended.
+    # You should remove these comments if you're using this example as intended.
     async with aiohttp.ClientSession() as session:
-        client = Client(session, token) # reportGeneralTypeIssues: ignore 
+        client = Client(session, token) # type: ignore 
         await client.start()
 
 asyncio.run(main())
