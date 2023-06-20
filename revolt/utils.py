@@ -8,7 +8,7 @@ import ulid
 from aiohttp import ClientSession
 from typing_extensions import ParamSpec
 
-__all__ = ("Missing", "copy_doc", "maybe_coroutine", "get", "client_session")
+__all__ = ("_Missing", "Missing", "copy_doc", "maybe_coroutine", "get", "client_session", "parse_timestamp")
 
 class _Missing:
     def __repr__(self) -> str:
@@ -115,3 +115,9 @@ async def client_session():
         yield session
     finally:
         await session.close()
+
+def parse_timestamp(timestamp: int | str) -> datetime.datetime:
+    if isinstance(timestamp, int):
+        return datetime.datetime.fromtimestamp(timestamp / 1000, tz=datetime.UTC)
+    else:
+        return datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")

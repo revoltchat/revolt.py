@@ -405,7 +405,14 @@ class HttpClient:
         return self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
 
     def remove_reaction(self, channel_id: str, message_id: str, emoji: str, user_id: Optional[str], remove_all: bool) -> Request[None]:
-        return self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
+        parameters = {}
+
+        if user_id:
+            parameters["user_id"] = user_id
+
+        parameters["remove_all"] = remove_all
+
+        return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
 
     def remove_all_reactions(self, channel_id: str, message_id: str) -> Request[None]:
         return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions")

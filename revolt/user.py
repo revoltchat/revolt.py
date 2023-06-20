@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union
 from weakref import WeakValueDictionary
 
+from revolt.types.user import UserRelation
+
 from .asset import Asset, PartialAsset
 from .channel import DMChannel, GroupDMChannel
 from .enums import PresenceType, RelationshipType
@@ -107,6 +109,7 @@ class User(Messageable, Ulid):
             user = state.get_user(relation["_id"])
             if user:
                 relations.append(Relation(RelationshipType(relation["status"]), user))
+
         self.relations: list[Relation] = relations
 
         relationship = data.get("relationship")
@@ -177,7 +180,7 @@ class User(Messageable, Ulid):
             payload = await self.state.http.open_dm(self.id)
             self.dm_channel = DMChannel(payload, self.state)
 
-        return self.id
+        return self.dm_channel.id
 
     @property
     def owner(self) -> User:
@@ -203,7 +206,21 @@ class User(Messageable, Ulid):
         """:class:`str`: Returns a string that allows you to mention the given user."""
         return f"<@{self.id}>"
 
-    def _update(self, *, status: Optional[StatusPayload] = None, profile: Optional[UserProfileData] = None, avatar: Optional[File] = None, online: Optional[bool] = None):
+    def _update(
+        self,
+        *,
+        status: Optional[StatusPayload] = None,
+        profile: Optional[UserProfileData] = None,
+        avatar: Optional[File] = None,
+        online: Optional[bool] = None,
+        display_name: Optional[str] = None,
+        relations: Optional[list[UserRelation]] = None,
+        badges: Optional[int] = None,
+        flags: Optional[int] = None,
+        discriminator: Optional[str] = None,
+        privileged: Optional[bool] = None,
+        username: Optional[str] = None
+    ) -> None:
         if status is not None:
             presence = status.get("presence")
             self.status = Status(status.get("text"), PresenceType(presence) if presence else None)
@@ -222,11 +239,52 @@ class User(Messageable, Ulid):
         if online is not None:
             self.online = online
 
+        if display_name is not None:
+            self.display_name = display_name
+
+        if relations is not None:
+            new_relations: list[Relation] = []
+
+            for relation in relations:
+                user = self.state.get_user(relation["_id"])
+                if user:
+                    new_relations.append(Relation(RelationshipType(relation["status"]), user))
+
+            self.relations = new_relations
+
+        if badges is not None:
+            self.badges = UserBadges(badges)
+
+        if flags is not None:
+            self.flags = flags
+
+        if discriminator is not None:
+            self.discriminator = discriminator
+
+        if privileged is not None:
+            self.privileged = privileged
+
+        if username is not None:
+            self.original_name = username
+
         # update user infomation for all members
 
         if self.__class__ is User:
             for member in self._members.values():
-                User._update(member, status=status, profile=profile, avatar=avatar, online=online)
+                User._update(
+                    member,
+                    status=status,
+                    profile=profile,
+                    avatar=avatar,
+                    online=online,
+                    display_name=display_name,
+                    relations=relations,
+                    badges=badges,
+                    flags=flags,
+                    discriminator=discriminator,
+                    privileged=privileged,
+                    username=username
+                )
 
     async def default_avatar(self) -> bytes:
         """Returns the default avatar for this user

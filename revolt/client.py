@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, Optional, Union, cast
 
 import aiohttp
 
+from .errors import RevoltError
 from .channel import (DMChannel, GroupDMChannel, SavedMessageChannel,
                       TextChannel, VoiceChannel, channel_factory)
 from .http import HttpClient
@@ -14,6 +15,9 @@ from .message import Message
 from .state import State
 from .utils import Missing, Ulid
 from .websocket import WebsocketHandler
+from .emoji import Emoji
+from .server import Server
+from .user import User
 
 try:
     import ujson as json
@@ -22,11 +26,8 @@ except ImportError:
 
 if TYPE_CHECKING:
     from .channel import Channel
-    from .emoji import Emoji
     from .file import File
-    from .server import Server
     from .types import ApiInfo
-    from .user import User
 
 __all__ = ("Client",)
 
@@ -86,7 +87,12 @@ class Client:
 
     async def get_api_info(self) -> ApiInfo:
         async with self.session.get(self.api_url) as resp:
-            return json.loads(await resp.text())
+            text = await resp.text()
+
+            try:
+                return json.loads(text)
+            except:
+                raise RevoltError(f"Cant fetch api info:\n{text}")
 
     async def start(self) -> None:
         """Starts the client"""
@@ -96,6 +102,7 @@ class Client:
         self.http = HttpClient(self.session, self.token, self.api_url, self.api_info, self.bot)
         self.state = State(self.http, api_info, self.max_messages)
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
+
         await self.websocket.start()
 
     async def stop(self) -> None:

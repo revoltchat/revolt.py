@@ -23,6 +23,7 @@ __all__ = (
     "Interactions",
     "Message",
     "MessageReplyPayload",
+    "SystemMessageContent",
     )
 
 class UserAddContent(TypedDict):
@@ -71,12 +72,13 @@ class Message(TypedDict):
     _id: str
     channel: str
     author: str
-    content: Union[str, SystemMessageContent]
+    content: str
+    system: NotRequired[SystemMessageContent]
     attachments: NotRequired[list[File]]
     embeds: NotRequired[list[Embed]]
     mentions: NotRequired[list[str]]
     replies: NotRequired[list[str]]
-    edited: NotRequired[str]
+    edited: NotRequired[str | int]
     masquerade: NotRequired[Masquerade]
     interactions: NotRequired[Interactions]
     reactions: dict[str, list[str]]

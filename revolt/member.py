@@ -4,7 +4,7 @@ import datetime
 from typing import TYPE_CHECKING, Any, Optional
 
 
-from .utils import _Missing, Missing
+from .utils import _Missing, Missing, parse_timestamp
 
 from .asset import Asset
 from .permissions import Permissions
@@ -63,17 +63,12 @@ class Member(User):
 
         self.server: Server = server
         self.nickname: str | None = data.get("nickname")
-        joined_at = data["joined_at"]
-
-        if isinstance(joined_at, int):
-            self.joined_at: datetime.datetime = datetime.datetime.fromtimestamp(joined_at / 1000)
-        else:
-            self.joined_at: datetime.datetime = datetime.datetime.strptime(joined_at, "%Y-%m-%dT%H:%M:%S.%f%z")
+        self.joined_at: datetime.datetime = parse_timestamp(data["joined_at"])
 
         self.current_timeout: datetime.datetime | None
 
         if current_timeout := data.get("timeout"):
-            self.current_timeout = datetime.datetime.strptime(current_timeout, "%Y-%m-%dT%H:%M:%S.%f%z")
+            self.current_timeout = parse_timestamp(current_timeout)
         else:
             self.current_timeout = None
 
@@ -92,7 +87,14 @@ class Member(User):
         """:class:`str`: Returns a string that allows you to mention the given member."""
         return f"<@{self.id}>"
 
-    def _update(self, *, nickname: Optional[str] = None, avatar: Optional[FilePayload] = None, roles: Optional[list[str]] = None):
+    def _update(
+        self,
+        *,
+        nickname: Optional[str] = None,
+        avatar: Optional[FilePayload] = None,
+        roles: Optional[list[str]] = None,
+        timeout: Optional[str | int] = None
+    ) -> None:
         if nickname is not None:
             self.nickname = nickname
 
@@ -102,6 +104,9 @@ class Member(User):
         if roles is not None:
             member_roles = [self.server.get_role(role_id) for role_id in roles]
             self.roles = sorted(member_roles, key=lambda role: role.rank, reverse=True)
+
+        if timeout is not None:
+            self.current_timeout = parse_timestamp(timeout)
 
     async def kick(self) -> None:
         """Kicks the member from the server"""
@@ -166,7 +171,7 @@ class Member(User):
         length: :class:`datetime.timedelta`
             The length of the timeout
         """
-        ends_at = datetime.datetime.utcnow() + length
+        ends_at = datetime.datetime.now(tz=datetime.UTC) + length
 
         await self.state.http.edit_member(self.server.id, self.id, None, {"timeout": ends_at.isoformat()})
 

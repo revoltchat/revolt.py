@@ -20,4 +20,4 @@ class Member(TypedDict):
     avatar: NotRequired[File]
     roles: NotRequired[list[str]]
     joined_at: int | str
-    timeout: NotRequired[str]
+    timeout: NotRequired[str | int]

@@ -64,7 +64,21 @@ def user_converter(arg: str, context: Context[ClientT]) -> User:
         return context.client.get_user(arg)
     except KeyError:
         try:
-            return utils.get(context.client.users, name=arg)
+            parts = arg.split("#")
+
+            if len(parts) == 1:
+                return (
+                    utils.get(context.client.users, original_name=arg)
+                    or utils.get(context.client.users, display_name=arg)
+                )
+            elif len(parts) == 2:
+                return (
+                    utils.get(context.client.users, original_name=parts[0], discriminator=parts[1])
+                    or utils.get(context.client.users, display_name=parts[0], discriminator=parts[1])
+                )
+            else:
+                raise LookupError
+
         except LookupError:
             raise UserConverterError(arg)
 
@@ -79,7 +93,21 @@ def member_converter(arg: str, context: Context[ClientT]) -> Member:
         return context.server.get_member(arg)
     except KeyError:
         try:
-            return utils.get(context.server.members, name=arg)
+            parts = arg.split("#")
+
+            if len(parts) == 1:
+                return (
+                    utils.get(context.server.members, original_name=arg)
+                    or utils.get(context.server.members, display_name=arg)
+                )
+            elif len(parts) == 2:
+                return (
+                    utils.get(context.server.members, original_name=parts[0], discriminator=parts[1])
+                    or utils.get(context.server.members, display_name=parts[0], discriminator=parts[1])
+                )
+            else:
+                raise LookupError
+
         except LookupError:
             raise MemberConverterError(arg)
 

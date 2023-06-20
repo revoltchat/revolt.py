@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING, Literal, TypedDict, Union
 
 from typing_extensions import NotRequired
 
-from .channel import (Channel, DMChannel, GroupDMChannel, SavedMessages,
-                      TextChannel, VoiceChannel)
+from .channel import Channel, DMChannel, GroupDMChannel, SavedMessages, TextChannel, VoiceChannel
 from .message import Message
 from .permissions import Overwrite
 
@@ -16,8 +15,7 @@ if TYPE_CHECKING:
     from .file import File
     from .member import Member, MemberID
     from .server import Server, SystemMessagesConfig
-    from .user import Status, User, UserProfile
-
+    from .user import Status, User, UserProfile, UserRelation
 
 __all__ = (
     "BasePayload",
@@ -146,6 +144,7 @@ class ServerMemberUpdateEventPayloadData(TypedDict, total=False):
     nickname: str
     avatar: File
     roles: list[str]
+    timeout: str | int
 
 class ServerMemberUpdateEventPayload(BasePayload):
     id: MemberID
@@ -179,6 +178,14 @@ class UserUpdateEventPayloadData(TypedDict):
     avatar: NotRequired[File]
     online: NotRequired[bool]
     profile: NotRequired[UserProfile]
+    username: NotRequired[str]
+    display_name: NotRequired[str]
+    relations: NotRequired[list[UserRelation]]
+    badges: NotRequired[int]
+    online: NotRequired[bool]
+    flags: NotRequired[int]
+    discriminator: NotRequired[str]
+    privileged: NotRequired[bool]
 
 class UserUpdateEventPayload(BasePayload):
     id: str

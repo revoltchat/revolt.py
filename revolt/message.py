@@ -3,12 +3,11 @@ from __future__ import annotations
 import datetime
 from typing import TYPE_CHECKING, Any, Coroutine, Optional, Union
 
-from revolt.types.message import SystemMessageContent
 
 from .asset import Asset, PartialAsset
 from .channel import DMChannel, GroupDMChannel, TextChannel
 from .embed import Embed, SendableEmbed, to_embed
-from .utils import Ulid
+from .utils import Ulid, parse_timestamp
 
 if TYPE_CHECKING:
     from .server import Server
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
     from .types import Interactions as InteractionsPayload
     from .types import Masquerade as MasqueradePayload
     from .types import Message as MessagePayload
-    from .types import MessageReplyPayload
+    from .types import MessageReplyPayload, SystemMessageContent
     from .user import User
     from .member import Member
 
@@ -64,14 +63,9 @@ class Message(Ulid):
         self.state: State = state
 
         self.id: str = data["_id"]
+        self.content: str = data.get("content", "")
 
-        content = data.get("content", "")
-
-        if not isinstance(content, str):
-            self.system_content: SystemMessageContent = content
-            self.content: str = ""
-        else:
-            self.content = content
+        self.system_content: SystemMessageContent | None = data.get("system")
 
         self.attachments: list[Asset] = [Asset(attachment, state) for attachment in data.get("attachments", [])]
         self.embeds: list[Embed] = [to_embed(embed, state) for embed in data.get("embeds", [])]
@@ -84,11 +78,16 @@ class Message(Ulid):
 
         self.mentions: list[Member | User]
 
+        if self.system_content:
+            author_id: str = self.system_content.get("id", data["author"])
+        else:
+            author_id = data["author"]
+
         if self.server_id:
-            author = state.get_member(self.server_id, data["author"])
+            author = state.get_member(self.server_id, author_id)
             self.mentions = [self.server.get_member(member_id) for member_id in data.get("mentions", [])]
         else:
-            author = state.get_user(data["author"])
+            author = state.get_user(author_id)
             self.mentions = [state.get_user(member_id) for member_id in data.get("mentions", [])]
 
         self.author: Member | User = author
@@ -101,7 +100,7 @@ class Message(Ulid):
                 self.author.masquerade_avatar = PartialAsset(avatar, state)
 
         if edited_at := data.get("edited"):
-            self.edited_at: Optional[datetime.datetime] = datetime.datetime.strptime(edited_at, "%Y-%m-%dT%H:%M:%S.%f%z")
+            self.edited_at: Optional[datetime.datetime] = parse_timestamp(edited_at)
 
         self.replies: list[Message] = []
         self.reply_ids: list[str] = []
@@ -137,17 +136,17 @@ class Message(Ulid):
             self.embeds = [to_embed(embed, self.state) for embed in embeds]
 
         if edited is not None:
-            if isinstance(edited, int):
-                self.edited_at = datetime.datetime.fromtimestamp(edited / 1000, tz=datetime.timezone.utc)
-            else:
-                self.edited_at = datetime.datetime.strptime(edited, "%Y-%m-%dT%H:%M:%S.%f%z")
+            self.edited_at = parse_timestamp(edited)
 
     async def edit(self, *, content: Optional[str] = None, embeds: Optional[list[SendableEmbed]] = None) -> None:
         """Edits the message. The bot can only edit its own message
+
         Parameters
         -----------
         content: :class:`str`
             The new content of the message
+        embeds: list[:class:`SendableEmbed`]
+            The new embeds of the message
         """
 
         new_embeds = [embed.to_dict() for embed in embeds] if embeds else None
@@ -169,14 +168,32 @@ class Message(Ulid):
         return self.channel.send(*args, **kwargs, replies=[MessageReply(self, mention)])
 
     async def add_reaction(self, emoji: str) -> None:
+        """Adds a reaction to the message
+
+        Parameters
+        -----------
+        emoji: :class:`str`
+            The emoji to add as a reaction
+        """
         await self.state.http.add_reaction(self.channel.id, self.id, emoji)
 
     async def remove_reaction(self, emoji: str, user: Optional[User] = None, remove_all: bool = False) -> None:
+        """Removes a reaction from the message, this can remove either a specific users, the current users reaction or all of a specific emoji
+
+        Parameters
+        -----------
+        emoji: :class:`str`
+            The emoji to remove
+        user: Optional[:class:`User`]
+            The user to use for removing a reaction from
+        remove_all: bool
+            Whether or not to remove all reactions for that specific emoji
+        """
         await self.state.http.remove_reaction(self.channel.id, self.id, emoji, user.id if user else None, remove_all)
 
     async def remove_all_reactions(self) -> None:
+        """Removes all reactions from the message"""
         await self.state.http.remove_all_reactions(self.channel.id, self.id)
-
 
     @property
     def server(self) -> Server:

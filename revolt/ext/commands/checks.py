@@ -42,8 +42,12 @@ def is_bot_owner() -> Callable[[T], T]:
     """A command check for limiting the command to only the bot's owner"""
     @check
     def inner(context: Context[ClientT]):
-        if context.author.id == context.client.user.owner_id:
-            return True
+        if user_id := context.client.user.owner_id:
+            if context.author.id == user_id:
+                return True
+        else:
+            if context.author.id == context.client.user.id:
+                return True
 
         raise NotBotOwner
 
