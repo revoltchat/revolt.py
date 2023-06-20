@@ -17,12 +17,11 @@ class Client(revolt.Client):
             await message.channel.send("hi how are you")
 
 async def main():
-    # The comment below exists to suppress a Pylint error on the GitHub repository
+    # The comment on line 24 exists to suppress a Pyright error on the GitHub repository
     # due to the '.env' file not existing and therefore the token not being accessible.
     # You can remove these comments if you're using this example as intended.
-    # pylint: disable=reportGeneralTypeIssues
     async with aiohttp.ClientSession() as session:
-        client = Client(session, token)
+        client = Client(session, token) # reportGeneralTypeIssues: ignore 
         await client.start()
 
 asyncio.run(main())
