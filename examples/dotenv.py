@@ -1,3 +1,5 @@
+# Before using this example, make sure you install dotenv with the following command:
+# pip install python-dotenv
 import asyncio
 import os
 from dotenv import load_dotenv
