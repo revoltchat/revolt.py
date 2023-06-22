@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 __all__ = ("Server", "SystemMessages", "ServerBan")
 
 class SystemMessages:
+    """Holds all the configuration for the server's system message channels"""
+
     def __init__(self, data: SystemMessagesConfig, state: State):
         self.state: State = state
         self.user_joined_id: str | None = data.get("user_joined")
@@ -33,6 +35,13 @@ class SystemMessages:
 
     @property
     def user_joined(self) -> Optional[TextChannel]:
+        """The channel which user join messages get sent in
+
+        Returns
+        --------
+        Optional[:class:`TextChannel`]
+            The channel
+        """
         if not self.user_joined_id:
             return
 
@@ -42,6 +51,13 @@ class SystemMessages:
 
     @property
     def user_left(self) -> Optional[TextChannel]:
+        """The channel which user leave messages get sent in
+
+        Returns
+        --------
+        Optional[:class:`TextChannel`]
+            The channel
+        """
         if not self.user_left_id:
             return
 
@@ -51,6 +67,13 @@ class SystemMessages:
 
     @property
     def user_kicked(self) -> Optional[TextChannel]:
+        """The channel which user kick messages get sent in
+
+        Returns
+        --------
+        Optional[:class:`TextChannel`]
+            The channel
+        """
         if not self.user_kicked_id:
             return
 
@@ -60,6 +83,13 @@ class SystemMessages:
 
     @property
     def user_banned(self) -> Optional[TextChannel]:
+        """The channel which user ban messages get sent in
+
+        Returns
+        --------
+        Optional[:class:`TextChannel`]
+            The channel
+        """
         if not self.user_banned_id:
             return
 
@@ -364,11 +394,11 @@ class Server(Ulid):
         return Member(payload, self, self.state)
 
     async def fetch_bans(self) -> list[ServerBan]:
-        """Fetches all invites in the server
+        """Fetches all bans in the server
 
         Returns
         --------
-        list[:class:`Invite`]
+        list[:class:`ServerBan`]
         """
         payload = await self.state.http.fetch_bans(self.id)
 
@@ -414,7 +444,7 @@ class ServerBan:
 
     Attributes
     -----------
-    reason: Optional[:class:str`]
+    reason: Optional[:class:`str`]
         The reason the user was banned
     server: :class:`Server`
         The server the user was banned in
