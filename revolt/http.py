@@ -6,6 +6,7 @@ from typing import (TYPE_CHECKING, Any, Coroutine, Literal, Optional, TypeVar,
 import aiohttp
 import ulid
 
+
 from .errors import Forbidden, HTTPError, ServerError
 from .file import File
 
@@ -19,23 +20,16 @@ if TYPE_CHECKING:
 
     from .enums import SortType
     from .file import File
-    from .types import ApiInfo
     from .types import Autumn as AutumnPayload
-    from .types import Channel, DMChannel
     from .types import Emoji as EmojiPayload
-    from .types import EmojiParent, GetServerMembers, GroupDMChannel
     from .types import Interactions as InteractionsPayload
-    from .types import Invite
     from .types import Masquerade as MasqueradePayload
-    from .types import Member
     from .types import Member as MemberPayload
     from .types import Message as MessagePayload
-    from .types import (MessageReplyPayload, MessageWithUserData,
-                        PartialInvite, Role)
     from .types import SendableEmbed as SendableEmbedPayload
-    from .types import Server, ServerBans, TextChannel
     from .types import User as UserPayload
-    from .types import UserProfile, VoiceChannel
+    from .types import (Server, ServerBans, TextChannel, UserProfile, VoiceChannel, Member, Invite, ApiInfo, Channel, SavedMessages,
+                        DMChannel, EmojiParent, GetServerMembers, GroupDMChannel, MessageReplyPayload, MessageWithUserData, PartialInvite, Role)
 
 __all__ = ("HttpClient",)
 
@@ -290,7 +284,7 @@ class HttpClient:
     def fetch_dm_channels(self) -> Request[list[Union[DMChannel, GroupDMChannel]]]:
         return self.request("GET", "/users/dms")
 
-    def open_dm(self, user_id: str) -> Request[DMChannel]:
+    def open_dm(self, user_id: str) -> Request[DMChannel | SavedMessages]:
         return self.request("GET", f"/users/{user_id}/dm")
 
     def fetch_channel(self, channel_id: str) -> Request[Channel]:

@@ -6,7 +6,7 @@ from weakref import WeakValueDictionary
 from revolt.types.user import UserRelation
 
 from .asset import Asset, PartialAsset
-from .channel import DMChannel, GroupDMChannel
+from .channel import DMChannel, GroupDMChannel, SavedMessageChannel
 from .enums import PresenceType, RelationshipType
 from .flags import UserBadges
 from .messageable import Messageable
@@ -81,7 +81,7 @@ class User(Messageable, Ulid):
         self.discriminator: str = data["discriminator"]
         self.display_name: str | None = data.get("display_name")
         self.original_name: str = data["username"]
-        self.dm_channel: DMChannel | None = None
+        self.dm_channel: DMChannel | SavedMessageChannel | None = None
 
         bot = data.get("bot")
 
@@ -178,7 +178,11 @@ class User(Messageable, Ulid):
     async def _get_channel_id(self):
         if not self.dm_channel:
             payload = await self.state.http.open_dm(self.id)
-            self.dm_channel = DMChannel(payload, self.state)
+
+            if payload["channel_type"] == "SavedMessages":
+                self.dm_channel = SavedMessageChannel(payload, self.state)
+            else:
+                self.dm_channel = DMChannel(payload, self.state)
 
         return self.dm_channel.id
 
@@ -346,3 +350,18 @@ class User(Messageable, Ulid):
             return self._members[server.id]
         except IndexError:
             raise LookupError from None
+
+    async def open_dm(self) -> DMChannel | SavedMessageChannel:
+        """Opens a dm with the user, if this user is the current user this will return :class:`SavedMessageChannel`
+
+        .. note:: using this function is discouraged as :meth:`User.send` does this implicitally.
+
+        Returns
+        --------
+        Union[:class:`DMChannel`, :class:`SavedMessageChannel`]
+        """
+
+        await self._get_channel_id()
+
+        assert self.dm_channel
+        return self.dm_channel

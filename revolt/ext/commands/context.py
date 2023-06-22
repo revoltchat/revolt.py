@@ -55,7 +55,7 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
         self.args: list[Any] = []
         self.kwargs: dict[str, Any] = {}
         self.server_id: str | None = message.server_id
-        self.channel: revolt.TextChannel | revolt.GroupDMChannel | revolt.DMChannel = message.channel
+        self.channel: revolt.TextChannel | revolt.GroupDMChannel | revolt.DMChannel | revolt.SavedMessageChannel = message.channel
         self.author: revolt.Member | revolt.User = message.author
         self.state: State = message.state
 

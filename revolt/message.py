@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Coroutine, Optional, Union
 
 
 from .asset import Asset, PartialAsset
-from .channel import DMChannel, GroupDMChannel, TextChannel
+from .channel import DMChannel, GroupDMChannel, TextChannel, SavedMessageChannel
 from .embed import Embed, SendableEmbed, to_embed
 from .utils import Ulid, parse_timestamp
 
@@ -71,8 +71,8 @@ class Message(Ulid):
         self.embeds: list[Embed] = [to_embed(embed, state) for embed in data.get("embeds", [])]
 
         channel = state.get_channel(data["channel"])
-        assert isinstance(channel, (TextChannel, GroupDMChannel, DMChannel))
-        self.channel: TextChannel | GroupDMChannel | DMChannel = channel
+        assert isinstance(channel, (TextChannel, GroupDMChannel, DMChannel, SavedMessageChannel))
+        self.channel: TextChannel | GroupDMChannel | DMChannel | SavedMessageChannel = channel
 
         self.server_id: str | None = self.channel.server_id
 
