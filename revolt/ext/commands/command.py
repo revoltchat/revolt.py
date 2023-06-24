@@ -7,7 +7,7 @@ from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
                     Generic, Literal, Optional, Union, get_args, get_origin)
 from typing_extensions import ParamSpec
 
-from revolt.utils import copy_doc, maybe_coroutine
+from revolt.utils import maybe_coroutine
 
 from .errors import InvalidLiteralArgument, UnionConverterError
 from .utils import ClientCoT, evaluate_parameters
@@ -74,7 +74,6 @@ class Command(Generic[ClientCoT]):
         except Exception as err:
             return await self._error_handler(self.cog or context.client, context, err)
 
-    @copy_doc(invoke)
     def __call__(self, context: Context[ClientCoT], *args: Any, **kwargs: Any) -> Any:
         return self.invoke(context, *args, **kwargs)
 

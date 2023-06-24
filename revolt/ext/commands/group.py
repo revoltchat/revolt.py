@@ -53,6 +53,10 @@ class Group(Command[ClientCoT]):
             command = cls(func, name or func.__name__, aliases or [])
             command.parent = self
             self.subcommands[command.name] = command
+
+            for alias in command.aliases:
+                self.subcommands[alias] = command
+
             return command
 
         return inner
@@ -80,6 +84,10 @@ class Group(Command[ClientCoT]):
             command = cls(func, name or func.__name__, aliases or [])
             command.parent = self
             self.subcommands[command.name] = command
+
+            for alias in command.aliases:
+                self.subcommands[alias] = command
+
             return command
 
         return inner
@@ -89,7 +97,65 @@ class Group(Command[ClientCoT]):
 
     @property
     def commands(self) -> list[Command[ClientCoT]]:
-        return list(self.subcommands.values())
+        """Gets all commands registered
+
+        Returns
+        --------
+        list[:class:`Command`]
+            The registered commands
+        """
+        return list(set(self.subcommands.values()))
+
+    def get_command(self, name: str) -> Command[ClientCoT]:
+        """Gets a command.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name or alias of the command
+
+        Returns
+        --------
+        :class:`Command`
+            The command with the name
+        """
+        return self.subcommands[name]
+
+    def add_command(self, command: Command[ClientCoT]) -> None:
+        """Adds a command, this is typically only used for dynamic commands, you should use the `commands.command` decorator for most usecases.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name or alias of the command
+        command: :class:`Command`
+            The command to be added
+        """
+        self.subcommands[command.name] = command
+
+        for alias in command.aliases:
+            self.subcommands[alias] = command
+
+    def remove_command(self, name: str) -> Optional[Command[ClientCoT]]:
+        """Removes a command.
+
+        Parameters
+        -----------
+        name: :class:`str`
+            The name or alias of the command
+
+        Returns
+        --------
+        Optional[:class:`Command`]
+            The command that was removed
+        """
+        command = self.subcommands.pop(name, None)
+
+        if command is not None:
+            for alias in command.aliases:
+                self.subcommands.pop(alias, None)
+
+        return command
 
 def group(*, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Group[ClientT]] = Group) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], Group[ClientT]]:
     """A decorator that turns a function into a :class:`Group`
