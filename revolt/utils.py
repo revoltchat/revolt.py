@@ -49,6 +49,7 @@ async def maybe_coroutine(func: Callable[P, Union[R_T, Coroutine[Any, Any, R_T]]
 class Ulid:
     id: str
 
+    @property
     def created_at(self) -> datetime.datetime:
         return ulid.from_str(self.id).timestamp().datetime
 
