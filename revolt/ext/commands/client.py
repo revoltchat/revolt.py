@@ -39,9 +39,10 @@ class CommandsMeta(type):
     def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]) -> Self:
         commands: list[Command[Any]] = []
         self = super().__new__(cls, name, bases, attrs)
+
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
-                if isinstance(value, Command):
+                if isinstance(value, Command) and value.parent is None:
                     commands.append(value)
 
         self._commands = commands
@@ -107,6 +108,13 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
     @property
     def commands(self) -> list[Command[Self]]:
+        """Gets all commands registered
+
+        Returns
+        --------
+        list[:class:`Command`]
+            The registered commands
+        """
         return list(set(self.all_commands.values()))
 
     async def get_prefix(self, message: revolt.Message) -> Union[str, list[str]]:
@@ -176,9 +184,23 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         return command
 
     def get_view(self, message: revolt.Message) -> type[StringView]:
+        """Returns the StringView class to use, this can be overwritten to customize how arguments are parsed
+
+        Returns
+        --------
+        type[:class:`StringView`]
+            The string view class to use
+        """
         return StringView
 
     def get_context(self, message: revolt.Message) -> type[Context[Self]]:
+        """Returns the Context class to use, this can be overwritten to add extra features to context
+
+        Returns
+        --------
+        type[:class:`Context`]
+            The context class to use
+        """
         return Context[Self]
 
     async def process_commands(self, message: revolt.Message) -> Any:
@@ -231,7 +253,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         try:
             self.dispatch("command", context)
 
-            if not await self.bot_check(context):
+            if not await self.global_check(context):
                 raise CheckError(f"the global check for the command failed")
 
             if not await context.can_run():
@@ -250,8 +272,8 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
 
     on_message = process_commands
 
-    async def bot_check(self, context: Context[Self]) -> bool:
-        """A global check for the bot that stops commands from running on certain criteria.
+    async def global_check(self, context: Context[Self]) -> bool:
+        """A global check that stops commands from running on certain criteria.
 
         Parameters
         -----------
@@ -266,7 +288,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         return True
 
     def add_cog(self, cog: Cog[Self]) -> None:
-        """Adds a cog to the bot, this cog must subclass `Cog`.
+        """Adds a cog, this cog must subclass `Cog`.
 
         Parameters
         -----------
@@ -276,7 +298,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         cog._inject(self)
 
     def remove_cog(self, cog_name: str) -> Cog[Self]:
-        """Removes a cog from the bot.
+        """Removes a cog.
 
         Parameters
         -----------
@@ -336,7 +358,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         self.load_extension(name)
 
     def get_cog(self, name: str) -> Cog[Self]:
-        """Gets a cog from the bot.
+        """Gets a cog.
 
         Parameters
         -----------
@@ -351,7 +373,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         return self.cogs[name]
 
     def get_extension(self, name: str) -> ExtensionProtocol:
-        """Gets an extension from the bot.
+        """Gets an extension.
 
         Parameters
         -----------
