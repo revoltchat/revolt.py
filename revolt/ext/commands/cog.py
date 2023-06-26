@@ -18,7 +18,7 @@ class CogMeta(type, Generic[ClientT]):
 
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
-                if isinstance(value, Command) and value.parent is None:
+                if isinstance(value, Command):
                     commands.append(cast(Command[ClientT], value))  # cant verify generic at runtime so must cast
 
 
@@ -43,7 +43,9 @@ class Cog(Generic[ClientT], metaclass=CogMeta):
 
         for command in self._commands:
             command.cog = self
-            client.add_command(command)
+
+            if command.parent is None:
+                client.add_command(command)
 
         self.cog_load()
 
