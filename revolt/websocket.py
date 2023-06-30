@@ -165,9 +165,10 @@ class WebsocketHandler:
         if server_id := message.channel.server_id:
             await self._wait_for_server_ready(server_id)
 
+        before = copy(message)
         message._update(**payload["data"])
 
-        self.dispatch("message_update", message)
+        self.dispatch("message_update", before, message)
 
     async def handle_messagedelete(self, payload: MessageDeleteEventPayload) -> None:
         self.dispatch("raw_message_delete", payload)
