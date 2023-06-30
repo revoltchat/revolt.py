@@ -12,9 +12,10 @@ if TYPE_CHECKING:
 
 __all__ = ("evaluate_parameters",)
 
-ClientT = TypeVar("ClientT", bound="CommandsClient", default="CommandsClient")
-ClientCoT = TypeVar("ClientCoT", bound="CommandsClient", default="CommandsClient", covariant=True)
-ContextT = TypeVar("ContextT", bound="Context")
+ClientT_Co = TypeVar("ClientT_Co", bound="CommandsClient", covariant=True)
+ClientT_D = TypeVar("ClientT_D", bound="CommandsClient", default="CommandsClient")
+ClientT_Co_D = TypeVar("ClientT_Co_D", bound="CommandsClient", default="CommandsClient", covariant=True)
+ContextT = TypeVar("ContextT", bound="Context", default="Context")
 
 def evaluate_parameters(parameters: Iterable[Parameter], globals: dict[str, Any]) -> list[Parameter]:
     new_parameters: list[Parameter] = []

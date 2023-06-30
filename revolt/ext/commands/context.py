@@ -7,7 +7,7 @@ from revolt.utils import maybe_coroutine
 
 from .command import Command
 from .group import Group
-from .utils import ClientCoT
+from .utils import ClientT_Co_D
 
 if TYPE_CHECKING:
     from .view import StringView
@@ -17,7 +17,7 @@ __all__ = (
     "Context",
 )
 
-class Context(revolt.Messageable, Generic[ClientCoT]):
+class Context(revolt.Messageable, Generic[ClientT_Co_D]):
     """Stores metadata the commands execution.
 
     Attributes
@@ -46,12 +46,12 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
     async def _get_channel_id(self) -> str:
         return self.channel.id
 
-    def __init__(self, command: Optional[Command[ClientCoT]], invoked_with: str, view: StringView, message: revolt.Message, client: ClientCoT):
-        self.command: Command[ClientCoT] | None = command
+    def __init__(self, command: Optional[Command[ClientT_Co_D]], invoked_with: str, view: StringView, message: revolt.Message, client: ClientT_Co_D):
+        self.command: Command[ClientT_Co_D] | None = command
         self.invoked_with: str = invoked_with
         self.view: StringView = view
         self.message: revolt.Message = message
-        self.client: ClientCoT = client
+        self.client: ClientT_Co_D = client
         self.args: list[Any] = []
         self.kwargs: dict[str, Any] = {}
         self.server_id: str | None = message.server_id
@@ -100,13 +100,13 @@ class Context(revolt.Messageable, Generic[ClientCoT]):
             await command.parse_arguments(self)
             return await command.invoke(self, *self.args, **self.kwargs)
 
-    async def can_run(self, command: Optional[Command[ClientCoT]] = None) -> bool:
+    async def can_run(self, command: Optional[Command[ClientT_Co_D]] = None) -> bool:
         """Runs all of the commands checks, and returns true if all of them pass"""
         command = command or self.command
 
         return all([await maybe_coroutine(check, self) for check in (command.checks if command else [])])
 
-    async def send_help(self, argument: Command[Any] | Group[Any] | ClientCoT | None = None) -> None:
+    async def send_help(self, argument: Command[Any] | Group[Any] | ClientT_Co_D | None = None) -> None:
         argument = argument or self.client
 
         command = self.client.get_command("help")
