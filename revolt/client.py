@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Literal, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Literal, Optional, TypeVar, Union, cast, overload
+from typing_extensions import ParamSpec
 
 import aiohttp
 
@@ -33,6 +34,9 @@ __all__ = ("Client",)
 
 logger: logging.Logger = logging.getLogger("revolt")
 
+P = ParamSpec("P")
+R = TypeVar("R")
+
 class Client:
     """The client for interacting with revolt
 
@@ -60,7 +64,8 @@ class Client:
         self.state: State
         self.websocket: WebsocketHandler
 
-        self.listeners: dict[str, list[tuple[Callable[..., bool], asyncio.Future[Any]]]] = {}
+        self.temp_listeners: dict[str, list[tuple[Callable[..., bool], asyncio.Future[Any]]]] = {}
+        self.listeners: dict[str, list[Callable[..., Coroutine[Any, Any, Any]]]] = {}
 
         super().__init__()
 
@@ -74,15 +79,17 @@ class Client:
         args: :class:`Any`
             The arguments passed to the event
         """
-        for check, future in self.listeners.pop(event, []):
+        for check, future in self.temp_listeners.pop(event, []):
             if check(*args):
                 if len(args) == 1:
                     future.set_result(args[0])
                 else:
                     future.set_result(args)
 
-        func = getattr(self, f"on_{event}", None)
-        if func:
+        for listener in self.listeners.get(event, []):
+            asyncio.create_task(listener(*args))
+
+        if func := getattr(self, f"on_{event}", None):
             asyncio.create_task(func(*args))
 
     async def get_api_info(self) -> ApiInfo:
@@ -179,9 +186,63 @@ class Client:
             check = lambda *_: True
 
         future = asyncio.get_running_loop().create_future()
-        self.listeners.setdefault(event, []).append((check, future))
+        self.temp_listeners.setdefault(event, []).append((check, future))
 
         return await asyncio.wait_for(future, timeout)
+
+    def listen(self, name: str | None = None) -> Callable[[Callable[P, Coroutine[Any, Any, R]]], Callable[P, Coroutine[Any, Any, R]]]:
+        """Registers a listener for an event, multiple listeners can be registered to the same event without conflict
+
+        Parameters
+        -----------
+        name: Optional[:class:`str`]
+            The name of the event to register this under, this defaults to the function's name
+        """
+        def inner(func: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, Coroutine[Any, Any, R]]:
+            nonlocal name
+
+            if not name:
+                if not func.__name__.startswith("on_"):
+                    raise RevoltError("listener name must begin with `on_`")
+
+                name = func.__name__[3:]
+
+            self.listeners.setdefault(name, []).append(func)
+            return func
+
+        return inner
+
+    @overload
+    def remove_listener(self, func: Callable[P, Coroutine[Any, Any, R]], *, event: str = ...) -> Callable[..., Coroutine[Any, Any, R]] | None:
+        ...
+
+    @overload
+    def remove_listener(self, func: Callable[P, Coroutine[Any, Any, Any]], *, event: None = ...) -> None:
+        ...
+
+    def remove_listener(self, func: Callable[P, Coroutine[Any, Any, R]], *, event: str | None = None) -> Callable[..., Coroutine[Any, Any, R]] | None:
+        """Removes a listener registered, if the `event` parameter is passed, the listener will only be removed from that event, this can be used if the same listener is registed to multiple events at once.
+
+        Parameters
+        -----------
+        func: Callable
+            The function for the listener to be removed
+        event: Optional[:class:`str`]
+            The name of the event to remove this from, passing `None` will make this remove the listener from all events this is registered under
+        """
+        if event is None:
+            for listeners in self.listeners.values():
+                try:
+                    listeners.remove(func)
+                except ValueError:
+                    pass
+
+        else:
+            try:
+                self.listeners[event].remove(func)
+                return func
+            except ValueError:
+                pass
 
     @property
     def user(self) -> User:
