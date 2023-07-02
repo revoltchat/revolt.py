@@ -78,7 +78,7 @@ class Message(Ulid):
 
         self.server_id: str | None = self.channel.server_id
 
-        self.raw_mentions = data.get("mentions", [])
+        self.raw_mentions: list[str] = data.get("mentions", [])
         self.mentions: list[Member | User] = []
 
         if self.system_content:
