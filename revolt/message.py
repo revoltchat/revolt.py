@@ -46,6 +46,8 @@ class Message(Ulid):
         The author of the message, will be :class:`User` in DMs
     edited_at: Optional[:class:`datetime.datetime`]
         The time at which the message was edited, will be None if the message has not been edited
+    raw_mentions: list[:class:`str`]
+        A list of ids of the mentions in this message
     mentions: list[Union[:class:`Member`, :class:`User`]]
         The users or members that where mentioned in the message
     replies: list[:class:`Message`]
@@ -76,7 +78,8 @@ class Message(Ulid):
 
         self.server_id: str | None = self.channel.server_id
 
-        self.mentions: list[Member | User]
+        self.raw_mentions = data.get("mentions", [])
+        self.mentions: list[Member | User] = []
 
         if self.system_content:
             author_id: str = self.system_content.get("id", data["author"])
@@ -85,10 +88,21 @@ class Message(Ulid):
 
         if self.server_id:
             author = state.get_member(self.server_id, author_id)
-            self.mentions = [self.server.get_member(member_id) for member_id in data.get("mentions", [])]
+
+            for mention in self.raw_mentions:
+                try:
+                    self.mentions.append(self.server.get_member(mention))
+                except LookupError:
+                    pass
+
         else:
             author = state.get_user(author_id)
-            self.mentions = [state.get_user(member_id) for member_id in data.get("mentions", [])]
+
+            for mention in self.raw_mentions:
+                try:
+                    self.mentions.append(state.get_user(mention))
+                except LookupError:
+                    pass
 
         self.author: Member | User = author
 
