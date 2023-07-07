@@ -66,7 +66,7 @@ class Context(revolt.Messageable, Generic[ClientT_Co_D]):
         Raises
         -------
         :class:`LookupError`
-            Raises if the context is from a server
+            Raises if the context is not from a server
         """
         if not self.server_id:
             raise LookupError
