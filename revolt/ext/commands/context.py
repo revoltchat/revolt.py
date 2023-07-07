@@ -61,12 +61,12 @@ class Context(revolt.Messageable, Generic[ClientT_Co_D]):
 
     @property
     def server(self) -> revolt.Server:
-        """:class:`Server` The server this voice channel belongs too
+        """:class:`Server` The server this context belongs too
 
         Raises
         -------
         :class:`LookupError`
-            Raises if the channel is not part of a server
+            Raises if the context is from a server
         """
         if not self.server_id:
             raise LookupError
