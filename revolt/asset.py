@@ -23,7 +23,7 @@ class Asset(Ulid):
     id: :class:`str`
         The id of the asset
     tag: :class:`str`
-        The tag of the asset, this corrasponds to where the asset is used
+        The tag of the asset, this corresponds to where the asset is used
     size: :class:`int`
         Amount of bytes in the file
     filename: :class:`str`
@@ -37,7 +37,7 @@ class Asset(Ulid):
     type: :class:`AssetType`
         The type of asset it is
     url: :class:`str`
-        The assets url
+        The asset's url
     """
     __slots__ = ("state", "id", "tag", "size", "filename", "content_type", "width", "height", "type", "url")
 
@@ -76,7 +76,7 @@ class Asset(Ulid):
         Parameters
         -----------
         fp: IOBase
-            The file to write too.
+            The file to write to
         """
         fp.write(await self.read())
 
