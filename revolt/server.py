@@ -8,12 +8,12 @@ from .invite import Invite
 from .permissions import Permissions
 from .role import Role
 from .utils import Ulid
+from .channel import Channel, TextChannel, VoiceChannel
+from .member import Member
 
 if TYPE_CHECKING:
-    from .channel import Channel, TextChannel, VoiceChannel
     from .emoji import Emoji
     from .file import File
-    from .member import Member
     from .state import State
     from .types import Ban
     from .types import Category as CategoryPayload
@@ -363,7 +363,7 @@ class Server(Ulid):
         channel = self.state.add_channel(payload)
         self._channels[channel.id] = channel
 
-        return cast("VoiceChannel", channel)
+        return cast(VoiceChannel, channel)
 
     async def fetch_invites(self) -> list[Invite]:
         """Fetches all invites in the server
