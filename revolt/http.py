@@ -406,7 +406,7 @@ class HttpClient:
 
         parameters["remove_all"] = remove_all
 
-        return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
+        return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}", params=parameters)
 
     def remove_all_reactions(self, channel_id: str, message_id: str) -> Request[None]:
         return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions")
