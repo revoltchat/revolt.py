@@ -6,16 +6,18 @@ from typing import TYPE_CHECKING, cast
 from revolt.enums import ChannelType
 
 from .permissions import Permissions
-from .server import Server
 
 if TYPE_CHECKING:
     from .channel import Channel, DMChannel, GroupDMChannel, ServerChannel
     from .member import Member
+    from .server import Server
 
 
 def calculate_permissions(member: Member, target: Server | Channel) -> Permissions:
     if member.privileged:
         return Permissions.all()
+
+    from .server import Server
 
     if isinstance(target, Server):
         if target.owner_id == member.id:
