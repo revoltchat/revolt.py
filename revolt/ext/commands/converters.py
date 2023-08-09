@@ -40,6 +40,8 @@ def category_converter(arg: str, context: Context[ClientT]) -> Category:
             return utils.get(context.server.categories, name=arg)
         except LookupError:
             raise CategoryConverterError(arg)
+    except LookupError:
+        raise CategoryConverterError(arg)
 
 def channel_converter(arg: str, context: Context[ClientT]) -> Channel:
     if not context.server_id:
@@ -55,6 +57,8 @@ def channel_converter(arg: str, context: Context[ClientT]) -> Channel:
             return utils.get(context.server.channels, name=arg)
         except LookupError:
             raise ChannelConverterError(arg)
+    except LookupError:
+        raise ChannelConverterError(arg)
 
 def user_converter(arg: str, context: Context[ClientT]) -> User:
     if (match := user_regex.match(arg)):
@@ -81,6 +85,8 @@ def user_converter(arg: str, context: Context[ClientT]) -> User:
 
         except LookupError:
             raise UserConverterError(arg)
+    except LookupError:
+        raise UserConverterError(arg)
 
 def member_converter(arg: str, context: Context[ClientT]) -> Member:
     if not context.server_id:
@@ -110,6 +116,8 @@ def member_converter(arg: str, context: Context[ClientT]) -> Member:
 
         except LookupError:
             raise MemberConverterError(arg)
+    except LookupError:
+        raise MemberConverterError(arg)
 
 def int_converter(arg: str, context: Context[ClientT]) -> int:
     return int(arg)
