@@ -404,7 +404,7 @@ class HttpClient:
         if user_id:
             parameters["user_id"] = user_id
 
-        parameters["remove_all"] = remove_all
+        parameters["remove_all"] = "true" if remove_all else "false"
 
         return self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}", params=parameters)
 
