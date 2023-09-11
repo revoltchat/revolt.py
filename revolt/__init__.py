@@ -1,4 +1,5 @@
 from . import utils as utils
+from . import types as types
 from .asset import *
 from .category import *
 from .channel import *
