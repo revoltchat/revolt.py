@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import traceback
 from importlib import import_module
-from typing import (TYPE_CHECKING, Any, Optional, Protocol, TypeVar, Union,
+from typing import (TYPE_CHECKING, Any, Coroutine, Optional, Protocol, TypeVar, Union,
                     overload, runtime_checkable)
 
 from typing_extensions import Self
@@ -270,7 +270,8 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
     async def on_command_error(self, ctx: Context[Self], error: Exception, /) -> None:
         traceback.print_exception(type(error), error, error.__traceback__)
 
-    on_message = process_commands
+    def on_message(self, message: revolt.Message) -> Coroutine[Any, Any, Any]:
+        return self.process_commands(message)
 
     async def global_check(self, context: Context[Self]) -> bool:
         """A global check that stops commands from running on certain criteria.

@@ -396,7 +396,7 @@ class WebsocketHandler:
         if server := self.state.get_channel(payload["channel_id"]).server_id:
             await self._wait_for_server_ready(server)
 
-        self.dispatch("raw_reaction_add", payload["channel_id"], payload["id"], payload["user_id"], payload["emoji_id"])
+        self.dispatch("raw_reaction_add", payload)
 
         try:
             message = utils.get(self.state.messages, id=payload["id"])
@@ -413,7 +413,7 @@ class WebsocketHandler:
         if server := self.state.get_channel(payload["channel_id"]).server_id:
             await self._wait_for_server_ready(server)
 
-        self.dispatch("raw_reaction_remove", payload["channel_id"], payload["id"], payload["user_id"], payload["emoji_id"])
+        self.dispatch("raw_reaction_remove", payload)
 
         try:
             message = utils.get(self.state.messages, id=payload["id"])
@@ -429,7 +429,7 @@ class WebsocketHandler:
         if server := self.state.get_channel(payload["channel_id"]).server_id:
             await self._wait_for_server_ready(server)
 
-        self.dispatch("raw_reaction_clear", payload["channel_id"], payload["id"], payload["emoji_id"])
+        self.dispatch("raw_reaction_clear", payload)
 
         try:
             message = utils.get(self.state.messages, id=payload["id"])

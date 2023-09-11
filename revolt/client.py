@@ -30,6 +30,8 @@ if TYPE_CHECKING:
     from .file import File
     from .types import ApiInfo
 
+    import revolt
+
 __all__ = ("Client",)
 
 logger: logging.Logger = logging.getLogger("revolt")
@@ -465,3 +467,95 @@ class Client:
         ulid.id = asset["id"]
 
         return ulid
+
+    # events
+
+    async def on_ready(self) -> None:
+        pass
+
+    async def on_message(self, message: revolt.Message) -> None:
+        pass
+
+    async def on_raw_message_update(self, payload: revolt.types.MessageUpdateEventPayload) -> None:
+        pass
+
+    async def on_message_update(self, before: revolt.Message, after: revolt.Message) -> None:
+        pass
+
+    async def on_raw_message_delete(self, payload: revolt.types.MessageDeleteEventPayload) -> None:
+        pass
+
+    async def on_message_delete(self, message: revolt.Message) -> None:
+        pass
+
+    async def on_channel_create(self, channel: revolt.Channel) -> None:
+        pass
+
+    async def on_channel_update(self, before: revolt.Channel, after: revolt.Channel) -> None:
+        pass
+
+    async def on_channel_delete(self, channel: revolt.Channel) -> None:
+        pass
+
+    async def on_typing_start(self, channel: revolt.Channel, user: revolt.User) -> None:
+        pass
+
+    async def on_typing_stop(self, channel: revolt.Channel, user: revolt.User) -> None:
+        pass
+
+    async def on_server_update(self, before: revolt.Server, after: revolt.Server) -> None:
+        pass
+
+    async def on_server_delete(self, server: revolt.Server) -> None:
+        pass
+
+    async def on_server_join(self, server: revolt.Server) -> None:
+        pass
+
+    async def on_member_update(self, before: revolt.Member, after: revolt.Member) -> None:
+        pass
+
+    async def on_member_join(self, member: revolt.Member) -> None:
+        pass
+
+    async def on_member_leave(self, member: revolt.Member) -> None:
+        pass
+
+    async def on_role_create(self, role: revolt.Role) -> None:
+        pass
+
+    async def on_role_update(self, before: revolt.Role, after: revolt.Role) -> None:
+        pass
+
+    async def on_role_delete(self, role: revolt.Role) -> None:
+        pass
+
+    async def on_user_update(self, before: revolt.User, after: revolt.User) -> None:
+        pass
+
+    async def on_user_relationship_update(self, user: revolt.User, before: revolt.RelationshipType, after: revolt.RelationshipType) -> None:
+        pass
+
+    async def on_raw_reaction_add(self, payload: revolt.types.MessageReactEventPayload) -> None:
+        pass
+
+    async def on_reaction_add(self, message: revolt.Message, user: revolt.User, emoji_id: str) -> None:
+        pass
+
+    async def on_raw_reaction_remove(self, payload: revolt.types.MessageUnreactEventPayload) -> None:
+        pass
+
+    async def on_reaction_remove(self, message: revolt.Message, user: revolt.User, emoji_id: str) -> None:
+        pass
+
+    async def on_raw_reaction_clear(self, payload: revolt.types.MessageRemoveReactionEventPayload) -> None:
+        pass
+
+    async def on_reaction_clear(self, message: revolt.Message, user: revolt.User, emoji_id: str) -> None:
+        pass
+
+    async def raw_bulk_message_delete(self, payload: revolt.types.BulkMessageDeleteEventPayload) -> None:
+        pass
+
+    async def bulk_message_delete(self, messages: list[revolt.Message]) -> None:
+        pass
