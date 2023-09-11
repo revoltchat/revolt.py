@@ -134,6 +134,19 @@ class Member(User):
         avatar: File | None | _Missing = Missing,
         timeout: datetime.timedelta | None | _Missing = Missing
     ) -> None:
+        """Edits the member
+
+        Parameters
+        -----------
+        nickname: Union[:class:`str`, :class:`None`]
+            The new nickname, or :class:`None` to reset it
+        roles: Union[list[:class:`Role`], :class:`None`]
+            The new roles for the member, or :class:`None` to clear it
+        avatar: Union[:class:`File`, :class:`None`]
+            The new server avatar, or :class:`None` to reset it
+        timeout: Union[:class:`datetime.timedelta`, :class:`None`]
+            The new timeout length for the member, or :class:`None` to reset it
+        """
         remove: list[str] = []
         data: dict[str, Any] = {}
 
@@ -144,21 +157,17 @@ class Member(User):
 
         if roles is None:
             remove.append("Roles")
-        elif roles is not Missing:
-            data["roles"] = roles
+        elif not isinstance(roles, _Missing):
+            data["roles"] = [role.id for role in roles]
 
         if avatar is None:
             remove.append("Avatar")
-        elif avatar is not Missing:
-            # pyright cant understand custom singletons - it doesnt know this will never be an instance of _Missing here because Missing is the only instance
-            assert not isinstance(avatar, _Missing)
-
+        elif not isinstance(avatar, _Missing):
             data["avatar"] = (await self.state.http.upload_file(avatar, "avatars"))["id"]
 
         if timeout is None:
             remove.append("Timeout")
-        elif timeout is not Missing:
-            assert not isinstance(timeout, _Missing)
+        elif not isinstance(timeout, _Missing):
             data["timeout"] = (datetime.datetime.now(datetime.timezone.utc) + timeout).isoformat()
 
         await self.state.http.edit_member(self.server.id, self.id, remove, data)

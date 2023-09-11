@@ -133,7 +133,8 @@ class DMChannel(Channel, Messageable):
 
     def __init__(self, data: DMChannelPayload, state: State):
         super().__init__(data, state)
-        self.recipient_ids: tuple[str, str] = tuple(data["recipients"])
+
+        self.recipient_ids: list[str] = data["recipients"]
         self.last_message_id: str | None = data.get("last_message_id")
 
     @property
