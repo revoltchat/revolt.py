@@ -81,12 +81,16 @@ class Client:
         args: :class:`Any`
             The arguments passed to the event
         """
-        for check, future in self.temp_listeners.pop(event, []):
-            if check(*args):
-                if len(args) == 1:
-                    future.set_result(args[0])
-                else:
-                    future.set_result(args)
+
+        if temp_listeners := self.temp_listeners.get(event, None):
+            for check, future in temp_listeners:
+                if check(*args):
+                    if len(args) == 1:
+                        future.set_result(args[0])
+                    else:
+                        future.set_result(args)
+
+            self.temp_listeners[event] = [(c, f) for c, f in temp_listeners if not f.done()]
 
         for listener in self.listeners.get(event, []):
             asyncio.create_task(listener(*args))
