@@ -266,7 +266,7 @@ class ServerChannel(Channel):
     def __init__(self, data: ServerChannelPayload, state: State):
         super().__init__(data, state)
 
-        self.server_id: str = data["server"]
+        self.server_id: Optional[str] = data["server"]
         self.name: str = data["name"]
         self.description: Optional[str] = data.get("description")
         self.nsfw: bool = data.get("nsfw", False)

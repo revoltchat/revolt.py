@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, TypedDict
+from typing_extensions import NotRequired
 
 if TYPE_CHECKING:
     from .member import Member
@@ -48,5 +49,5 @@ class GetServerMembers(TypedDict):
 
 class MessageWithUserData(TypedDict):
     messages: list[Message]
-    members: list[Member]
+    members: NotRequired[list[Member]]
     users: list[User]

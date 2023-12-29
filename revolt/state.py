@@ -73,10 +73,8 @@ class State:
 
     def add_member(self, server_id: str, payload: MemberPayload) -> Member:
         server = self.get_server(server_id)
-        member = Member(payload, server, self)
-        server._members[member.id] = member
 
-        return member
+        return server._add_member(payload)
 
     def add_channel(self, payload: ChannelPayload) -> Channel:
         channel = channel_factory(payload, self)

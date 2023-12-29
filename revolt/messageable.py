@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .file import File
     from .message import Masquerade, Message, MessageInteractions, MessageReply
     from .state import State
+    from .types.http import MessageWithUserData
 
 
 __all__ = ("Messageable",)
@@ -86,6 +87,18 @@ class Messageable:
         payload = await self.state.http.fetch_message(await self._get_channel_id(), message_id)
         return Message(payload, self.state)
 
+    def _add_missing_users(self, payload: MessageWithUserData):
+        for user in payload["users"]:
+            if user["_id"] not in self.state.users:
+                self.state.add_user(user)
+
+        if members := payload.get("members", []):
+            server = self.state.get_server(members[0]["_id"]["server"])
+
+            for member in members:
+                if member["_id"]["user"] not in server._members:
+                    server._add_member(member)
+
     async def history(self, *, sort: SortType = SortType.latest, limit: int = 100, before: Optional[str] = None, after: Optional[str] = None, nearby: Optional[str] = None) -> list[Message]:
         """Fetches multiple messages from the channel's history
 
@@ -109,8 +122,10 @@ class Messageable:
         """
         from .message import Message
 
-        payloads = await self.state.http.fetch_messages(await self._get_channel_id(), sort=sort, limit=limit, before=before, after=after, nearby=nearby)
-        return [Message(payload, self.state) for payload in payloads]
+        payload = await self.state.http.fetch_messages(await self._get_channel_id(), sort=sort, limit=limit, before=before, after=after, nearby=nearby, include_users=True)
+        self._add_missing_users(payload)
+
+        return [Message(msg, self.state) for msg in payload["messages"]]
 
     async def search(self, query: str, *, sort: SortType = SortType.latest, limit: int = 100, before: Optional[str] = None, after: Optional[str] = None) -> list[Message]:
         """searches the channel for a query
@@ -135,8 +150,10 @@ class Messageable:
         """
         from .message import Message
 
-        payloads = await self.state.http.search_messages(await self._get_channel_id(), query, sort=sort, limit=limit, before=before, after=after)
-        return [Message(payload, self.state) for payload in payloads]
+        payload = await self.state.http.search_messages(await self._get_channel_id(), query, sort=sort, limit=limit, before=before, after=after, include_users=True)
+        self._add_missing_users(payload)
+
+        return [Message(msg, self.state) for msg in payload["messages"]]
 
     async def delete_messages(self, messages: list[Message]) -> None:
         """Bulk deletes messages from the channel

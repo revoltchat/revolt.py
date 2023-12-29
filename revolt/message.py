@@ -48,8 +48,6 @@ class Message(Ulid):
         The time at which the message was edited, will be None if the message has not been edited
     raw_mentions: list[:class:`str`]
         A list of ids of the mentions in this message
-    mentions: list[Union[:class:`Member`, :class:`User`]]
-        The users or members that where mentioned in the message
     replies: list[:class:`Message`]
         The message's this message has replied to, this may not contain all the messages if they are outside the cache
     reply_ids: list[:class:`str`]
@@ -59,7 +57,7 @@ class Message(Ulid):
     interactions: Optional[:class:`MessageInteractions`]
         The interactions on the message, if any
     """
-    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "author", "edited_at", "mentions", "replies", "reply_ids", "reactions", "interactions")
+    __slots__ = ("state", "id", "content", "attachments", "embeds", "channel", "author", "edited_at", "replies", "reply_ids", "reactions", "interactions")
 
     def __init__(self, data: MessagePayload, state: State):
         self.state: State = state
@@ -79,7 +77,6 @@ class Message(Ulid):
         self.server_id: str | None = self.channel.server_id
 
         self.raw_mentions: list[str] = data.get("mentions", [])
-        self.mentions: list[Member | User] = []
 
         if self.system_content:
             author_id: str = self.system_content.get("id", data["author"])
@@ -89,20 +86,8 @@ class Message(Ulid):
         if self.server_id:
             author = state.get_member(self.server_id, author_id)
 
-            for mention in self.raw_mentions:
-                try:
-                    self.mentions.append(self.server.get_member(mention))
-                except LookupError:
-                    pass
-
         else:
             author = state.get_user(author_id)
-
-            for mention in self.raw_mentions:
-                try:
-                    self.mentions.append(state.get_user(mention))
-                except LookupError:
-                    pass
 
         self.author: Member | User = author
 
@@ -151,6 +136,31 @@ class Message(Ulid):
 
         if edited is not None:
             self.edited_at = parse_timestamp(edited)
+
+    @property
+    def mentions(self) -> list[User | Member]:
+        """The users or members that where mentioned in the message
+
+        Returns: list[Union[:class:`Member`, :class:`User`]]
+        """
+
+        mentions: list[User | Member] = []
+
+        if self.server_id:
+            for mention in self.raw_mentions:
+                try:
+                    self.mentions.append(self.server.get_member(mention))
+                except LookupError:
+                    pass
+
+        else:
+            for mention in self.raw_mentions:
+                try:
+                    self.mentions.append(self.state.get_user(mention))
+                except LookupError:
+                    pass
+
+        return mentions
 
     async def edit(self, *, content: Optional[str] = None, embeds: Optional[list[SendableEmbed]] = None) -> None:
         """Edits the message. The bot can only edit its own message
@@ -232,12 +242,12 @@ class MessageReply:
     """
     __slots__ = ("message", "mention")
 
-    def __init__(self, message: Message, mention: bool = False):
-        self.message: Message = message
+    def __init__(self, message: Ulid, mention: bool = False):
+        self.message: Ulid = message
         self.mention: bool = mention
 
     def to_dict(self) -> MessageReplyPayload:
-        return { "id": self.message.id, "mention": self.mention }
+        return {"id": self.message.id, "mention": self.mention}
 
 class Masquerade:
     """represents a message's masquerade.

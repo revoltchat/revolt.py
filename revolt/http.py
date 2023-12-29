@@ -140,7 +140,7 @@ class HttpClient:
         return await self.request("POST", f"/channels/{channel}/messages", json=json)
 
     def edit_message(self, channel: str, message: str, content: Optional[str], embeds: Optional[list[SendableEmbedPayload]] = None) -> Request[None]:
-        json = {}
+        json: dict[str, Any] = {}
 
         if content is not None:
             json["content"] = content
@@ -399,7 +399,7 @@ class HttpClient:
         return self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
 
     def remove_reaction(self, channel_id: str, message_id: str, emoji: str, user_id: Optional[str], remove_all: bool) -> Request[None]:
-        parameters = {}
+        parameters: dict[str, str] = {}
 
         if user_id:
             parameters["user_id"] = user_id

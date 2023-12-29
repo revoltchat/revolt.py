@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from .types import File as FilePayload
     from .types import Server as ServerPayload
     from .types import SystemMessagesConfig
+    from .types import Member as MemberPayload
 
 __all__ = ("Server", "SystemMessages", "ServerBan")
 
@@ -183,6 +184,12 @@ class Server(Ulid):
             self._categories = {data["id"]: Category(data, self.state) for data in categories}
         if channels is not None:
             self._channels = {channel_id: self.state.get_channel(channel_id) for channel_id in channels}
+
+    def _add_member(self, payload: MemberPayload) -> Member:
+        member = Member(payload, self, self.state)
+        self._members[member.id] = member
+
+        return member
 
     @property
     def roles(self) -> list[Role]:
