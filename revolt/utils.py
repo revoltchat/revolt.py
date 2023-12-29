@@ -53,6 +53,10 @@ class Ulid:
     def created_at(self) -> datetime.datetime:
         return ulid.from_str(self.id).timestamp().datetime
 
+class Object(Ulid):
+    """Class to mock objects with an id"""
+    def __init__(self, id: str):
+        self.id = id
 
 def get(iterable: Iterable[T], **attrs: Any) -> T:
     """A convenience function to help get a value from an iterable with a specific attribute
