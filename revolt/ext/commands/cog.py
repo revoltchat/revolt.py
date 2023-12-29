@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Callable, Coroutine, Generic, Optional, TypeVar, cast
-from typing_extensions import ParamSpec, Self
+from typing_extensions import ParamSpec
 
 from revolt.errors import RevoltError
 
@@ -18,7 +18,7 @@ class CogMeta(type, Generic[ClientT_D]):
     _cog_listeners: dict[str, list[str]]
     qualified_name: str
 
-    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any], *, qualified_name: Optional[str] = None, extras: dict[str, Any] | None = None) -> Self:
+    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any], *, qualified_name: Optional[str] = None, extras: dict[str, Any] | None = None) -> Any:
         commands: list[Command[ClientT_D]] = []
         listeners: dict[str, list[str]] = {}
 

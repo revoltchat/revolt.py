@@ -82,7 +82,7 @@ class WebsocketHandler:
 
     async def send_payload(self, payload: BasePayload) -> None:
         if use_msgpack:
-            await self.websocket.send_bytes(msgpack.packb(payload))
+            await self.websocket.send_bytes(msgpack.packb(payload))  # type: ignore
         else:
             await self.websocket.send_str(json.dumps(payload))
 
@@ -482,7 +482,7 @@ class WebsocketHandler:
                 if use_msgpack:
                     data = cast(bytes, msg.data)
 
-                    payload = msgpack.unpackb(data)
+                    payload = msgpack.unpackb(data)  # type: ignore
                 else:
                     data = cast(str, msg.data)
 

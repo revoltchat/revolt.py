@@ -36,7 +36,7 @@ class ExtensionProtocol(Protocol):
 class CommandsMeta(type):
     _commands: list[Command[Any]]
 
-    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]) -> Self:
+    def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any]) -> Any:
         commands: list[Command[Any]] = []
         self = super().__new__(cls, name, bases, attrs)
 
