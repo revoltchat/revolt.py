@@ -175,6 +175,7 @@ class Command(Generic[ClientT_Co_D]):
                 except StopIteration:
                     if parameter.default is not parameter.empty:
                         arg = parameter.default
+                        context.view.undo()
                     else:
                         raise
 
