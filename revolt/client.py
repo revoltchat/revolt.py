@@ -107,7 +107,7 @@ class Client:
             except:
                 raise RevoltError(f"Cant fetch api info:\n{text}")
 
-    async def start(self) -> None:
+    async def start(self, *, reconnect: bool = True) -> None:
         """Starts the client"""
         api_info = await self.get_api_info()
 
@@ -116,7 +116,7 @@ class Client:
         self.state = State(self.http, api_info, self.max_messages)
         self.websocket = WebsocketHandler(self.session, self.token, api_info["ws"], self.dispatch, self.state)
 
-        await self.websocket.start()
+        await self.websocket.start(reconnect)
 
     async def stop(self) -> None:
         await self.websocket.websocket.close()

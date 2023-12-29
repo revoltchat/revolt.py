@@ -465,26 +465,32 @@ class WebsocketHandler:
 
             self.dispatch("bulk_message_delete", messages)
 
-    async def start(self) -> None:
+    async def start(self, reconnect: bool) -> None:
         if use_msgpack:
             url = f"{self.ws_url}?format=msgpack"
         else:
             url = f"{self.ws_url}?format=json"
 
-        self.websocket = await self.session.ws_connect(url)  # type: ignore
-        await self.send_authenticate()
-        asyncio.create_task(self.heartbeat())
+        while True:
+            self.websocket = await self.session.ws_connect(url)  # type: ignore
+            await self.send_authenticate()
+            hb = asyncio.create_task(self.heartbeat())
 
-        async for msg in self.websocket:
-            msg = cast(WSMessage, msg)  # aiohttp doesnt use NamedTuple so the type info is missing
+            async for msg in self.websocket:
+                msg = cast(WSMessage, msg)  # aiohttp doesnt use NamedTuple so the type info is missing
 
-            if use_msgpack:
-                data = cast(bytes, msg.data)
+                if use_msgpack:
+                    data = cast(bytes, msg.data)
 
-                payload = msgpack.unpackb(data)
-            else:
-                data = cast(str, msg.data)
+                    payload = msgpack.unpackb(data)
+                else:
+                    data = cast(str, msg.data)
 
-                payload = json.loads(data)
+                    payload = json.loads(data)
 
-            self.loop.create_task(self.handle_event(payload))
+                self.loop.create_task(self.handle_event(payload))
+
+            hb.cancel()
+
+            if not reconnect:
+                return
