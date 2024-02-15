@@ -75,7 +75,7 @@ class Command(Generic[ClientT_Co_D]):
         self.signature: inspect.Signature = inspect.signature(self.callback)
         self.parameters: list[inspect.Parameter] = evaluate_parameters(self.signature.parameters.values(), getattr(callback, "__globals__", {}))
         self.checks: list[Check[ClientT_Co_D]] = checks or getattr(callback, "_checks", [])
-        self.cooldown = cooldown or getattr(callback, "_cooldown", None)
+        self.cooldown: CooldownMapping | None = cooldown or getattr(callback, "_cooldown", None)
         self.cooldown_bucket: BucketType | Callable[[Context[ClientT_Co_D]], Coroutine[Any, Any, str]] = bucket or getattr(callback, "_bucket", BucketType.default)
         self.parent: Optional[Group[ClientT_Co_D]] = None
         self.cog: Optional[Cog[ClientT_Co_D]] = None
@@ -198,7 +198,7 @@ class Command(Generic[ClientT_Co_D]):
 
                 context.args.append(arg)
 
-    async def run_cooldown(self, context: Context[ClientT_Co_D]):
+    async def run_cooldown(self, context: Context[ClientT_Co_D]) -> None:
         if mapping := self.cooldown:
             if isinstance(self.cooldown_bucket, BucketType):
                 key = self.cooldown_bucket.resolve(context)

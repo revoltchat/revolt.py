@@ -67,7 +67,7 @@ class CooldownMapping:
         self.per = per
         self.cache: dict[str, Cooldown] = {}
 
-    def verify_cache(self):
+    def verify_cache(self) -> None:
         current = time.time()
         self.cache = {k: v for k, v in self.cache.items() if current < (v.last + v.per)}
 

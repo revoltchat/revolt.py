@@ -30,7 +30,7 @@ class Group(Command[ClientT_Co_D]):
 
     def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str]):
         self.subcommands: dict[str, Command[ClientT_Co_D]] = {}
-        super().__init__(callback, name, aliases)
+        super().__init__(callback, name, aliases=aliases)
 
     def command(self, *, name: Optional[str] = None, aliases: Optional[list[str]] = None, cls: type[Command[ClientT_Co_D]] = Command[ClientT_Co_D]) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], Command[ClientT_Co_D]]:
         """A decorator that turns a function into a :class:`Command` and registers the command as a subcommand.
@@ -50,7 +50,7 @@ class Group(Command[ClientT_Co_D]):
             A function that takes the command callback and returns a :class:`Command`
         """
         def inner(func: Callable[..., Coroutine[Any, Any, Any]]):
-            command = cls(func, name or func.__name__, aliases or [])
+            command = cls(func, name or func.__name__, aliases=aliases or [])
             command.parent = self
             self.subcommands[command.name] = command
 
