@@ -9,8 +9,9 @@ from typing_extensions import ParamSpec
 
 from revolt.utils import maybe_coroutine
 
-from .errors import InvalidLiteralArgument, UnionConverterError
+from .errors import CommandOnCooldown, InvalidLiteralArgument, UnionConverterError
 from .utils import ClientT_Co_D, evaluate_parameters, ClientT_Co
+from .cooldown import BucketType, CooldownMapping
 
 if TYPE_CHECKING:
     from .checks import Check
@@ -43,28 +44,44 @@ class Command(Generic[ClientT_Co_D]):
         The cog the command is apart of.
     usage: Optional[:class:`str`]
         The usage string for the command
-    checks: list[Callable]
+    checks: Optional[list[Callable]]
         The list of checks the command has
+    cooldown: Optional[:class:`Cooldown`]
+        The cooldown for the command to restrict how often the command can be used
     description: Optional[:class:`str`]
         The commands description if it has one
     hidden: :class:`bool`
         Whether or not the command should be hidden from the help command
     """
-    __slots__ = ("callback", "name", "aliases", "signature", "checks", "parent", "_error_handler", "cog", "description", "usage", "parameters", "hidden")
+    __slots__ = ("callback", "name", "aliases", "signature", "checks", "parent", "_error_handler", "cog", "description", "usage", "parameters", "hidden", "cooldown", "cooldown_bucket")
 
-    def __init__(self, callback: Callable[..., Coroutine[Any, Any, Any]], name: str, aliases: list[str], usage: Optional[str] = None):
+    def __init__(
+            self,
+            callback: Callable[..., Coroutine[Any, Any, Any]],
+            name: str,
+            *,
+            aliases: list[str] | None = None,
+            usage: Optional[str] = None,
+            checks: list[Check[ClientT_Co_D]] | None = None,
+            cooldown: Optional[CooldownMapping] | None = None,
+            bucket: Optional[BucketType | Callable[[Context[ClientT_Co_D]], Coroutine[Any, Any, str]]] = None,
+            description: str | None = None,
+            hidden: bool = False,
+        ):
         self.callback: Callable[..., Coroutine[Any, Any, Any]] = callback
         self.name: str = name
-        self.aliases: list[str] = aliases
+        self.aliases: list[str] = aliases or []
         self.usage: str | None = usage
         self.signature: inspect.Signature = inspect.signature(self.callback)
         self.parameters: list[inspect.Parameter] = evaluate_parameters(self.signature.parameters.values(), getattr(callback, "__globals__", {}))
-        self.checks: list[Check[ClientT_Co_D]] = getattr(callback, "_checks", [])
+        self.checks: list[Check[ClientT_Co_D]] = checks or getattr(callback, "_checks", [])
+        self.cooldown = cooldown or getattr(callback, "_cooldown", None)
+        self.cooldown_bucket: BucketType | Callable[[Context[ClientT_Co_D]], Coroutine[Any, Any, str]] = bucket or getattr(callback, "_bucket", BucketType.default)
         self.parent: Optional[Group[ClientT_Co_D]] = None
         self.cog: Optional[Cog[ClientT_Co_D]] = None
         self._error_handler: Callable[[Any, Context[ClientT_Co_D], Exception], Coroutine[Any, Any, Any]] = type(self)._default_error_handler
-        self.description: str | None = callback.__doc__
-        self.hidden: bool = False
+        self.description: str | None = description or callback.__doc__
+        self.hidden: bool = hidden
 
     async def invoke(self, context: Context[ClientT_Co_D], *args: Any, **kwargs: Any) -> Any:
         """Runs the command and calls the error handler if the command errors.
@@ -181,6 +198,18 @@ class Command(Generic[ClientT_Co_D]):
 
                 context.args.append(arg)
 
+    async def run_cooldown(self, context: Context[ClientT_Co_D]):
+        if mapping := self.cooldown:
+            if isinstance(self.cooldown_bucket, BucketType):
+                key = self.cooldown_bucket.resolve(context)
+            else:
+                key = await self.cooldown_bucket(context)
+
+            cooldown = mapping.get_bucket(key)
+
+            if retry_after := cooldown.update_cooldown():
+                raise CommandOnCooldown(retry_after)
+
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} name=\"{self.name}\">"
 
@@ -239,6 +268,8 @@ def command(
         The aliases of the command, defaults to no aliases
     cls: type[:class:`Command`]
         The class used for creating the command, this defaults to :class:`Command` but can be used to use a custom command subclass
+    usage: Optional[:class:`str`]
+        The signature for how the command should be called
 
     Returns
     --------
@@ -246,6 +277,6 @@ def command(
         A function that takes the command callback and returns a :class:`Command`
     """
     def inner(func: Callable[..., Coroutine[Any, Any, Any]]) -> Command[ClientT_Co]:
-        return cls(func, name or func.__name__, aliases or [], usage)
+        return cls(func, name or func.__name__, aliases=aliases or [], usage=usage)
 
     return inner

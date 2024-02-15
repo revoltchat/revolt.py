@@ -16,6 +16,7 @@ __all__ = (
     "UserConverterError",
     "MemberConverterError",
     "MissingSetup",
+    "CommandOnCooldown"
 )
 
 class CommandError(RevoltError):
@@ -97,3 +98,17 @@ class UnionConverterError(ConverterError):
 
 class MissingSetup(CommandError):
     """Raised when an extension is missing the `setup` function"""
+
+class CommandOnCooldown(CommandError):
+    """Raised when a command is on cooldown
+
+    Attributes
+    -----------
+    retry_after: :class:`float`
+        How long the user must wait until the cooldown resets
+    """
+
+    __slots__ = ("retry_after",)
+
+    def __init__(self, retry_after: float):
+        self.retry_after = retry_after

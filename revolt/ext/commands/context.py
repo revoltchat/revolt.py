@@ -97,6 +97,7 @@ class Context(revolt.Messageable, Generic[ClientT_Co_D]):
 
                     self.view.undo()
 
+            await command.run_cooldown(self)
             await command.parse_arguments(self)
             return await command.invoke(self, *self.args, **self.kwargs)
 
