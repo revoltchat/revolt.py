@@ -51,6 +51,8 @@ class TextEmbed:
         self.url: str | None = embed.get("url")
         self.title: str | None = embed.get("title")
         self.description: str | None = embed.get("description")
+        self.colour: str | None = embed.get("colour")
+        self.color: str | None = embed.get("color")
 
         self.media: Asset | None
 
@@ -58,8 +60,6 @@ class TextEmbed:
             self.media = Asset(media, state)
         else:
             self.media = None
-
-        self.colour: str | None = embed.get("colour")
 
 class NoneEmbed:
     type: EmbedType = EmbedType.none
@@ -82,6 +82,7 @@ class EmbedParameters(TypedDict):
     media: NotRequired[str]
     icon_url: NotRequired[str]
     colour: NotRequired[str]
+    color: NotRequired[str]
     url: NotRequired[str]
 
 class SendableEmbed:
@@ -104,6 +105,9 @@ class SendableEmbed:
 
     colour: Optional[:class:`str`]
         The embed's accent colour, this is any valid `CSS color <https://developer.mozilla.org/en-US/docs/Web/CSS/color_value>`_
+    
+    color: Optional[:class:`str`]
+        The embed's accent color, this is any valid `CSS color <https://developer.mozilla.org/en-US/docs/Web/CSS/color_value>`_
 
     url: Optional[:class:`str`]
         URL for hyperlinking the embed's title
@@ -114,6 +118,7 @@ class SendableEmbed:
         self.media: Optional[str] = None
         self.icon_url: Optional[str] = None
         self.colour: Optional[str] = None
+        self.color: Optional[str] = None
         self.url: Optional[str] = None
 
         for key, value in attrs.items():
@@ -143,6 +148,9 @@ class SendableEmbed:
 
         if colour := self.colour:
             output["colour"] = colour
+
+        if color := self.color:
+            output["color"] = color
 
         if url := self.url:
             output["url"] = url
