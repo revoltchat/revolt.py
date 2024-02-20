@@ -19,4 +19,4 @@ from .role import *
 from .server import *
 from .user import *
 
-__version__ = "0.1.11"
+__version__ = "0.2.0"
