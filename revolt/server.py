@@ -147,7 +147,7 @@ class Server(Ulid):
         if banner := data.get("banner"):
             self.banner = Asset(banner, state)
         else:
-            self.banner  = None
+            self.banner = None
 
         self._members: dict[str, Member] = {}
         self._roles: dict[str, Role] = {role_id: Role(role, role_id, self, state) for role_id, role in data.get("roles", {}).items()}
@@ -426,8 +426,10 @@ class Server(Ulid):
             The role that was just created
         """
         payload = await self.state.http.create_role(self.id, name)
+        role_id = payload["id"]
+        data = payload["role"]
 
-        return Role(payload, name, self, self.state)
+        return Role(data, role_id, self, self.state)
 
     async def create_emoji(self, name: str, file: File, *, nsfw: bool = False) -> Emoji:
         """Creates an emoji
