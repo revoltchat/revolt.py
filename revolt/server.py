@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from .types import Server as ServerPayload
     from .types import SystemMessagesConfig
     from .types import Member as MemberPayload
+    from .types import Role as RolePayload
 
 __all__ = ("Server", "SystemMessages", "ServerBan")
 
@@ -426,8 +427,8 @@ class Server(Ulid):
             The role that was just created
         """
         payload = await self.state.http.create_role(self.id, name)
-        role_id = payload["id"]
-        data = payload["role"]
+        role_id: str = payload["id"]
+        data: RolePayload = payload["role"]
 
         return Role(data, role_id, self, self.state)
 
