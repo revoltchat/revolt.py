@@ -426,8 +426,7 @@ class Server(Ulid):
             The role that was just created
         """
         payload = await self.state.http.create_role(self.id, name)
-
-        return Role(payload, name, self, self.state)
+        return Role(payload["role"], payload["id"], self, self.state)
 
     async def create_emoji(self, name: str, file: File, *, nsfw: bool = False) -> Emoji:
         """Creates an emoji
