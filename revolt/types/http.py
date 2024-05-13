@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from .member import Member
     from .message import Message
     from .user import User
+    from .role import Role
 
 
 __all__ = (
@@ -15,6 +16,7 @@ __all__ = (
     "Autumn",
     "GetServerMembers",
     "MessageWithUserData",
+    "CreateRole",
 )
 
 
@@ -51,3 +53,7 @@ class MessageWithUserData(TypedDict):
     messages: list[Message]
     members: NotRequired[list[Member]]
     users: list[User]
+
+class CreateRole(TypedDict):
+    id: str
+    role: Role

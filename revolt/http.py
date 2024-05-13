@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from .types import SendableEmbed as SendableEmbedPayload
     from .types import User as UserPayload
     from .types import (Server, ServerBans, TextChannel, UserProfile, VoiceChannel, Member, Invite, ApiInfo, Channel, SavedMessages,
-                        DMChannel, EmojiParent, GetServerMembers, GroupDMChannel, MessageReplyPayload, MessageWithUserData, PartialInvite, Role)
+                        DMChannel, EmojiParent, GetServerMembers, GroupDMChannel, MessageReplyPayload, MessageWithUserData, PartialInvite, CreateRole)
 
 __all__ = ("HttpClient",)
 
@@ -341,7 +341,7 @@ class HttpClient:
     def fetch_bans(self, server_id: str) -> Request[ServerBans]:
         return self.request("GET", f"/servers/{server_id}/bans")
 
-    def create_role(self, server_id: str, name: str) -> Request[Role]:
+    def create_role(self, server_id: str, name: str) -> Request[CreateRole]:
         return self.request("POST", f"/servers/{server_id}/roles", json={"name": name}, nonce=False)
 
     def delete_role(self, server_id: str, role_id: str) -> Request[None]:
