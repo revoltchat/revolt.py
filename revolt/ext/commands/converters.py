@@ -35,7 +35,7 @@ def category_converter(arg: str, context: Context[ClientT]) -> Category:
 
     try:
         return context.server.get_category(arg)
-    except KeyError:
+    except LookupError:
         try:
             return utils.get(context.server.categories, name=arg)
         except LookupError:
@@ -50,7 +50,7 @@ def channel_converter(arg: str, context: Context[ClientT]) -> Channel:
 
     try:
         return context.server.get_channel(arg)
-    except KeyError:
+    except LookupError:
         try:
             return utils.get(context.server.channels, name=arg)
         except LookupError:
@@ -62,7 +62,7 @@ def user_converter(arg: str, context: Context[ClientT]) -> User:
 
     try:
         return context.client.get_user(arg)
-    except KeyError:
+    except LookupError:
         try:
             parts = arg.split("#")
 
@@ -91,7 +91,7 @@ def member_converter(arg: str, context: Context[ClientT]) -> Member:
 
     try:
         return context.server.get_member(arg)
-    except KeyError:
+    except LookupError:
         try:
             parts = arg.split("#")
 
