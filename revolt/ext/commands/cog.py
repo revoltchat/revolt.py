@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Coroutine, Generic, Optional, TypeVar, cast
+from typing import Any, Callable, Coroutine, Generic, Optional, TypeVar 
 from typing_extensions import ParamSpec
 
 from revolt.errors import RevoltError
@@ -13,13 +13,13 @@ R = TypeVar("R")
 
 __all__ = ("Cog", "CogMeta")
 
-class CogMeta(type, Generic[ClientT_D]):
-    _cog_commands: list[Command[ClientT_D]]
+class CogMeta(type):
+    _cog_commands: list[Command[Any]]
     _cog_listeners: dict[str, list[str]]
     qualified_name: str
 
     def __new__(cls, name: str, bases: tuple[type, ...], attrs: dict[str, Any], *, qualified_name: Optional[str] = None, extras: dict[str, Any] | None = None) -> Any:
-        commands: list[Command[ClientT_D]] = []
+        commands: list[Command[Any]] = []
         listeners: dict[str, list[str]] = {}
 
         self = super().__new__(cls, name, bases, attrs)
@@ -31,7 +31,7 @@ class CogMeta(type, Generic[ClientT_D]):
                     for extra_key, extra_value in extras.items():
                         setattr(value, extra_key, extra_value)
 
-                    commands.append(cast(Command[ClientT_D], value))  # cant verify generic at runtime so must cast
+                    commands.append(value)
 
                 elif event_name := getattr(value, "__listener_name", None):
                     listeners.setdefault(event_name, []).append(key)
