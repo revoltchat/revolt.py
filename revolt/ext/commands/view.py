@@ -16,7 +16,8 @@ class StringView:
 
     def get_rest(self) -> str:
         if self.should_undo:
-            return f"{self.temp} {''.join(self.value)}"
+            return f"{self.temp} {''.join(self.value)}".rstrip()
+            # prevent a new space appearing at end if the buffer is depleted
 
         return "".join(self.value)
 
