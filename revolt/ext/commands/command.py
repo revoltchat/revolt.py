@@ -6,8 +6,16 @@ from contextlib import suppress
 from typing import (TYPE_CHECKING, Annotated, Any, Callable, Coroutine,
                     Generic, Literal, Optional, Union, get_args, get_origin)
 from typing_extensions import ParamSpec
+import sys
 
-from revolt.utils import maybe_coroutine
+if sys.version_info >= (3, 10):
+    from types import UnionType
+
+    UnionTypes = (Union, UnionType)
+else:
+    UnionTypes = Union
+
+from ...utils import maybe_coroutine
 
 from .errors import CommandOnCooldown, InvalidLiteralArgument, UnionConverterError
 from .utils import ClientT_Co_D, evaluate_parameters, ClientT_Co
@@ -126,7 +134,7 @@ class Command(Generic[ClientT_Co_D]):
 
     @classmethod
     async def handle_origin(cls, context: Context[ClientT_Co_D], origin: Any, annotation: Any, arg: str) -> Any:
-        if origin is Union:
+        if origin in UnionTypes:
             for converter in get_args(annotation):
                 try:
                     return await cls.convert_argument(arg, converter, context)
@@ -175,6 +183,10 @@ class Command(Generic[ClientT_Co_D]):
                 except StopIteration:
                     if parameter.default is not parameter.empty:
                         arg = parameter.default
+
+                    elif is_optional(parameter.annotation):
+                        arg = None
+
                     else:
                         raise
 
@@ -192,7 +204,10 @@ class Command(Generic[ClientT_Co_D]):
                 except StopIteration:
                     if parameter.default is not parameter.empty:
                         arg = parameter.default
-                        context.view.undo()
+
+                    elif is_optional(parameter.annotation):
+                        arg = None
+
                     else:
                         raise
 
@@ -250,6 +265,9 @@ class Command(Generic[ClientT_Co_D]):
                 parameters.append(f"[{parameter.name}...]")
 
         return f"{' '.join(parents[::-1])} {self.name} {' '.join(parameters)}"
+
+def is_optional(arg: Any) -> bool:
+    return get_origin(arg) in UnionTypes and any(arg is NoneType for arg in get_args(arg))
 
 def command(
     *,
