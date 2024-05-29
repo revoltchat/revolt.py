@@ -13,7 +13,7 @@ if sys.version_info >= (3, 10):
 
     UnionTypes = (Union, UnionType)
 else:
-    UnionTypes = Union
+    UnionTypes = (Union,)
 
 from ...utils import maybe_coroutine
 
