@@ -1,4 +1,6 @@
 from typing import Iterator
+from typing_extensions import Self
+
 from .errors import NoClosingQuote
 
 
@@ -52,3 +54,9 @@ class StringView:
         self.temp = output
 
         return output
+
+    def __iter__(self) -> Self:
+        return self
+
+    def __next__(self) -> str:
+        return self.get_next_word()

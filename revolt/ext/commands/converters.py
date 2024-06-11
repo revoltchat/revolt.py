@@ -13,7 +13,9 @@ from .errors import (BadBoolArgument, CategoryConverterError,
 if TYPE_CHECKING:
     from .client import CommandsClient
 
-__all__: tuple[str, ...] = ("bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter")
+T = TypeVar("T")
+
+__all__: tuple[str, ...] = ("bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter", "Greedy")
 
 channel_regex: re.Pattern[str] = re.compile("<#([A-z0-9]{26})>")
 user_regex: re.Pattern[str] = re.compile("<@([A-z0-9]{26})>")
@@ -120,3 +122,5 @@ CategoryConverter = Annotated[Category, category_converter]
 UserConverter = Annotated[User, user_converter]
 MemberConverter = Annotated[Member, member_converter]
 ChannelConverter = Annotated[Channel, channel_converter]
+
+Greedy = Annotated[list[T], "_revolt_greedy_marker"]

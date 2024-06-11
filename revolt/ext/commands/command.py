@@ -148,8 +148,20 @@ class Command(Generic[ClientT_Co_D]):
         elif origin is Annotated:
             annotated_args = get_args(annotation)
 
-            if origin := get_origin(annotated_args[0]):
-                return await cls.handle_origin(context, origin, annotated_args[1], arg)
+            if annotated_args[1] == "_revolt_greedy_marker":
+                real_annotation = get_args(annotated_args[0])[0]
+                converted_args: list[Any] = []
+
+                converted_args.append(await cls.convert_argument(arg, real_annotation, context))
+
+                for arg in context.view:
+                    try:
+                        converted_args.append(await cls.convert_argument(arg, real_annotation, context))
+                    except:
+                        context.view.undo()
+                        break
+
+                return converted_args
             else:
                 return await cls.convert_argument(arg, annotated_args[1], context)
 
