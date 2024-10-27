@@ -1,4 +1,6 @@
 from typing import Iterator
+from typing_extensions import Self
+
 from .errors import NoClosingQuote
 
 
@@ -16,7 +18,8 @@ class StringView:
 
     def get_rest(self) -> str:
         if self.should_undo:
-            return f"{self.temp} {''.join(self.value)}"
+            return f"{self.temp} {''.join(self.value)}".rstrip()
+            # prevent a new space appearing at end if the buffer is depleted
 
         return "".join(self.value)
 
@@ -51,3 +54,9 @@ class StringView:
         self.temp = output
 
         return output
+
+    def __iter__(self) -> Self:
+        return self
+
+    def __next__(self) -> str:
+        return self.get_next_word()
