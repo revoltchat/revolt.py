@@ -117,14 +117,16 @@ def member_converter(arg: str, context: Context[ClientT]) -> Member:
 def int_converter(arg: str, context: Context[ClientT]) -> int:
     return int(arg)
 
-def id_converter(arg: str, context: Context[ClientT]) -> ulid.ULID:
+def id_converter(arg: str, context: Context[ClientT]) -> utils.Ulid:
     if len(arg) != 26:
         raise ValueError("An ID was not provided.")
     
     try:
-        return ulid.parse(arg)
+        ulid.parse(arg) # validate
     except Exception as err:
         raise ValueError("An invalid ID was provided.") from err
+
+    return utils.Object(arg)
 
 IdConverter = Annotated[ulid.ULID, id_converter]
 IntConverter = Annotated[int, int_converter]
