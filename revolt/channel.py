@@ -53,7 +53,8 @@ class EditableChannel:
 
         if kwargs.get("icon", Missing) == None:
             remove.append("Icon")
-        elif kwargs.get("description", Missing) == None:
+
+        if kwargs.get("description", Missing) == None:
             remove.append("Description")
 
         if icon := kwargs.get("icon"):

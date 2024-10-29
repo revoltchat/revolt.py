@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Coroutine, Generic, Optional, TypeVar 
+from typing import Any, Callable, Coroutine, Generic, Optional, TypeVar
 from typing_extensions import ParamSpec
 
 from revolt.errors import RevoltError
@@ -29,9 +29,9 @@ class CogMeta(type):
             for key, value in base.__dict__.items():
                 if isinstance(value, Command):
                     for extra_key, extra_value in extras.items():
-                        setattr(value, extra_key, extra_value)
+                        setattr(value, extra_key, extra_value)  # type: ignore
 
-                    commands.append(value)
+                    commands.append(value)  # type: ignore
 
                 elif event_name := getattr(value, "__listener_name", None):
                     listeners.setdefault(event_name, []).append(key)
@@ -57,26 +57,38 @@ class Cog(Generic[ClientT_D], metaclass=CogMeta):
     def _inject(self, client: ClientT_D) -> None:
         client.cogs[self.qualified_name] = self
 
-        for command in self._cog_commands:
-            command.cog = self
+        try:
+            for command in self._cog_commands:
+                command.cog = self
 
-            if command.parent is None:
-                client.add_command(command)
+                if command.parent is None:
+                    client.add_command(command)
 
-        for key, listeners in self._cog_listeners.items():
-            for listener_name in listeners:
-                client.listeners.setdefault(key, []).append(getattr(self, listener_name))
+            for key, listeners in self._cog_listeners.items():
+                for listener_name in listeners:
+                    client.listeners.setdefault(key, []).append(getattr(self, listener_name))
+
+        except Exception as e:
+            self._uninject(client)
+
+            raise e
 
         self.cog_load()
 
     def _uninject(self, client: ClientT_D) -> None:
         for name, command in client.all_commands.copy().items():
             if command in self._cog_commands:
-                del client.all_commands[name]
+                try:
+                    del client.all_commands[name]
+                except KeyError:
+                    pass
 
         for key, listeners in self._cog_listeners.items():
             for listener_name in listeners:
-                client.listeners[key].remove(getattr(self, listener_name))
+                try:
+                    client.listeners[key].remove(getattr(self, listener_name))
+                except ValueError:
+                    pass
 
         self.cog_unload()
 

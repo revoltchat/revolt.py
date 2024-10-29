@@ -31,6 +31,8 @@ if TYPE_CHECKING:
     from .types import (Server, ServerBans, TextChannel, UserProfile, VoiceChannel, Member, Invite, ApiInfo, Channel, SavedMessages,
                         DMChannel, EmojiParent, GetServerMembers, GroupDMChannel, MessageReplyPayload, MessageWithUserData, PartialInvite, CreateRole)
 
+    from aiohttp.client import _RequestOptions
+
 __all__ = ("HttpClient",)
 
 T = TypeVar("T")
@@ -49,7 +51,7 @@ class HttpClient:
     async def request(self, method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"], route: str, *, json: Optional[dict[str, Any]] = None, nonce: bool = True, params: Optional[dict[str, Any]] = None) -> Any:
         url = f"{self.api_url}{route}"
 
-        kwargs = {}
+        kwargs: _RequestOptions = {}
 
         headers = {
             "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.py)",

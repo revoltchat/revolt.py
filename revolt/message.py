@@ -149,14 +149,14 @@ class Message(Ulid):
         if self.server_id:
             for mention in self.raw_mentions:
                 try:
-                    self.mentions.append(self.server.get_member(mention))
+                    mentions.append(self.server.get_member(mention))
                 except LookupError:
                     pass
 
         else:
             for mention in self.raw_mentions:
                 try:
-                    self.mentions.append(self.state.get_user(mention))
+                    mentions.append(self.state.get_user(mention))
                 except LookupError:
                     pass
 

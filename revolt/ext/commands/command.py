@@ -11,7 +11,7 @@ import sys
 if sys.version_info >= (3, 10):
     from types import UnionType
 
-    UnionTypes = (Union, UnionType)
+    UnionTypes: tuple[Any, ...] = (Union, UnionType)
 else:
     UnionTypes = (Union,)
 

@@ -318,7 +318,7 @@ class WebsocketHandler:
 
         self.dispatch("member_join", member)
 
-    async def handle_memberleave(self, payload: ServerMemberLeaveEventPayload) -> None:
+    async def handle_servermemberleave(self, payload: ServerMemberLeaveEventPayload) -> None:
         await self._wait_for_server_ready(payload["id"])
 
         server = self.state.get_server(payload["id"])

@@ -61,8 +61,6 @@ class State:
             raise LookupError from None
 
     def add_user(self, payload: UserPayload) -> User:
-
-
         user = User(payload, self)
 
         if payload.get("relationship") == "User":

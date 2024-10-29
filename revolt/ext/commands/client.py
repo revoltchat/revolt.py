@@ -42,8 +42,8 @@ class CommandsMeta(type):
 
         for base in reversed(self.__mro__):
             for value in base.__dict__.values():
-                if isinstance(value, Command) and value.parent is None:
-                    commands.append(value)
+                if isinstance(value, Command) and value.parent is None:  # type: ignore
+                    commands.append(value)  # type: ignore
 
         self._commands = commands
 
