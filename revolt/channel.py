@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional, Union
 
+
 from .asset import Asset
 from .enums import ChannelType
 from .messageable import Messageable
 from .permissions import Permissions, PermissionsOverwrite
 from .utils import Missing, Ulid
+from .voice import VoiceInformation, VoiceState
+from .errors import NotAVoiceChannel
 
 if TYPE_CHECKING:
     from .message import Message
@@ -64,6 +67,24 @@ class EditableChannel:
             kwargs["owner"] = owner.id
 
         await self.state.http.edit_channel(self.id, remove, kwargs)
+
+class Joinable:
+    __slots__ = ()
+
+    state: State
+    id: str
+
+    async def join(self) -> VoiceState:
+        if isinstance(self, TextChannel):
+            if self.voice is None:
+                raise NotAVoiceChannel()
+
+        token = await self.state.http.join_voice_channel(self.id)
+
+        state = VoiceState(self.state, token["token"])
+        await state.connect()
+
+        return state
 
 class Channel(Ulid):
     """Base class for all channels
@@ -337,7 +358,7 @@ class ServerChannel(Channel):
         if default_permissions is not None:
             self.default_permissions = PermissionsOverwrite._from_overwrite(default_permissions)
 
-class TextChannel(ServerChannel, Messageable, EditableChannel):
+class TextChannel(ServerChannel, Messageable, EditableChannel, Joinable):
     """A text channel
 
     Subclasses :class:`ServerChannel` and :class:`Messageable`
@@ -366,6 +387,10 @@ class TextChannel(ServerChannel, Messageable, EditableChannel):
         super().__init__(data, state)
 
         self.last_message_id: str | None = data.get("last_message_id")
+        self.voice: VoiceInformation | None = None
+
+        if voice := data.get("voice"):
+            self.voice = VoiceInformation(voice)
 
     async def _get_channel_id(self) -> str:
         return self.id
@@ -384,7 +409,7 @@ class TextChannel(ServerChannel, Messageable, EditableChannel):
 
         return self.state.get_message(self.last_message_id)
 
-class VoiceChannel(ServerChannel, EditableChannel):
+class VoiceChannel(ServerChannel, EditableChannel, Joinable):
     """A voice channel
 
     Subclasses :class:`ServerChannel`

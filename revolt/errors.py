@@ -24,3 +24,6 @@ class AutumnDisabled(FeatureDisabled):
 
 class Forbidden(HTTPError):
     "Missing permissions"
+
+class NotAVoiceChannel(RevoltError):
+    "Channel is not a voice channel"

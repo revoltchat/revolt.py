@@ -4,9 +4,11 @@ from typing import TYPE_CHECKING, Literal, TypedDict, Union
 
 from typing_extensions import NotRequired
 
+
 if TYPE_CHECKING:
     from .file import File
     from .permissions import Overwrite
+    from .voice import VoiceInformation
 
 __all__ = (
     "SavedMessages",
@@ -53,6 +55,8 @@ class TextChannel(BaseChannel):
     role_permissions: NotRequired[dict[str, Overwrite]]
     nsfw: NotRequired[bool]
     last_message_id: NotRequired[str]
+    voice: NotRequired[VoiceInformation]
+
 
 class VoiceChannel(BaseChannel):
     server: str

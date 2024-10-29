@@ -33,6 +33,9 @@ docs = [
     "sphinx-toolbox==3.2.*",
     "setuptools==65.4.*"
 ]
+voice = [
+    "livekit==0.11.1"
+]
 
 [project.urls]
 Homepage = "https://github.com/revoltchat/revolt.py"

@@ -18,5 +18,6 @@ from .permissions import *
 from .role import *
 from .server import *
 from .user import *
+from .voice import *
 
 __version__ = "0.2.0"

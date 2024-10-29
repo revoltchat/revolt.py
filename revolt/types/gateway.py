@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from .member import Member, MemberID
     from .server import Server, SystemMessagesConfig
     from .user import Status, User, UserProfile, UserRelation
+    from .voice import ChannelVoiceState
 
 __all__ = (
     "BasePayload",
@@ -58,6 +59,7 @@ class ReadyEventPayload(BasePayload):
     channels: list[Channel]
     members: list[Member]
     emojis: list[Emoji]
+    voice_states: list[ChannelVoiceState]
 
 class MessageEventPayload(BasePayload, Message):
     pass

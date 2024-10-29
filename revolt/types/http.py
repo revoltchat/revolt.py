@@ -11,12 +11,12 @@ if TYPE_CHECKING:
 
 
 __all__ = (
-    "VosoFeature",
     "ApiInfo",
     "Autumn",
     "GetServerMembers",
     "MessageWithUserData",
     "CreateRole",
+    "JoinVoiceChannelPayload"
 )
 
 
@@ -24,16 +24,14 @@ class ApiFeature(TypedDict):
     enabled: bool
     url: str
 
-class VosoFeature(ApiFeature):
-    ws: str
-
 class Features(TypedDict):
     email: bool
     invite_only: bool
     captcha: ApiFeature
     autumn: ApiFeature
     january: ApiFeature
-    voso: VosoFeature
+    livekit: ApiFeature
+
 
 class ApiInfo(TypedDict):
     revolt: str
@@ -57,3 +55,6 @@ class MessageWithUserData(TypedDict):
 class CreateRole(TypedDict):
     id: str
     role: Role
+
+class JoinVoiceChannelPayload(TypedDict):
+    token: str
