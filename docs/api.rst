@@ -148,7 +148,7 @@ API Reference
     :members:
 
 Enums
-======
+------
 
 The api uses enums to say what variant of something is,
 these represent those enums
@@ -278,7 +278,7 @@ All enums subclass `aenum.Enum`.
         The embed is unknown
 
 Utils
-======
+------
 
 .. currentmodule:: revolt.utils
 
@@ -287,3 +287,9 @@ A collection a utility functions and classes to aid in making your bot
 .. autofunction:: get
 
 .. autofunction:: client_session
+
+.. autoclass:: Ulid
+    :members:
+
+.. autoclass:: Object
+    :members:

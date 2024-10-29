@@ -186,7 +186,6 @@ async def help_command_impl(client: ClientT_D, context: Context[ClientT_D], *arg
                     break
 
             if isinstance(command, Group):
-                command = cast(Group[ClientT_D], command)
                 parent = command
             else:
                 payload = await help_command.create_command_help(context, command)

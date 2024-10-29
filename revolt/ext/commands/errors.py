@@ -8,6 +8,7 @@ __all__ = (
     "NotBotOwner",
     "NotServerOwner",
     "ServerOnly",
+    "MissingPermissionsError",
     "ConverterError",
     "InvalidLiteralArgument",
     "BadBoolArgument",
@@ -15,6 +16,7 @@ __all__ = (
     "ChannelConverterError",
     "UserConverterError",
     "MemberConverterError",
+    "UnionConverterError",
     "MissingSetup",
     "CommandOnCooldown"
 )

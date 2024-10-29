@@ -52,6 +52,8 @@ class Client:
         The api url for the revolt instance you are connecting to, by default it uses the offical instance hosted at revolt.chat
     max_messages: :class:`int`
         The max amount of messages stored in the cache, by default this is 5k
+    bot: :class:`bool`
+        Denotes whether the account used is a bot account or user account, by default this it assumes a bot account
     """
 
     def __init__(self, session: aiohttp.ClientSession, token: str, *, api_url: str = "https://api.revolt.chat", max_messages: int = 5000, bot: bool = True):

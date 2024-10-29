@@ -203,7 +203,7 @@ class Server(Ulid):
 
     @property
     def channels(self) -> list[Channel]:
-        """list[:class:`Member`] Gets all channels in the server"""
+        """list[:class:`Channel`] Gets all channels in the server"""
         return list(self._channels.values())
 
     @property
@@ -310,12 +310,11 @@ class Server(Ulid):
 
     async def set_default_permissions(self, permissions: Permissions) -> None:
         """Sets the default server permissions.
+
         Parameters
         -----------
-        server_permissions: Optional[:class:`ServerPermissions`]
+        permissions: :class:`Permissions`
             The new default server permissions
-        channel_permissions: Optional[:class:`ChannelPermissions`]
-            the new default channel permissions
         """
 
         await self.state.http.set_server_default_permissions(self.id, permissions.value)

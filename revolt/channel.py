@@ -291,9 +291,10 @@ class ServerChannel(Channel):
 
     async def set_default_permissions(self, permissions: PermissionsOverwrite) -> None:
         """Sets the default permissions for the channel.
+
         Parameters
         -----------
-        permissions: :class:`ChannelPermissions`
+        permissions: :class:`PermissionsOverwrite`
             The new default channel permissions
         """
         allow, deny = permissions.to_pair()
@@ -301,8 +302,11 @@ class ServerChannel(Channel):
 
     async def set_role_permissions(self, role: Role, permissions: PermissionsOverwrite) -> None:
         """Sets the permissions for a role in the channel.
+
         Parameters
         -----------
+        role: :class:`Role`
+            The role to set permissions for
         permissions: :class:`ChannelPermissions`
             The new channel permissions
         """

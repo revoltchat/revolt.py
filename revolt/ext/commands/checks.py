@@ -34,7 +34,7 @@ def check(check: Check[ClientT_D]) -> Callable[[T], T]:
             checks.append(check)
             func._checks = checks  # type: ignore
 
-        return func
+        return func  # type: ignore
 
     return inner
 

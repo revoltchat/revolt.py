@@ -178,11 +178,11 @@ class PermissionsOverwrite:
 
     def __setattr__(self, key: str, value: Any) -> None:
         if key in Permissions.FLAG_NAMES:
-            if key is True:
+            if value is True:
                 setattr(self._allow, key, True)
                 super().__setattr__(key, True)
 
-            elif key is False:
+            elif value is False:
                 setattr(self._deny, key, True)
                 super().__setattr__(key, False)
 

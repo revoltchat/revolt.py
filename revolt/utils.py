@@ -47,14 +47,37 @@ async def maybe_coroutine(func: Callable[P, Union[R_T, Coroutine[Any, Any, R_T]]
 
 
 class Ulid:
+    """Base class for any revolt object with an id
+
+    Attributes
+    -----------
+    id: :class:`str`
+        The id of the object
+    """
     id: str
 
     @property
     def created_at(self) -> datetime.datetime:
+        """Returns a datetime for when the object was created according to the id
+
+        Returns
+        --------
+        :class:`datetime.datetime`
+            The datetime of the creation date and time
+        """
         return ulid.from_str(self.id).timestamp().datetime
 
 class Object(Ulid):
-    """Class to mock objects with an id"""
+    """Class to mock objects with an id
+
+    .. note::
+        This does not validate or guarantee the id is correct, you must handle this yourself
+
+    Parameters
+    -----------
+    id: :class:`str`
+        The ULID id to mock
+    """
     def __init__(self, id: str):
         self.id = id
 

@@ -139,6 +139,6 @@ def cooldown(rate: int, per: int, *, bucket: BucketType | Callable[[Context[Clie
             func._cooldown = CooldownMapping(rate, per)  # type: ignore
             func._bucket = bucket  # type: ignore
 
-        return func
+        return func  # type: ignore
 
     return inner

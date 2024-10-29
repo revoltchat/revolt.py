@@ -13,6 +13,8 @@ import revolt
 if TYPE_CHECKING:
     from .help import HelpCommand
 
+    import aiohttp
+
 from .cog import Cog
 from .command import Command
 from .context import Context
@@ -79,14 +81,42 @@ class CaseInsensitiveDict(dict[str, V]):
 
 
 class CommandsClient(revolt.Client, metaclass=CommandsMeta):
-    """Main class that adds commands, this class should be subclassed along with `revolt.Client`."""
+    """A subclass of :class:`~revolt.Client` which has support for commands.
+
+    Parameters
+    -----------
+    session: :class:`~aiohttp.ClientSession`
+        The aiohttp session to use for http request and the websocket
+    token: :class:`str`
+        The bots token
+    api_url: :class:`str`
+        The api url for the revolt instance you are connecting to, by default it uses the offical instance hosted at revolt.chat
+    max_messages: :class:`int`
+        The max amount of messages stored in the cache, by default this is 5k
+    bot: :class:`bool`
+        Denotes whether the account used is a bot account or user account, by default this it assumes a bot account
+    help_command: Optional[:class:`~revolt.ext.commands.HelpCommand`]
+        Sets the custom help command, or remove it if passed ``None``
+    case_insensitive: :class:`bool`
+        Whether or not commands should be case insensitive
+    """
 
     _commands: list[Command[Self]]
 
-    def __init__(self, *args: Any, help_command: Union[HelpCommand[Self], None, revolt.utils._Missing] = revolt.utils.Missing, case_insensitive: bool = False, **kwargs: Any):
+    def __init__(
+        self,
+        session: aiohttp.ClientSession,
+        token: str,
+        *,
+        api_url: str = "https://api.revolt.chat",
+        max_messages: int = 5000,
+        bot: bool = True,
+        help_command: Union[HelpCommand[Self], None, revolt.utils._Missing] = revolt.utils.Missing,
+        case_insensitive: bool = False
+    ):
         from .help import DefaultHelpCommand, HelpCommandImpl
 
-        self.all_commands: dict[str, Command[Self]] = {} if not case_insensitive else CaseInsensitiveDict()
+        self.all_commands: dict[str, Command[Self]] | CaseInsensitiveDict[Command[Self]] = {} if not case_insensitive else CaseInsensitiveDict()
         self.cogs: dict[str, Cog[Self]] = {}
         self.extensions: dict[str, ExtensionProtocol] = {}
 
@@ -104,7 +134,7 @@ class CommandsClient(revolt.Client, metaclass=CommandsMeta):
         else:
             self.help_command = None
 
-        super().__init__(*args, **kwargs)
+        super().__init__(session, token, api_url=api_url, max_messages=max_messages, bot=bot)
 
     @property
     def commands(self) -> list[Command[Self]]:
