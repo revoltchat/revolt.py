@@ -108,3 +108,8 @@ MemberConverterError
 ~~~~~~~~~~~~~~~~~~~~~
 .. autoexception:: revolt.ext.commands.MemberConverterError
     :members:
+
+IdConverterError
+~~~~~~~~~~~~~~~~~~~~~
+.. autoexception:: revolt.ext.commands.IdConverterError
+    :members:
