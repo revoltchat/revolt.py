@@ -9,7 +9,7 @@ from revolt import Category, Channel, Member, User, utils
 from .context import Context
 from .errors import (BadBoolArgument, CategoryConverterError,
                      ChannelConverterError, MemberConverterError, ServerOnly,
-                     UserConverterError)
+                     UserConverterError, IdConverterError)
 
 if TYPE_CHECKING:
     from .client import CommandsClient
@@ -119,12 +119,12 @@ def int_converter(arg: str, context: Context[ClientT]) -> int:
 
 def id_converter(arg: str, context: Context[ClientT]) -> utils.Ulid:
     if len(arg) != 26:
-        raise ValueError("An ID was not provided.")
+        raise IdConverterError("An ID was not provided.")
     
     try:
         ulid.parse(arg) # validate
     except Exception as err:
-        raise ValueError("An invalid ID was provided.") from err
+        raise IdConverterError("An invalid ID was provided.") from err
 
     return utils.Object(arg)
 
