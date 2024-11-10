@@ -3,19 +3,20 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Annotated, TypeVar
 
+import ulid
 from revolt import Category, Channel, Member, User, utils
 
 from .context import Context
 from .errors import (BadBoolArgument, CategoryConverterError,
                      ChannelConverterError, MemberConverterError, ServerOnly,
-                     UserConverterError)
+                     UserConverterError, IdConverterError)
 
 if TYPE_CHECKING:
     from .client import CommandsClient
 
 T = TypeVar("T")
 
-__all__: tuple[str, ...] = ("bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter", "Greedy")
+__all__: tuple[str, ...] = ("id_converter", "int_converter", "bool_converter", "category_converter", "channel_converter", "user_converter", "member_converter", "IdConverter", "IntConverter", "BoolConverter", "CategoryConverter", "UserConverter", "MemberConverter", "ChannelConverter", "Greedy")
 
 channel_regex: re.Pattern[str] = re.compile("<#([A-z0-9]{26})>")
 user_regex: re.Pattern[str] = re.compile("<@([A-z0-9]{26})>")
@@ -116,6 +117,18 @@ def member_converter(arg: str, context: Context[ClientT]) -> Member:
 def int_converter(arg: str, context: Context[ClientT]) -> int:
     return int(arg)
 
+def id_converter(arg: str, context: Context[ClientT]) -> utils.Ulid:
+    if len(arg) != 26:
+        raise IdConverterError("An ID was not provided.")
+    
+    try:
+        ulid.parse(arg) # validate
+    except Exception as err:
+        raise IdConverterError("An invalid ID was provided.") from err
+
+    return utils.Object(arg)
+
+IdConverter = Annotated[ulid.ULID, id_converter]
 IntConverter = Annotated[int, int_converter]
 BoolConverter = Annotated[bool, bool_converter]
 CategoryConverter = Annotated[Category, category_converter]

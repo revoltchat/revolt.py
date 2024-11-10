@@ -14,6 +14,7 @@ __all__ = (
     "BadBoolArgument",
     "CategoryConverterError",
     "ChannelConverterError",
+    "IdConverterError",
     "UserConverterError",
     "MemberConverterError",
     "UnionConverterError",
@@ -72,6 +73,9 @@ class InvalidLiteralArgument(ConverterError):
 
 class BadBoolArgument(ConverterError):
     """Raised when the bool converter fails"""
+
+class IdConverterError(ConverterError):
+    """Raised when the ID converter fails"""
 
 class CategoryConverterError(ConverterError):
     """Raised when the Category conveter fails"""
