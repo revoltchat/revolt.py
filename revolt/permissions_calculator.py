@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, cast
 
 from revolt.enums import ChannelType
@@ -28,7 +28,7 @@ def calculate_permissions(member: Member, target: Server | Channel) -> Permissio
         for role in member.roles:
             permissions = (permissions | role.permissions._allow) & (~role.permissions._deny)
 
-        if member.current_timeout and member.current_timeout > datetime.now():
+        if member.current_timeout and member.current_timeout > datetime.now(timezone.utc):
             permissions = permissions & Permissions.default_view_only()
 
         return permissions
