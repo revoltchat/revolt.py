@@ -94,7 +94,8 @@ class HttpClient:
         url = f"{self.api_info['features']['autumn']['url']}/{tag}"
 
         headers = {
-            "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.py)"
+            "User-Agent": "Revolt.py (https://github.com/revoltchat/revolt.py)",
+            self.auth_header: self.token
         }
 
         form = aiohttp.FormData()
